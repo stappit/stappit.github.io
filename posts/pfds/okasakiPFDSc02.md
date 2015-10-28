@@ -1,7 +1,7 @@
 ---
 title: Okasaki's PFDS: Chapter 2
 author: Brian
-date: 2015-10-12
+date: 2015-10-26
 tags: fp, haskell, literate, okasaki, binary tree, binary search tree, set
 ---
 

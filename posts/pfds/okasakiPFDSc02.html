@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../css/default.css">
+
+        <title>My Hakyll Blog - Okasaki's PFDS: Chapter 2</title>
+    </head>
+
+    <body>
+    <div class="blog-masthead">
+	    <div class="container">
+		    <nav class="blog-nav">
+			    <a class="blog-nav-item" href="../../index.html">Home</a>
+			    <a class="blog-nav-item" href="../../about.html">About</a>
+			    <a class="blog-nav-item" href="../../contact.html">Contact</a>
+			    <a class="blog-nav-item" href="../../archive.html">Archive</a>
+		    </nav>
+	    </div>
+    </div>
+
+    <div id="content" class="container">
+	    <h1 class="blog-post-title">Okasaki's PFDS: Chapter 2</h1>
+<p class="blog-post-meta">
+Posted on October 26, 2015  by Brian </br>
+ Tags: <a href="../../tags/fp.html">fp</a>, <a href="../../tags/haskell.html">haskell</a>, <a href="../../tags/literate.html">literate</a>, <a href="../../tags/okasaki.html">okasaki</a>, <a href="../../tags/binary%20tree.html">binary tree</a>, <a href="../../tags/binary%20search%20tree.html">binary search tree</a>, <a href="../../tags/set.html">set</a> 
+</p>
+
+<p>This post contains my solutions to the exercises in chapter 2 of Okasaki’s ‘Purely Functional Data Structures’. The source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
+<h2 id="exercise-2.1">Exercise 2.1</h2>
+<p>Write a function <code>suffixes</code> of type</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">suffixes ::</span> [a] <span class="ot">-&gt;</span> [[a]]</code></pre></div>
+<p>that takes a list <code>xs</code> and returns a list of all the suffixes of <code>xs</code> in decreasing order of length. For example,</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">suffixes [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>] <span class="fu">==</span> [[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">4</span>], []]</code></pre></div>
+<p>Show that the resulting list of suffixes can be generated in <span class="math inline">\(\mathcal O (n)\)</span> time and represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
+<h2 id="solution-2.1">Solution 2.1</h2>
+<p>Since there are as many recursive calls to <code>suffixes</code> as there are elements of <code>xs</code>, and both <code>:</code> and <code>tail</code> run in constant time, <code>suffixes</code> must be linear in the length of the list <code>xs</code>. That is, the solution to the recursion <span class="math inline">\(T (n) = T(n-1) + \mathcal O (1)\)</span> is <span class="math inline">\(T (n) = \mathcal O (n)\)</span>.</p>
+<p>Moreover, we use the <span class="math inline">\(n\)</span> lists that already exist and also <span class="math inline">\(\mathcal O (n)\)</span> new pointers to each of those lists. Therefore, <code>suffixes xs</code> is represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
+<h2 id="binary-search-trees-bsts">Binary Search Trees (BSTs)</h2>
+<p>We start with binary trees (not search trees yet!). A binary tree is either empty or has two children, which we call ‘left’ and ‘right’.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Tree</span> a <span class="fu">=</span> <span class="dt">E</span>
+            <span class="fu">|</span> <span class="dt">T</span> (<span class="dt">Tree</span> a) a (<span class="dt">Tree</span> a)
+            <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
+<p>In the binary trees below, empty nodes are depicted as squares.</p>
+<figure>
+<img src="../../images/binary-tree-nontrivial.pdf.png" alt="A binary tree (which is NOT a BST)." /><figcaption>A binary tree (which is NOT a BST).</figcaption>
+</figure>
+<p>A BST is a binary tree with some extra structure. In particular, we require that the key of a node be greater than that of any of its left descendants and smaller than that of any of its right descendants.</p>
+<figure>
+<img src="../../images/bst-nontrivial.pdf.png" alt="A binary tree which IS a BST." /><figcaption>A binary tree which IS a BST.</figcaption>
+</figure>
+<p>In the following exercises, we implement BSTs in the context of sets.</p>
+<h2 id="exercise-2.2">Exercise 2.2</h2>
+<p>Rewrite <code>member</code> to take no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
+<h2 id="solution-2.2">Solution 2.2</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise02.hs">source</a>.</p>
+<h2 id="exercise-2.3">Exercise 2.3</h2>
+<p>Rewrite <code>insert</code> using exceptions to avoid copying the entire search path (in the case of inserting an existing element).</p>
+<h2 id="solution-2.3">Solution 2.3</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise03.hs">source</a>.</p>
+<p>We use the <code>Maybe</code> data structure for our errors, i.e. <code>Nothing</code> indicates an error.</p>
+<h2 id="exercise-2.4">Exercise 2.4</h2>
+<p>Combine the ideas of <a href="#exercise-2.2">Exercise 2.2</a> and <a href="#exercise-2.3">Exercise 2.3</a> to create an insert function that performs no unnecessary copying and uses no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
+<h2 id="solution-2.4">Solution 2.4</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise04.hs">source</a>.</p>
+<h2 id="exercise-2.5">Exercise 2.5</h2>
+<ol type="1">
+<li><p>Write a function <code>complete</code> of type</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">complete ::</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">UnbalancedSet</span> a</code></pre></div>
+<p>such that <code>complete a d</code> is a complete binary tree of depth d with the key <code>a</code> at every node. This function should run in <span class="math inline">\(\mathcal O (d)\)</span> time.</p></li>
+<li><p>Extend <code>complete</code> to create balanced trees of arbitrary size that runs in <span class="math inline">\(\mathcal O (n)\)</span> time, where <span class="math inline">\(n\)</span> is the number of nodes. A tree is said to be balanced if the size of any node’s left child differs by at most one from the size of that node’s right child.</p></li>
+</ol>
+<h2 id="solution-2.5">Solution 2.5</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise05.hs">source</a>.</p>
+<p><strong>Item 1.</strong></p>
+<p>The recursion is given by <span class="math inline">\(T(d) = T(d-1) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (d) = \mathcal O (d)\)</span>.</p>
+<p><strong>Item 2.</strong></p>
+<p>The complexity of <code>balance</code> is equal to that of <code>create2</code>. The recursion for <code>create2</code> is given by <span class="math inline">\(T (n) = T (n/2) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (n) = \mathcal O (\log n)\)</span>.</p>
+<h2 id="exercise-2.6">Exercise 2.6</h2>
+<p>Adapt the <code>UnbalancedSet</code> functor to support finite maps rather than sets. The signature for finite maps is as follows.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">FiniteMap</span> m k a <span class="kw">where</span>
+<span class="ot">  empty  ::</span> m k a 
+<span class="ot">  bind   ::</span> k <span class="ot">-&gt;</span>     a <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> m k a
+<span class="ot">  lookup ::</span> k <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</code></pre></div>
+<h2 id="solution-2.6">Solution 2.6</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise06.hs">source</a>.</p>
+<p>We reuse the set implementation for <code>UnbalancedSet</code> by creating the <code>Binding</code> data type with the appropriate ordering. Note that this doesn’t allow updating key-value pairs.</p>
+
+    </div>
+    <footer class="blog-footer">
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
+
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

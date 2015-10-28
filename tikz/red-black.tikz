@@ -1,0 +1,29 @@
+\definecolor{red}{HTML}{FF4136}
+
+\usetikzlibrary{arrows}
+\tikzset{
+  BLACK/.style = {
+    treenode, 
+    circle, 
+    white, 
+    draw=black,
+    fill=black, 
+  },% arbre rouge noir, noeud noir
+  RED/.style = {
+    treenode, 
+    circle, 
+    black, 
+    draw=black, 
+    thin,
+    fill=red, 
+  },% arbre rouge noir, noeud rouge
+  E/.style = {
+    %treenode,
+    %rectangle,
+    %white,
+    %draw=black,
+    fill=black,
+    %thin,
+    %scale=0.5
+  },% arbre rouge noir, nil
+}

@@ -1,0 +1,38 @@
+\definecolor{NODE}{HTML}{006400} % green
+
+\usetikzlibrary{arrows,positioning}
+\tikzset{
+  treenode/.style = {
+    align=center, 
+    inner sep=0pt, 
+    text centered,
+    font=\sffamily,
+    text width=1.5em,
+    very thick,
+    minimum width=1.5em, 
+    minimum height=1.5em
+  },
+  N/.style = {
+    treenode,
+    circle,
+    white,
+    draw=black,
+    fill=NODE,
+    thin,
+  },
+  E/.style = {
+    treenode,
+    rectangle,
+    white,
+    draw=black,
+    thin,
+    scale=0.5
+  },% arbre rouge noir, nil
+  SUBTREE/.style = {
+    treenode
+  },
+  level/.style = {
+    sibling distance = 5cm/#1,
+    level distance = 1.5cm
+  }
+}

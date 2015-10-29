@@ -1,7 +1,12 @@
+.blog-sidebar {
+	margin-top: 4em;
+}
+
 .mathjaxWide {
 	overflow-x: auto;
 	overflow-y: hidden;
 }
+
 /*This fixes sizing issues on mobile*/
 html, body
 {

@@ -25,7 +25,7 @@ Posted on October 26, 2015  by Brian </br>
  Category: <a href="/categories/pfds.html">pfds</a> 
 </p>
 
-<p>This post contains my solutions to the exercises in chapter 2 of Okasaki’s ‘Purely Functional Data Structures’. The source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
+<p>This post contains my solutions to the exercises in chapter 2 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
 <h2 id="exercise-2.1">Exercise 2.1</h2>
 <p>Write a function <code>suffixes</code> of type</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">suffixes ::</span> [a] <span class="ot">-&gt;</span> [[a]]</code></pre></div>

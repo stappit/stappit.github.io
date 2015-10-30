@@ -5,7 +5,7 @@ tags: fp, haskell, literate, okasaki, binary tree, binary search tree, set
 ---
 
 This post contains my solutions to the exercises in chapter 2 of Okasaki's 'Purely Functional Data Structures'.
-The source code can be found in [my GitHub repo](https://github.com/stappit/okasaki-pfds).
+The latest source code can be found in [my GitHub repo](https://github.com/stappit/okasaki-pfds).
 
 Exercise 2.1
 ------------

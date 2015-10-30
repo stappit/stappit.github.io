@@ -11,9 +11,9 @@
 	overflow-y: hidden;
 }
 
-#content {
-	margin-top: 2em;
-}
+/*#content {*/
+	/*margin-top: 2em;*/
+/*}*/
 
 #navbar-container a:hover,
 #navbar-container a:focus {
@@ -150,11 +150,10 @@ h3, h4, h5, h6 {
  */
 
 .blog-header {
-  padding-top: 20px;
+  /*padding-top: 20px;*/
   padding-bottom: 20px;
 }
 .blog-title {
-  margin-top: 30px;
   margin-bottom: 0;
   font-size: 60px;
   font-weight: normal;

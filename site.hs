@@ -64,14 +64,13 @@ main = hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
             >>= relativizeUrls
 
-    {-match "drafts/*" $ do-}
-        {-route $ setExtension "html"-}
-	{-compile $ pandocMathCompiler-}
-            {->>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)-}
-            {->>= applyFilter postFilters-}
-            {->>= saveSnapshot "content"-}
-            {->>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)-}
-            {->>= relativizeUrls-}
+    match "drafts/*" $ do
+        route $ setExtension "html"
+        compile $ pandocMathCompiler
+            >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)
+            >>= applyFilter postFilters
+            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
+            >>= relativizeUrls
 
     match "posts/**.lhs" $ version "raw" $ do
         route   idRoute

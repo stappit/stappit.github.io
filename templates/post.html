@@ -1,49 +1,50 @@
 <div class="row">
-<div class="col-sm-8 blog-main">
+	<div class="col-sm-8 blog-main">
 
-<h1 class="blog-post-title">$title$</h1>
-<p class="blog-post-meta">
-Posted on $date$ $if(author)$ by $author$ $endif$</br>
-$if(tags)$ Tags: $tags$ $endif$
-</p>
+		<h1 class="blog-post-title">$title$</h1>
+		<p class="blog-post-meta">
+		Posted on $date$ $if(author)$ by $author$ $endif$</br>
+                $if(tags)$ Tags: $tags$ $endif$</br>
+		$if(cat)$ Category: $cat$ $endif$
+		</p>
 
-$body$
+		$body$
 
-</div>
-
-<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-	<div class="sidebar-module">
-		<h3>Links</h3>
-		<ol class="list-unstyled">
-			<li><a href="https://github.com/stappit">GitHub</a></li>
-			<li><a href="https://stappit.github.io/atom.xml">Atom Feed</a></li>
-		</ol>
 	</div>
+
+	<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+		<div class="sidebar-module">
+			<div class="panel panel-default">
+				<div class="panel-heading">Links</div>
+						<a class="list-group-item" href="https://github.com/stappit">GitHub</a>
+						<a class="list-group-item" href="https://stappit.github.io/atom.xml">Atom Feed</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="disqus_thread"></div>
+	<script>
+	/**
+	*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+	*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+	*/
+	/*
+	var disqus_config = function () {
+	this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+	this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+	};
+	*/
+	(function() {  // DON'T EDIT BELOW THIS LINE
+	var d = document, s = d.createElement('script');
+
+	s.src = '//stappit-github-io.disqus.com/embed.js';
+
+	s.setAttribute('data-timestamp', +new Date());
+	(d.head || d.body).appendChild(s);
+	})();
+	</script>
+
+	<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
-</div>
-
-<div id="disqus_thread"></div>
-<script>
-  /**
-   *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-   *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
-   */
-  /*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 
 <script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>

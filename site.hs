@@ -5,7 +5,6 @@ import           Hakyll
 import           Text.Pandoc (WriterOptions (..), HTMLMathMethod (MathJax))
 import           Text.Pandoc.Options
 import qualified Data.Set as S
-import           System.FilePath
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -56,14 +55,23 @@ main = hakyll $ do
 	        >>= loadAndApplyTemplate "templates/default.html" ctx 
 	        >>= relativizeUrls
 
-    match (postsGlob .||. "drafts/*") $ do
+    match postsGlob $ do
         route $ setExtension "html"
 	compile $ pandocMathCompiler
-            >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)
+            >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)
             >>= applyFilter postFilters
             >>= saveSnapshot "content"
-            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)
+            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
             >>= relativizeUrls
+
+    {-match "drafts/*" $ do-}
+        {-route $ setExtension "html"-}
+	{-compile $ pandocMathCompiler-}
+            {->>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags)-}
+            {->>= applyFilter postFilters-}
+            {->>= saveSnapshot "content"-}
+            {->>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags)-}
+            {->>= relativizeUrls-}
 
     match "posts/**.lhs" $ version "raw" $ do
         route   idRoute
@@ -73,10 +81,12 @@ main = hakyll $ do
         route idRoute
         compile $ do
             posts <- recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
-            let archiveCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Archives"            `mappend`
-                    defaultContext
+            let archiveCtx = mconcat
+                  [
+                    listField "posts" postCtx (return posts)
+                  , constField "title" "Archives"           
+                  , defaultContext
+                  ]
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
@@ -87,10 +97,13 @@ main = hakyll $ do
         route idRoute
         compile $ do
             posts <- recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
-            let indexCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Home"                `mappend`
-                    defaultContext
+            let indexCtx = mconcat
+                    [
+                      constField "myfield" "woohoo"
+                    , listField "posts" postCtx (return posts) 
+                    , constField "title" "Home"               
+                    , defaultContext
+                    ]
 
             getResourceBody
                 >>= applyAsTemplate indexCtx
@@ -112,11 +125,17 @@ postsGlob = "posts/**" :: Pattern
 postCtx :: Context String
 postCtx = mconcat
     [ dateField "date" "%B %e, %Y"
+    , constField "author" "Brian"
     , defaultContext
     ]
 
-postCtxWithTags :: Tags -> Context String 
-postCtxWithTags tags = tagsField "tags" tags `mappend` postCtx
+postCtxWithTags :: Tags -> Tags -> Context String 
+postCtxWithTags tags cats = mconcat
+    [
+      tagsField "tags" tags
+    , categoryField "cat" cats
+    , postCtx
+    ]
 
 pandocMathCompiler =
     let mathExtensions = [ Ext_tex_math_dollars

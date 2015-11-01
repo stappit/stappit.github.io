@@ -1,28 +1,52 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <title>Thoughts from the Café</title>
-    <link href="http://stappit.github.io/atom.xml" rel="self" />
-    <link href="http://stappit.github.io" />
-    <id>http://stappit.github.io/atom.xml</id>
-    <author>
-        <name>Brian</name>
-        <email>ha@hahaha.com</email>
-    </author>
-    <updated>2015-11-01T00:00:00Z</updated>
-    <entry>
-    <title>Okasaki's PFDS: Chapter 3</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc03.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc03.html</id>
-    <published>2015-11-01T00:00:00Z</published>
-    <updated>2015-11-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../css/default.css">
+	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+        <title>My Hakyll Blog - Okasaki's PFDS: Chapter 3</title>
+    </head>
+
+    <body>
+    <nav id="navbar-container" class="navbar navbar-default navbar-static-top">
+	    <div class="container">
+		    <div class="navbar-header">
+			    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+			    </button>
+			    <a class="navbar-brand" href="#content"><i class="fa fa-arrow-up"></i></a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+			    <ul class="nav navbar-nav">
+				    <li><a class="blog-nav-item" href="../../index.html"><i class="fa fa-home"></i> Recent</a></li>
+				    <li><a class="blog-nav-item" href="../../archive.html"><i class="fa fa-globe"></i> Archive</a></li>
+				    <li><a class="blog-nav-item" href="https://github.com/stappit"><i class="fa fa-github"></i> GitHub</a></li>
+				    <li><a class="blog-nav-item" href="../../about.html"><i class="fa fa-info-circle"></i> About</a></li>
+				    <li><a class="blog-nav-item" href="../../atom.xml"><i class="fa fa-rss"></i> Atom</a></li>
+			    </ul>
+		    </div><!--/.nav-collapse -->
+	    </div>
+    </nav>
+
+    <div id="content" class="container">
+	    
 
 
 <h1 class="blog-post-title">Okasaki's PFDS: Chapter 3</h1>
 <p class="blog-post-meta">
 Posted on November  1, 2015  by Brian </br>
- Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/literate.html">literate</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/leftist%20tree.html">leftist tree</a>, <a href="/tags/leftist%20heap.html">leftist heap</a>, <a href="/tags/binomial%20tree.html">binomial tree</a>, <a href="/tags/binomial%20heap.html">binomial heap</a>, <a href="/tags/heap.html">heap</a>, <a href="/tags/red%20black%20tree.html">red black tree</a> </br>
- Category: <a href="/categories/pfds.html">pfds</a> 
+ Tags: <a href="../../tags/fp.html">fp</a>, <a href="../../tags/haskell.html">haskell</a>, <a href="../../tags/literate.html">literate</a>, <a href="../../tags/okasaki.html">okasaki</a>, <a href="../../tags/leftist%20tree.html">leftist tree</a>, <a href="../../tags/leftist%20heap.html">leftist heap</a>, <a href="../../tags/binomial%20tree.html">binomial tree</a>, <a href="../../tags/binomial%20heap.html">binomial heap</a>, <a href="../../tags/heap.html">heap</a>, <a href="../../tags/red%20black%20tree.html">red black tree</a> </br>
+ Category: <a href="../../categories/pfds.html">pfds</a> 
 </p>
 
 <p>This post contains my solutions to the exercises in chapter 3 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
@@ -31,16 +55,16 @@ Posted on November  1, 2015  by Brian </br>
 <p>A binary tree is said to satisfy the leftist property if every node has the property that the rank of its left child (= length of its right spine) is greater than or equal to the rank of its right child. A leftist tree is a binary tree with the leftist property.</p>
 <p>The following are some examples of (the shape of) leftist trees where the keys have been omitted. The number at each node instead indicates the length of its right spine and any blank nodes are empty nodes.</p>
 <figure>
-<img src="/images/leftist-tree-1-node.pdf.png" alt="The only leftist tree with 1 node." /><figcaption>The only leftist tree with 1 node.</figcaption>
+<img src="../../images/leftist-tree-1-node.pdf.png" alt="The only leftist tree with 1 node." /><figcaption>The only leftist tree with 1 node.</figcaption>
 </figure>
 <figure>
-<img src="/images/leftist-tree-2-nodes.pdf.png" alt="The only leftist tree with 2 nodes." /><figcaption>The only leftist tree with 2 nodes.</figcaption>
+<img src="../../images/leftist-tree-2-nodes.pdf.png" alt="The only leftist tree with 2 nodes." /><figcaption>The only leftist tree with 2 nodes.</figcaption>
 </figure>
 <figure>
-<img src="/images/leftist-tree-3-nodes-1.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
+<img src="../../images/leftist-tree-3-nodes-1.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
 </figure>
 <figure>
-<img src="/images/leftist-tree-3-nodes-2.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
+<img src="../../images/leftist-tree-3-nodes-2.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
 </figure>
 <h2 id="heaps">Heaps</h2>
 <p>A tree is said to be heap-ordered if the key of any node is less than or equal to the key of any of its descendants. We capture this structure in the <code>Heap</code> typeclass.</p>
@@ -120,17 +144,17 @@ n \sum_{k=0}^{\infty} \frac{1}{2^k}
 <h2 id="binomial-heaps">Binomial Heaps</h2>
 <p>We define the binomial tree of rank 0 to be the singleton node.</p>
 <figure>
-<img src="/images/binomial-tree-0.pdf.png" alt="The binomial tree of rank 0" /><figcaption>The binomial tree of rank 0</figcaption>
+<img src="../../images/binomial-tree-0.pdf.png" alt="The binomial tree of rank 0" /><figcaption>The binomial tree of rank 0</figcaption>
 </figure>
 <p>The binomial tree of rank r is defined as the tree formed by adding the binomial tree of rank n-1 as a left child of itself.</p>
 <figure>
-<img src="/images/binomial-tree-1.pdf.png" alt="The binomial tree of rank 1" /><figcaption>The binomial tree of rank 1</figcaption>
+<img src="../../images/binomial-tree-1.pdf.png" alt="The binomial tree of rank 1" /><figcaption>The binomial tree of rank 1</figcaption>
 </figure>
 <figure>
-<img src="/images/binomial-tree-2.pdf.png" alt="The binomial tree of rank 2" /><figcaption>The binomial tree of rank 2</figcaption>
+<img src="../../images/binomial-tree-2.pdf.png" alt="The binomial tree of rank 2" /><figcaption>The binomial tree of rank 2</figcaption>
 </figure>
 <figure>
-<img src="/images/binomial-tree-3.pdf.png" alt="The binomial tree of rank 3" /><figcaption>The binomial tree of rank 3</figcaption>
+<img src="../../images/binomial-tree-3.pdf.png" alt="The binomial tree of rank 3" /><figcaption>The binomial tree of rank 3</figcaption>
 </figure>
 <p>Note that the binomial tree of rank r has exactly <span class="math inline">\(2^r\)</span> nodes. This follows from the fact that we double the number of nodes in the tree each time we increase the rank by 1.</p>
 <p>There is an alternative definition of binomial trees. A binomial tree of rank <span class="math inline">\(r\)</span> is a node with <span class="math inline">\(r\)</span> children <span class="math inline">\(t_1, \dotsc, t_r\)</span>, where <span class="math inline">\(t_i\)</span> is a binomial tree of rank <span class="math inline">\(r-i\)</span>.</p>
@@ -167,16 +191,16 @@ n \sum_{k=0}^{\infty} \frac{1}{2^k}
 </dl>
 <p>By convention, the empty node is defined to be black.</p>
 <figure>
-<img src="/images/red-black-1-node.pdf.png" alt="The red-black tree of size 1" /><figcaption>The red-black tree of size 1</figcaption>
+<img src="../../images/red-black-1-node.pdf.png" alt="The red-black tree of size 1" /><figcaption>The red-black tree of size 1</figcaption>
 </figure>
 <figure>
-<img src="/images/red-black-2-nodes.pdf.png" alt="The red-black tree of size 2" /><figcaption>The red-black tree of size 2</figcaption>
+<img src="../../images/red-black-2-nodes.pdf.png" alt="The red-black tree of size 2" /><figcaption>The red-black tree of size 2</figcaption>
 </figure>
 <figure>
-<img src="/images/red-black-3-nodes.pdf.png" alt="The red-black tree of size 3" /><figcaption>The red-black tree of size 3</figcaption>
+<img src="../../images/red-black-3-nodes.pdf.png" alt="The red-black tree of size 3" /><figcaption>The red-black tree of size 3</figcaption>
 </figure>
 <figure>
-<img src="/images/red-black-nontrivial.pdf.png" alt="A non-trivial red-black tree" /><figcaption>A non-trivial red-black tree</figcaption>
+<img src="../../images/red-black-nontrivial.pdf.png" alt="A non-trivial red-black tree" /><figcaption>A non-trivial red-black tree</figcaption>
 </figure>
 <p>Our data type is based on a BST with an extra colour field.</p>
 <div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Colour</span> <span class="fu">=</span> <span class="dt">R</span>
@@ -332,110 +356,28 @@ T (2k) = T(k) + T (k-1) + \mathcal O (1).
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 
 <script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS: Chapter 2</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc02.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc02.html</id>
-    <published>2015-10-26T00:00:00Z</published>
-    <updated>2015-10-26T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
 
+    </div>
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 2</h1>
-<p class="blog-post-meta">
-Posted on October 26, 2015  by Brian </br>
- Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/literate.html">literate</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/binary%20tree.html">binary tree</a>, <a href="/tags/binary%20search%20tree.html">binary search tree</a>, <a href="/tags/set.html">set</a> </br>
- Category: <a href="/categories/pfds.html">pfds</a> 
-</p>
+    <footer class="blog-footer">
+	    <div class="social">
+		    <a href="https://github.com/stappit"><i class="fa fa-github"></i></a>
+		    <a href="../../atom.xml"><i class="fa fa-rss"></i></a>
+	    </div>
 
-<p>This post contains my solutions to the exercises in chapter 2 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
-<h2 id="exercise-2.1">Exercise 2.1</h2>
-<p>Write a function <code>suffixes</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">suffixes ::</span> [a] <span class="ot">-&gt;</span> [[a]]</code></pre></div>
-<p>that takes a list <code>xs</code> and returns a list of all the suffixes of <code>xs</code> in decreasing order of length. For example,</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">suffixes [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>] <span class="fu">==</span> [[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">4</span>], []]</code></pre></div>
-<p>Show that the resulting list of suffixes can be generated in <span class="math inline">\(\mathcal O (n)\)</span> time and represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
-<h2 id="solution-2.1">Solution 2.1</h2>
-<p>Since there are as many recursive calls to <code>suffixes</code> as there are elements of <code>xs</code>, and both <code>:</code> and <code>tail</code> run in constant time, <code>suffixes</code> must be linear in the length of the list <code>xs</code>. That is, the solution to the recursion <span class="math inline">\(T (n) = T(n-1) + \mathcal O (1)\)</span> is <span class="math inline">\(T (n) = \mathcal O (n)\)</span>.</p>
-<p>Moreover, we use the <span class="math inline">\(n\)</span> lists that already exist and also <span class="math inline">\(\mathcal O (n)\)</span> new pointers to each of those lists. Therefore, <code>suffixes xs</code> is represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
-<h2 id="binary-search-trees-bsts">Binary Search Trees (BSTs)</h2>
-<p>We start with binary trees (not search trees yet!). A binary tree is either empty or has two children, which we call ‘left’ and ‘right’.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Tree</span> a <span class="fu">=</span> <span class="dt">E</span>
-            <span class="fu">|</span> <span class="dt">T</span> (<span class="dt">Tree</span> a) a (<span class="dt">Tree</span> a)
-            <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
-<p>In the binary trees below, empty nodes are depicted as squares.</p>
-<figure>
-<img src="/images/binary-tree-nontrivial.pdf.png" alt="A binary tree (which is NOT a BST)." /><figcaption>A binary tree (which is NOT a BST).</figcaption>
-</figure>
-<p>A BST is a binary tree with some extra structure. In particular, we require that the key of a node be greater than that of any of its left descendants and smaller than that of any of its right descendants.</p>
-<figure>
-<img src="/images/bst-nontrivial.pdf.png" alt="A binary tree which IS a BST." /><figcaption>A binary tree which IS a BST.</figcaption>
-</figure>
-<p>In the following exercises, we implement BSTs in the context of sets.</p>
-<h2 id="exercise-2.2">Exercise 2.2</h2>
-<p>Rewrite <code>member</code> to take no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
-<h2 id="solution-2.2">Solution 2.2</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise02.hs">source</a>.</p>
-<h2 id="exercise-2.3">Exercise 2.3</h2>
-<p>Rewrite <code>insert</code> using exceptions to avoid copying the entire search path (in the case of inserting an existing element).</p>
-<h2 id="solution-2.3">Solution 2.3</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise03.hs">source</a>.</p>
-<p>We use the <code>Maybe</code> data structure for our errors, i.e. <code>Nothing</code> indicates an error.</p>
-<h2 id="exercise-2.4">Exercise 2.4</h2>
-<p>Combine the ideas of <a href="#exercise-2.2">Exercise 2.2</a> and <a href="#exercise-2.3">Exercise 2.3</a> to create an insert function that performs no unnecessary copying and uses no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
-<h2 id="solution-2.4">Solution 2.4</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise04.hs">source</a>.</p>
-<h2 id="exercise-2.5">Exercise 2.5</h2>
-<ol type="1">
-<li><p>Write a function <code>complete</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">complete ::</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">UnbalancedSet</span> a</code></pre></div>
-<p>such that <code>complete a d</code> is a complete binary tree of depth d with the key <code>a</code> at every node. This function should run in <span class="math inline">\(\mathcal O (d)\)</span> time.</p></li>
-<li><p>Extend <code>complete</code> to create balanced trees of arbitrary size that runs in <span class="math inline">\(\mathcal O (n)\)</span> time, where <span class="math inline">\(n\)</span> is the number of nodes. A tree is said to be balanced if the size of any node’s left child differs by at most one from the size of that node’s right child.</p></li>
-</ol>
-<h2 id="solution-2.5">Solution 2.5</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise05.hs">source</a>.</p>
-<p><strong>Item 1.</strong></p>
-<p>The recursion is given by <span class="math inline">\(T(d) = T(d-1) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (d) = \mathcal O (d)\)</span>.</p>
-<p><strong>Item 2.</strong></p>
-<p>The complexity of <code>balance</code> is equal to that of <code>create2</code>. The recursion for <code>create2</code> is given by <span class="math inline">\(T (n) = T (n/2) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (n) = \mathcal O (\log n)\)</span>.</p>
-<h2 id="exercise-2.6">Exercise 2.6</h2>
-<p>Adapt the <code>UnbalancedSet</code> functor to support finite maps rather than sets. The signature for finite maps is as follows.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">FiniteMap</span> m k a <span class="kw">where</span>
-<span class="ot">  empty  ::</span> m k a 
-<span class="ot">  bind   ::</span> k <span class="ot">-&gt;</span>     a <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> m k a
-<span class="ot">  lookup ::</span> k <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</code></pre></div>
-<h2 id="solution-2.6">Solution 2.6</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise06.hs">source</a>.</p>
-<p>We reuse the set implementation for <code>UnbalancedSet</code> by creating the <code>Binding</code> data type with the appropriate ordering. Note that this doesn’t allow updating key-value pairs.</p>
+	    </br>
 
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
 
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-
-</feed>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <!--<script type="text/x-mathjax-config">-->
+      <!--MathJax.Hub.Config({-->
+        <!--"HTML-CSS": { linebreaks: { automatic: true } }-->
+      <!--});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

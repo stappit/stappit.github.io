@@ -8,8 +8,104 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2015-11-01T00:00:00Z</updated>
+    <updated>2015-11-08T00:00:00Z</updated>
     <entry>
+    <title>Okasaki's PFDS: Chapter 4</title>
+    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc04.html" />
+    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc04.html</id>
+    <published>2015-11-08T00:00:00Z</published>
+    <updated>2015-11-08T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+
+
+<h1 class="blog-post-title">Okasaki's PFDS: Chapter 4</h1>
+<p class="blog-post-meta">
+Posted on November  8, 2015  by Brian </br>
+ Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/literate.html">literate</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/lazy.html">lazy</a>, <a href="/tags/strict.html">strict</a> </br>
+ Category: <a href="/categories/pfds.html">pfds</a> 
+</p>
+
+<p>This post contains my solutions to the exercises in chapter 4 of Okasaki’s “Purely Functional Data Structures”. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
+<h2 id="notation">Notation</h2>
+<p>Okasaki uses <code>$</code> to indicate suspensions. But beware! Haskell also has this symbol but it means something completely different, namely function application. In symbols:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">($) ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b
+(<span class="fu">$</span>) f a <span class="fu">=</span> f a</code></pre></div>
+<p>We can use it like any other function in haskell. For example:</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">two <span class="fu">=</span> (<span class="dv">1</span> <span class="fu">+</span>) <span class="fu">$</span> <span class="dv">1</span></code></pre></div>
+<p>It has nothing to do with suspensions, evaluation, forcing, etc.</p>
+<p>It is also important to note that a ‘list’ in haskell is not what Okasaki calls a ‘list’. He would call haskell’s lists ‘streams’. We will stick with haskell’s notation, calling Okasaki’s list a ‘strict list’.</p>
+<h2 id="exercise-1">Exercise 1</h2>
+<p>Show that both definitions of <code>drop</code> are equivalent.</p>
+<h2 id="solution-1">Solution 1</h2>
+<p>The code in this solution is NOT Haskell.</p>
+<p>For convenience, we give names to the three different functions.</p>
+<pre><code>fun drop (0, s)            = s
+  | drop (n, $Nil)         = $Nil
+  | drop (n, $Cons (x, s)) = drop (n-1, s)</code></pre>
+<pre><code>fun lazy dropA (0, s)            = s
+       | dropA (n, $Nil)         = $Nil
+       | dropA (n, $Cons (x, s)) = dropA (n-1, s)</code></pre>
+<pre><code>fun lazy dropB (n, s) = drop (n, s)</code></pre>
+<p>The proof proceeds in three steps.</p>
+<dl>
+<dt>Lemma</dt>
+<dd>Let <code>s</code> be a suspension. Then <code>$force s</code> is equivalent to <code>s</code>.
+</dd>
+</dl>
+<p>Proof. Suppose <code>s</code> is <code>$e</code> for some expression <code>e</code>. Then <code>$force s</code> <span class="math inline">\(\cong\)</span> <code>$force $e</code> <span class="math inline">\(\cong\)</span> <code>$e</code> <span class="math inline">\(\cong\)</span> <code>s</code>.</p>
+<p>□</p>
+<dl>
+<dt>Lemma</dt>
+<dd><code>dropA</code> is equivalent to <code>drop</code>
+</dd>
+</dl>
+<p>Proof. We prove this by induction on <span class="math inline">\(n\)</span>.</p>
+<p>For the base step, <code>dropA (0, s)</code> = <code>$force s</code> $<code>`s</code> = <code>drop (0, s)</code>, where the middle equivalence follows by the previous lemma.</p>
+<p>Note that <code>dropA (n, $Nil)</code> = <code>$force $Nil</code> = <code>$Nil</code> = <code>drop (n, $Nil)</code> follows by the previous lemma. Now suppose <code>dropA (n, s)</code> <span class="math inline">\(\cong\)</span> <code>drop (n, s)</code> for some <span class="math inline">\(n \in \mathbb N\)</span> and any stream <code>s</code>. We can write <code>s</code> as <code>$Cons (x, s')</code>. Then <code>dropA (n+1, s)</code> = <code>dropA (n+1, $Cons (x, s'))</code> = <code>$force dropA (n, s')</code> <span class="math inline">\(\cong\)</span> <code>dropA (n, s')</code> <span class="math inline">\(\cong\)</span> <code>drop (n, s')</code> = <code>drop (n+1, s)</code>.</p>
+<p>□</p>
+<dl>
+<dt>Lemma</dt>
+<dd><code>dropA</code> is equivalent to <code>dropB</code>
+</dd>
+</dl>
+<p>Proof. Using the previous two lemmas, we obtain <code>dropB (n, s)</code> = <code>$force drop (n, s)</code> = <code>$force dropA (n, s)</code> = <code>dropA (n, s)</code> for any <span class="math inline">\(n \in \mathbb N\)</span> and any stream <code>s</code>.</p>
+<p>□</p>
+<h2 id="exercise-2">Exercise 2</h2>
+<p>Implement insertion sort on streams and show that extracting the first <span class="math inline">\(k\)</span> elements takes only <span class="math inline">\(\mathcal O (nk)\)</span> time, where <span class="math inline">\(n\)</span> is the length of the input list.</p>
+<h2 id="solution-2">Solution 2</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/70501d73d4cf242bfd0128308fa635e7ca95ceef/src/Chap04/Exercise02.hs">source</a>. Note that lists in Haskell are what Okasaki calls streams, so we need no special annotations or data structures.</p>
+<p>Let <span class="math inline">\(T (n, k)\)</span> be the asymptotic complexity of computing <code>take k $ sort xs</code>, where <code>xs</code> is a list of length <span class="math inline">\(n\)</span>. By definition of <code>take</code>, <span class="math inline">\(T (n, 0) = \mathcal O (1)\)</span> and <span class="math inline">\(T (0, k) = T (0, 0)\)</span>.</p>
+<p>In <code>take k $ sort xs</code> the function <code>take k</code> needs to put <code>sort xs</code> into weak head normal form. Let <span class="math inline">\(S (m)\)</span> be the complexity of puting <code>sort ys</code> into weak head normal form for a list <code>ys</code> of length <span class="math inline">\(m\)</span>. Clearly <span class="math inline">\(S (0) = \mathcal O (1)\)</span>. Since <code>sort (y:ys) = ins y $ sort ys</code>, we have <span class="math inline">\(S (m) = S (m-1) + \mathcal O (1)\)</span>, since <code>ins y</code> only needs to put <code>sort ys</code> into weak head normal form. This is solved by <span class="math inline">\(S (m) = \mathcal O (m)\)</span>.</p>
+<p>Now, <code>take k $ sort xs = take k $ y : ys = y : take (k-1) ys</code>, where <code>sort xs = y : ys</code>. Thus <span class="math inline">\(T (n, k) = T (n-1, k-1) + \mathcal O (n)\)</span>. This recurrence is solved by <span class="math inline">\(T (n, k) = \mathcal O (nk)\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>Okasaki's PFDS: Chapter 3</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc03.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc03.html</id>

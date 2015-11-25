@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../css/default.css">
+	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+        <title>My Hakyll Blog - Okasaki's PFDS: Chapter 5</title>
+    </head>
+
+    <body>
+    <nav id="navbar-container" class="navbar navbar-default navbar-static-top">
+	    <div class="container">
+		    <div class="navbar-header">
+			    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+			    </button>
+			    <a class="navbar-brand" href="../../index.html">Brian</a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+			    <ul class="nav navbar-nav">
+				    <li><a class="blog-nav-item" href="../../index.html"><i class="fa fa-home"></i> Recent</a></li>
+				    <li><a class="blog-nav-item" href="../../archive.html"><i class="fa fa-globe"></i> Archive</a></li>
+				    <li><a class="blog-nav-item" href="https://github.com/stappit"><i class="fa fa-github"></i> GitHub</a></li>
+				    <li><a class="blog-nav-item" href="../../about.html"><i class="fa fa-info-circle"></i> About</a></li>
+				    <li><a class="blog-nav-item" href="../../atom.xml"><i class="fa fa-rss"></i> Atom</a></li>
+			    </ul>
+		    </div><!--/.nav-collapse -->
+	    </div>
+    </nav>
+
+    <div id="content" class="container">
+	    
+
+
+<h1 class="blog-post-title">Okasaki's PFDS: Chapter 5</h1>
+<p class="blog-post-meta">
+Posted on November 25, 2015  by Brian </br>
+ Tags: <a href="../../tags/fp.html">fp</a>, <a href="../../tags/haskell.html">haskell</a>, <a href="../../tags/literate.html">literate</a>, <a href="../../tags/okasaki.html">okasaki</a>, <a href="../../tags/deque.html">deque</a>, <a href="../../tags/binomial%20heap.html">binomial heap</a>, <a href="../../tags/splay%20heap.html">splay heap</a>, <a href="../../tags/pairing%20heap.html">pairing heap</a>, <a href="../../tags/heap.html">heap</a> </br>
+ Category: <a href="../../categories/pfds.html">pfds</a> 
+</p>
+
+<p>This post contains my solutions to the exercises in chapter 5 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
+<h2 id="exercise-5.1">Exercise 5.1</h2>
+<ol type="1">
+<li>Implement deques.</li>
+<li>Prove that each deque operation takes <span class="math inline">\(\mathcal O (1)\)</span> amortised time using the potential <span class="math display">\[\Phi (f, r) = \left| \left|f\right| - \left|r\right| \right|.\]</span></li>
+</ol>
+<h2 id="solution-5.1">Solution 5.1</h2>
+<p><strong>Item 1.</strong></p>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap05/Data/BatchedQueue.hs">source</a>.</p>
+<p><strong>Item 2.</strong></p>
+<p>By symmetry, the costs of <code>cons</code>, <code>head</code>, and <code>tail</code> are (almost) identical to those of <code>snoc</code>, <code>last</code>, and <code>init</code>, respectively.</p>
+<p>Consider <code>cons</code>. There is a constant number of actual steps and the potential can change by at most 1. Thus <code>cons</code> runs in constant amortised time.</p>
+<p>Consider <code>tail</code>. Any <code>tail</code> which doesn’t empty <code>f</code> requires only one step and changes the potential by one for an amortised cost of <span class="math inline">\(\le 2\)</span>. Any <code>tail</code> which does empty <code>f</code> requires <span class="math inline">\(1 + 2m + \delta\)</span> steps, where <span class="math inline">\(m := \left\lfloor \frac{r}{2} \right\rfloor\)</span>, <span class="math inline">\(\left| r \right| = 2m + \delta\)</span>. The linearity is due to the fact that it takes <span class="math inline">\(m\)</span> steps to split <code>r</code> in half, then <span class="math inline">\(m\)</span> more steps to reverse the other half. The change in potential is given by</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \left|1 - (2m + \delta)\right| - \left|m - (2m + \delta - m)\right| 
+  &amp;= 
+  2m + 1 + \delta - \delta 
+  \\
+  &amp;= 
+  2m + 1
+.
+\end{align}
+\]</span></p>
+<p>Thus, the amortised cost is <span class="math inline">\(1 + 2m + \delta - 2m = 1\)</span>, showing that <code>tail</code> runs in constant amortised time.</p>
+<h2 id="exercise-5.2">Exercise 5.2</h2>
+<p>Prove that <code>insert</code> on binomial heaps runs in <span class="math inline">\(\mathcal O (1)\)</span> amortised time using the banker’s method.</p>
+<h2 id="solution-5.2">Solution 5.2</h2>
+<p>The credit invariant associates one credit to every binomial tree in the heap. Let <span class="math inline">\(k\)</span> be the number of calls to <code>link</code> made by a call to <code>insert</code>. A call to <code>insert</code> takes <span class="math inline">\(1 + k\)</span> actual steps. It initially adds a tree to the heap, gaining a credit, and each <code>link</code> removes a tree, spending a credit. Thus, the total amortised cost is <span class="math inline">\((1+k) + 1 - k = 2\)</span>.</p>
+<h2 id="exercise-5.3">Exercise 5.3</h2>
+<p>Prove that the amortised costs of <code>merge</code> and <code>deleteMin</code> are still <span class="math inline">\(\mathcal O (\log n)\)</span>.</p>
+<h2 id="solution-5.3">Solution 5.3</h2>
+<p>Let <span class="math inline">\(h_m\)</span>, <span class="math inline">\(h_n\)</span> be binomial heaps with potentials <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span>, respectively. We show that the amortised cost of <code>merge</code> is <span class="math inline">\(A(h_m, h_n) \le m+n\)</span>. Let <span class="math inline">\(k\)</span> be the number of calls to <code>link</code>. The actual cost is bounded by <span class="math inline">\(m + n + k\)</span>, since there can be at most <span class="math inline">\(m+n\)</span> recursive calls to <code>merge</code> and any call reaching the third conditional clause of <code>merge</code> will call <code>link</code> several times via <code>insTree</code>. We start with a potential of <span class="math inline">\(m+n\)</span>, and each call to <code>link</code> reduces this by one, for an end potential of <span class="math inline">\(m+n-k\)</span>. The change in potential is <span class="math inline">\(m + n - (m + n - k) = k\)</span>. Thus, the amortised cost of <code>merge</code> is <span class="math inline">\(m+n+k -k = m+n\)</span>.</p>
+<p>Now we show that <code>deleteMin</code> is also logarithmic. We start with a heap <span class="math inline">\(h_n\)</span>, which has potential <span class="math inline">\(n\)</span>. There is an actual cost of at most <span class="math inline">\(n\)</span> to find the minimum binary tree, say of rank <span class="math inline">\(r\)</span>. This leaves us with a heap of rank <span class="math inline">\(n-1\)</span>. Then there is an actual cost of at most <span class="math inline">\(r\)</span> to reverse the list of children, making a heap of potential <span class="math inline">\(r\)</span>. Merging these heaps then takes at most <span class="math inline">\(n + r - 1 + k\)</span> steps, where <span class="math inline">\(k\)</span> is the number of calls to <code>link</code>, which leaves us with a heap with potential <span class="math inline">\(n + r - 1 - k\)</span>. This is a total of at most <span class="math inline">\(n + r + (n + r - 1 + k)\)</span> steps. The change in potential is <span class="math inline">\(n - (n + r - 1 - k) = 1 - r + k\)</span>. Thus, the amortised cost of <code>deleteMin</code> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+2n + 2r + k - 1 - (1 - r + k) = 2n + 3r - 2
+.
+\]</span></p>
+<p>Note that this is indeed logarithmic since, if a heap has a tree of rank <span class="math inline">\(r\)</span>, then it must have at least <span class="math inline">\(2^r\)</span> elements; that is, <span class="math inline">\(r = \mathcal O (n)\)</span>.</p>
+<h2 id="splay-heaps">Splay Heaps</h2>
+<p>A splay heap is a BST that rebalances the tree using a <code>partition</code> function when performing update operations. However, we now allow the insertion of the same element multiple times since we are implementing a heap and not a set.</p>
+<figure>
+<img src="../../images/pfds-splayheap-unbalanced.pdf.png" alt="h = foldr insert empty [1..7]" /><figcaption><code>h = foldr insert empty [1..7]</code></figcaption>
+</figure>
+<figure>
+<img src="../../images/pfds-splayheap-unbalanced-insert.pdf.png" alt="insert 8 h" /><figcaption><code>insert 8 h</code></figcaption>
+</figure>
+<h2 id="exercise-5.4">Exercise 5.4</h2>
+<p>Implement <code>smaller</code>.</p>
+<h2 id="solution-5.4">Solution 5.4</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap05/Exercise04.hs">source</a>.</p>
+<h2 id="exercise-5.5">Exercise 5.5</h2>
+<p>Prove that <code>partition</code> is logarithmic (in the zig-zag case).</p>
+<h2 id="solution-5.5">Solution 5.5</h2>
+<p>First we will need a modification to the lemma proved in the book.</p>
+<dl>
+<dt>Lemma</dt>
+<dd><p>We have the inequality</p>
+<p class="mathjaxWide"><span class="math display">\[
+1 + \log x + \log y \le 2\log (x + y -1)
+.
+\]</span></p>
+<p>for all <span class="math inline">\(x \in \mathbb N_{\ge 2}\)</span>, <span class="math inline">\(y \in \mathbb N_{\ge 1}\)</span>.</p>
+</dd>
+</dl>
+<p>Using the basic logarithmic identities, the above inequality is equivalent to <span class="math inline">\(2xy \le (x+y-1)^2\)</span>. In other words, we must show that <span class="math inline">\(x^2 -2x + (y-1)^2 \ge 0\)</span> for <span class="math inline">\(x \ge 2\)</span>, <span class="math inline">\(y \ge 1\)</span>. The term with <span class="math inline">\(y\)</span> is non-negative. The remaining term <span class="math inline">\(x^2 -2x\)</span> is non-negative for any <span class="math inline">\(x \ge 2\)</span>.</p>
+<p>□</p>
+<figure>
+<img src="../../images/pfds-ex5.5-input.pdf.png" alt="We wish to analyse partition pivot t." /><figcaption>We wish to analyse <code>partition pivot t</code>.</figcaption>
+</figure>
+<figure>
+<img src="../../images/pfds-ex5.5-output.pdf.png" alt="Suppose partition pivot t outputs (t_s, t_b)." /><figcaption>Suppose <code>partition pivot t</code> outputs <span class="math inline">\((t_s, t_b)\)</span>.</figcaption>
+</figure>
+<p>Define <span class="math inline">\((p_s, p_b)\)</span> as the output of <code>partition pivot p</code>. Note that <span class="math inline">\(\#t_s + \#t_b = \#t - 1\)</span>, so that <span class="math inline">\(1 + \phi(t_s) + \phi(t_b) \le 2\phi(t)\)</span> by the lemma.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  A (t) 
+  &amp;= 
+  T (t) + \Phi (t_s) + \Phi (t_b) - \Phi (t)
+  \\
+  &amp;=
+  1 + T (p) + \Phi (t_s) + \Phi (t_b) - \Phi (t)
+  \\
+  &amp;=
+  1 + A (p) - \Phi (p_s) - \Phi (p_b) + \Phi (p) 
+  \\
+  &amp;\qquad
+            + \Phi (t_s) + \Phi (t_b) - \Phi (t)
+  \\
+  &amp;=
+  1 + A (p) - \Phi (p_s) - \Phi (p_b) + \Phi (p)
+  \\
+  &amp;\qquad
+            + \phi (t_s) + \Phi (a_1) + \Phi (p_s)
+  \\
+  &amp;\qquad
+	    + \phi (t_b) + \Phi (p_b) + \Phi (b)
+  \\
+  &amp;\qquad
+	    - \phi (t)   - \phi (s)   - \Phi (b)  - \Phi (a_1) - \Phi (p)
+  \\
+  &amp;=
+  1 + A (p) + \phi (t_s) + \phi (t_b) - \phi (t) - \phi (s)
+  \\
+  &amp;\le
+  2 + 2\phi (p) + \phi(t_s) + \phi(t_b) - \phi(t) - \phi(s)
+  \\
+  &amp;\le
+  2 + \phi(t) + \phi(s) + \phi(t_s) - \phi(t_b) - \phi(t) - \phi(s)
+  \\
+  &amp;\le
+  2 + \phi(t_s) + \phi(t_b)
+  \\
+  &amp;\le
+  1 + 2\phi(t)
+\end{align}
+\]</span></p>
+<h2 id="exercise-5.6">Exercise 5.6</h2>
+<p>Prove that <code>deleteMin</code> also runs in logarithmic time.</p>
+<h2 id="solution-5.6">Solution 5.6</h2>
+<p>We prove that <code>deleteMin</code> runs in <span class="math inline">\(\mathcal O(3\log n)\)</span> amortised time. Note that <span class="math inline">\(\#a + (\#b + \#c) \le \#s_1\)</span> so that <span class="math inline">\(1 + \phi(a) + \phi(t_2) \le 2\phi(s_1)\)</span>.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  A(s_1)
+  &amp;=
+  T(s_1) + \Phi(t_1) - \Phi(s_1)
+  \\
+  &amp;=
+  1 + T(a) + \Phi(t_1) - \Phi(s_1)
+  \\
+  &amp;=
+  1 + A(a) - \Phi(a') + \Phi(a)
+  \\
+  &amp;\qquad
+  	+ \phi(t_1) + \phi(t_2) + \Phi(a') + \Phi(b) + \Phi(c)
+  \\
+  &amp;\qquad
+  	- \phi(s_1) - \phi(s_2) - \Phi(a) -  \Phi(b) - \Phi(c)
+  \\
+  &amp;=
+  1 + A(a) + \phi(t_1) + \phi(t_2) - \phi(s_1) -\phi(s_2)
+  \\
+  &amp;\le
+  1 + \phi(a) + \phi(t_1) + \phi(t_2)
+  \\
+  &amp;\le
+  \phi(t_1) + 2\phi(s_1)
+  \\
+  &amp;\le
+  3\phi(s_1)
+\end{align}
+\]</span></p>
+<h2 id="exercise-5.7">Exercise 5.7</h2>
+<p>Write a sorting function that inserts elements into a splay tree and then performs an in order traversal of the tree dumping the elements into a list. Show that this function takes linear time in a sorted list.</p>
+<h2 id="solution-5.7">Solution 5.7</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/5cd2c0ae4641edb65ba88f4c7bf0e0a49a23063a/src/Chap05/Exercise07.hs">source</a>.</p>
+<p>Let <code>xs</code> be a list of length <span class="math inline">\(n\)</span> in decreasing order. We can measure the complexity of <code>sort xs</code> by counting the number of calls to <code>partition</code>. Every time we call <code>insert x h</code>, we know that <span class="math inline">\(x &gt; y\)</span> for all <span class="math inline">\(y\)</span> in <code>h</code>, so <code>insert x h</code> calls <code>partition</code> exactly once. The function <code>sort xs</code> makes a total of <span class="math inline">\(n\)</span> calls to <code>insert</code> and thus also <span class="math inline">\(n\)</span> calls to <code>partition</code>, showing that <code>sort</code> runs in <span class="math inline">\(\mathcal O (n)\)</span> time.</p>
+<p>The argument for lists in increasing order is completely analogous.</p>
+<h2 id="pairing-heaps">Pairing Heaps</h2>
+<p>A pairing heap is a heap-ordered multiway tree whose <code>deleteMin</code> operation merges the children in pairs.</p>
+<figure>
+<img src="../../images/pfds-pairingheap-wide.pdf.png" alt="h = foldr insert empty [7, 6..1]" /><figcaption><code>h = foldr insert empty [7, 6..1]</code></figcaption>
+</figure>
+<figure>
+<img src="../../images/pfds-pairingheap-wide-deletemin.pdf.png" alt="deleteMin h" /><figcaption><code>deleteMin h</code></figcaption>
+</figure>
+<h2 id="exercise-5.8">Exercise 5.8</h2>
+<ol type="1">
+<li><p>Write a function <code>toBinary</code> that converts pairing heaps to binary trees.</p></li>
+<li><p>Reimplement pairing heaps using this new representation as binary trees.</p></li>
+<li><p>Prove that <code>deleteMin</code> and <code>merge</code> still run in logarithmic amortised time in this new representation.</p></li>
+</ol>
+<h2 id="solution-5.8">Solution 5.8</h2>
+<p><strong>Item 1.</strong></p>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/897522b05776b202e622b55b03cd0438dd581798/src/Chap05/Exercise08.hs">source</a>.</p>
+<p>The conversion from a pairing heap to a binary tree is explained in the book.</p>
+<figure>
+<img src="../../images/pfds_ex5-8b_invariant.pdf.png" alt="For any binary tree derived from a pairing heap, x \le y, y_a, y_b for all elements y_a, y_b in the trees a, b, respectively. The right child of the root is empty. The values in b are not related to y." /><figcaption>For any binary tree derived from a pairing heap, <span class="math inline">\(x \le y, y_a, y_b\)</span> for all elements <span class="math inline">\(y_a, y_b\)</span> in the trees <span class="math inline">\(a, b\)</span>, respectively. The right child of the root is empty. The values in <span class="math inline">\(b\)</span> are not related to <span class="math inline">\(y\)</span>.</figcaption>
+</figure>
+<p>The invariant on a pairing heap <code>T x cs</code> is that <code>x</code> is no greater than any of the elements of its children in <code>cs</code>. This translates into the binary tree invariant that a node is no greater than any of its left descendants. That is, for <code>T' x (T' y a b) c</code> we have that <span class="math inline">\(x \le y, y_a, y_b\)</span> for all elements <span class="math inline">\(y_a, y_b\)</span> in the trees <span class="math inline">\(a, b\)</span>, respectively. The value of <span class="math inline">\(x\)</span> bears no relation to the values in <span class="math inline">\(c\)</span>.</p>
+<p>We also maintain a second invariant: the right child of the root is empty.</p>
+<p><strong>Item 2.</strong></p>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/897522b05776b202e622b55b03cd0438dd581798/src/Chap05/Data/PairingHeap/Exercise08.hs">source</a>.</p>
+<p>Remember that the root of a binary tree representation of a pairing heap has no right child (it is empty). Thus we can forget about the right child without losing desired information.</p>
+<p><strong>Item 3.</strong></p>
+<p>We start with <code>merge</code>. Note that for any <span class="math inline">\(x, y \ge 2\)</span>, we have <span class="math inline">\(\log (x+y) \le \log x + \log y\)</span>. In particular, <span class="math inline">\(\#s_k \ge 2\)</span>.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  A (s_1, s_2) 
+  &amp;= 
+  T (s_1, s_2) + \Phi (t_1) - \Phi (s_1) - \Phi (s_2)
+  \\
+  &amp;=
+  1 + \Phi(t_1) - \Phi(s_1) - \Phi(s_2)
+  \\
+  &amp;=
+  1 + \phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)
+  \\
+  &amp;\le
+  2 + 2\phi(t_1)
+  \\
+  &amp;\le
+  2 + 2\log (\#s_1 + \#s_2)
+  \\
+  &amp;\le
+  2 + 2\log(\#s_1) + 2\log(\#s_2)
+  \\
+  &amp;\le
+  2 + 2\phi(s_1) + 2\phi(s_2)
+\end{align}
+\]</span></p>
+<p>Now consider <code>deleteMin</code>. I was unable to find a nice solution by myself. The following comes from <a href="https://www.cs.cmu.edu/~sleator/papers/pairing-heaps.pdf">The Pairing Heap: A New Form of Self-Adjusting Heap</a>. We reproduce their argument that the asymptotic cost of <code>deleteMin</code> is <span class="math inline">\(A(s_1) \le 2\phi(s_1) + 3\)</span>.</p>
+<p>There are at most <span class="math inline">\(2k+1\)</span> calls to <code>merge</code>, where <span class="math inline">\(k\)</span> is the number of children of the root of the pairing heap. The difficult part is calculating the potential increase, which we do in steps.</p>
+<dl>
+<dt>Lemma 1</dt>
+<dd>Let <span class="math inline">\(x, y &gt; 0\)</span> such that <span class="math inline">\(x + y \le 1\)</span>. Then <span class="math inline">\(\log x + \log y \le -2\)</span>.
+</dd>
+</dl>
+<p>Proof. This follows from the fact that <span class="math inline">\(xy \le x(1-x)\)</span>, which has a maximum of <span class="math inline">\(\frac{1}{4}\)</span> at <span class="math inline">\(x = \frac{1}{2}\)</span>.</p>
+<p>□</p>
+<dl>
+<dt>Corollary</dt>
+<dd><p>We have</p>
+<p class="mathjaxWide"><span class="math display">\[
+\log(x + y) - \log(y + z) \le 2 \log (x + y + z) - 2\log z - 2
+,
+\]</span></p>
+<p>for any <span class="math inline">\(x, y, z \ge 0\)</span>.</p>
+</dd>
+</dl>
+<p>Proof. By the lemma we have</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \log(x + y) + \log z - 2\log (x + y + z) 
+  &amp;= 
+  \log \left(\frac{x + y}{x + y + z}\right) + \log \left(\frac{z}{x + y + z}\right) 
+  \\
+  &amp;\le 
+  -2.
+\end{align}
+\]</span></p>
+<p>Now</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+ \log(x + y) - \log(y + z) 
+ &amp;= 
+ \log(x + y) + \log z - \log z - \log(y+z)
+ \\
+ &amp;\le
+ 2\log (x + y + z) - 2 - \log z -\log(y+z)
+ \\
+ &amp;\le
+ 2\log (x + y + z) - 2 - 2\log z.
+\end{align}
+\]</span></p>
+<p>□</p>
+<dl>
+<dt>Lemma</dt>
+<dd>Define <span class="math inline">\(s_2\)</span> to be the tree <code>T y b c</code> and <span class="math inline">\(s_1\)</span> to be the tree <code>T x a s2</code>.<br />
+ Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
+</dd>
+</dl>
+<p>Proof. Without loss of generality, assume <span class="math inline">\(y \le x\)</span>. Define <span class="math inline">\(t_2\)</span> to be the tree <code>T x a b</code> and <span class="math inline">\(t_1\)</span> to be <code>T y t2 c</code>; that is, <span class="math inline">\(t_1\)</span> is the result of applying <code>merge</code> to <span class="math inline">\(s_1\)</span>. The potential increase is <span class="math inline">\(\Phi(t_1) - \Phi(s_1)\)</span>, by definition. This expands to <span class="math inline">\(\phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)\)</span>, which is equal to <span class="math inline">\(\phi(t_2) - \phi(s_2)\)</span> since <span class="math inline">\(\phi(t_1) = \phi(s_1)\)</span>. Now</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \phi(t_2) - \phi(s_2) 
+  &amp;= 
+  \log(\#a + \#b) - \phi(\#b + \#c) 
+  \\
+  &amp;\le 
+  2\log(\#a + \#b + \#c) - 2\log (\#c) - 2 
+  \\
+  &amp;= 
+  2\phi(s_1) - 2\phi(c) - 2.
+\end{align}
+\]</span></p>
+<p>□</p>
+<dl>
+<dt>Corollary</dt>
+<dd>Define <span class="math inline">\(s_i\)</span> as the right child of <span class="math inline">\(s_{i-1}\)</span>, where <span class="math inline">\(s_1\)</span> is the root of the binary tree, <span class="math inline">\(i = 1, ..., 2k - 1\)</span>, and <span class="math inline">\(2k + \delta\)</span> is the length of the right spine of <span class="math inline">\(s_1\)</span>. Then the net increase in potential over all calls to <code>merge</code> in the downwards pass of <code>mergePairs</code> is bounded by <span class="math inline">\(2\phi(s_1) - 2(k-1)\)</span>.
+</dd>
+</dl>
+<p>Proof. Applying the previous lemma yields</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  2\phi(s_{2k-1}) + \sum_{i=1}^{k-1} \left( 2\phi(s_{2i - 1}) - 2\phi(s_{2i + 1}) - 2 \right)
+  &amp;\le
+  2\phi(s_{2k-1}) - 2(k-1) + \sum_{i=1}^{k-1} \left( 2\phi(s_{2i - 1}) - 2\phi(s_{2i + 1}) \right)
+  \\
+  &amp;\le
+  2\phi(s_1) - 2(k-1),
+\end{align}
+\]</span></p>
+<p>where the last line follows by telescoping the sum.</p>
+<p>□</p>
+<dl>
+<dt>Lemma</dt>
+<dd>The net increase in potential over all calls to merge in the upwards pass of <code>mergePairs</code> is bounded by <span class="math inline">\(\phi(s_1)\)</span>.
+</dd>
+</dl>
+<p>Proof. Let <span class="math inline">\(t\)</span> be the resulting tree after calling <code>merge</code> on two trees <span class="math inline">\(t_1, t_2\)</span>. Furthermore, let <span class="math inline">\(t_1', t_2'\)</span> be the subtrees whose roots contain the keys of the trees <span class="math inline">\(t_1, t_2\)</span>, respectively. Then <span class="math inline">\(\phi(t_1) \le \phi(t_1')\)</span> and <span class="math inline">\(\phi(t_2) \ge \phi(t_2')\)</span>. Thus, the potential increase is bounded by <span class="math inline">\(\phi(t)\)</span>. Since <span class="math inline">\(\#t = \#s_1\)</span>, the potential increase is bounded by <span class="math inline">\(\phi(s_1)\)</span>.</p>
+<p>□</p>
+<p>There are at most <span class="math inline">\(2k + 1\)</span> actual steps. Removing the root causes a potential increase of <span class="math inline">\(-\phi(s_1)\)</span>. The potential increase in the downwards pass in <code>mergePairs</code> is bounded by <span class="math inline">\(2\phi(s_1) - 2(k-1)\)</span>. The potential increase in the upwards pass in <code>mergePairs</code> is bounded by <span class="math inline">\(\phi(s_1)\)</span>. Therefore, the amortised time is bounded by</p>
+<p class="mathjaxWide"><span class="math display">\[
+2k + 1 - \phi(s_1) + 2\phi(s_1) - 2(k-1) + \phi(s_1) = 3 + 2\phi(s_1)
+.
+\]</span></p>
+<h2 id="exercise-5.9">Exercise 5.9</h2>
+<p>Give examples of sequences of operations for which binomial heaps, splay heaps, and pairing heaps take much longer than indicated by their amortised bounds.</p>
+<h2 id="solution-5.9">Solution 5.9</h2>
+<p>For any operation with amortised bounds, we can set up the data structure so that the next execution of that operation is expensive, then call that operation many times.</p>
+<p><strong>Binomial Heaps</strong></p>
+<p>Binomial heaps support an <code>insert</code> operation with a constant amortised cost. The worst case cost of <code>insert</code> is <span class="math inline">\(\mathcal O (\log n)\)</span>, which occurs when inserting into a binomial heap of size <span class="math inline">\(2^m - 1\)</span>. In a persistent setting, we can call <code>insert</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(k\log n)\)</span> time instead of <span class="math inline">\(\mathcal O(k)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [<span class="dv">1</span><span class="fu">..</span>(<span class="dv">2</span><span class="fu">^</span>m <span class="fu">-</span> <span class="dv">1</span>)]
+  <span class="kw">where</span>
+    m <span class="fu">=</span> <span class="dv">7</span>
+    n <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>m <span class="fu">-</span> <span class="dv">1</span>
+
+tooSlow <span class="fu">=</span> map (insert <span class="dv">0</span>) <span class="fu">.</span> replicate k <span class="fu">$</span> heap
+  <span class="kw">where</span>
+    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
+<p><strong>Splay Heaps</strong></p>
+<p>Splay heaps support a <code>findMin</code> operation with a logarithmic amortised cost. The worst case cost of <code>findMin</code> is linear, which occurs after inserting numbers in increasing order into the empty heap. In a persistent setting, we can call <code>findMin</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(kn)\)</span> time instead of <span class="math inline">\(\mathcal O(k\log n)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [<span class="dv">1</span><span class="fu">..</span>n]
+  <span class="kw">where</span>
+    n <span class="fu">=</span> <span class="dv">100</span>
+
+tooSlow <span class="fu">=</span> map findMin <span class="fu">.</span> replicate k <span class="fu">$</span> heap
+  <span class="kw">where</span> 
+    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
+<p><strong>Pairing Heaps</strong></p>
+<p>Pairing heaps have a <code>deleteMin</code> operation with an amortised cost of <span class="math inline">\(\mathcal O (\log n)\)</span>. The worst case cost of <code>deleteMin</code> is <span class="math inline">\(\mathcal O (n)\)</span>, which occurs after inserting numbers in decreasing order into the empty heap. In a persistent setting, we can call <code>deleteMin</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(kn)\)</span> time instead of <span class="math inline">\(\mathcal O(k\log n)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [n, (n<span class="fu">-</span><span class="dv">1</span>)<span class="fu">..</span><span class="dv">1</span>]
+  <span class="kw">where</span>
+    n <span class="fu">=</span> <span class="dv">100</span>
+
+tooSlow <span class="fu">=</span> map deleteMin <span class="fu">.</span> replicate k <span class="fu">$</span> heap
+  <span class="kw">where</span> 
+    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+    </div>
+
+    <footer class="blog-footer">
+	    <div class="social">
+		    <a href="https://github.com/stappit"><i class="fa fa-github"></i></a>
+		    <a href="../../atom.xml"><i class="fa fa-rss"></i></a>
+	    </div>
+
+	    </br>
+
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <!--<script type="text/x-mathjax-config">-->
+      <!--MathJax.Hub.Config({-->
+        <!--"HTML-CSS": { linebreaks: { automatic: true } }-->
+      <!--});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

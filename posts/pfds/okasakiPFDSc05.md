@@ -1,6 +1,6 @@
 ---
 title: Okasaki's PFDS: Chapter 5
-date: 2015-10-16
+date: 2015-11-25
 tags: fp, haskell, literate, okasaki, deque, binomial heap, splay heap, pairing heap, heap
 ---
 

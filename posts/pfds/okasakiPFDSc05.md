@@ -93,7 +93,7 @@ $$
 .
 $$
 
-Note that this is indeed logarithmic since, if a heap has a tree of rank $r$, then it must have at least $2^r$ elements; that is, $r = \mathcal O (n)$.
+Note that this is indeed logarithmic since, if a heap has a tree of rank $r$, then it must have at least $2^r$ elements; that is, $r = \mathcal O (\log n)$.
 
 Splay Heaps
 -----------

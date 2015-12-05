@@ -2,7 +2,7 @@
 title: Okasaki's PFDS: Chapter 3
 author: Brian
 date: 2015-11-01
-tags: fp, haskell, literate, okasaki, leftist tree, leftist heap, binomial tree, binomial heap, heap, red black tree
+tags: fp, haskell, okasaki, leftist tree, leftist heap, binomial tree, binomial heap, heap, red black tree
 ---
 
 This post contains my solutions to the exercises in chapter 3 of Okasaki's 'Purely Functional Data Structures'.

@@ -1,7 +1,7 @@
 ---
 title: Okasaki's PFDS: Chapter 2
 date: 2015-10-26
-tags: fp, haskell, literate, okasaki, binary tree, binary search tree, set
+tags: fp, haskell, okasaki, binary tree, binary search tree, set
 ---
 
 This post contains my solutions to the exercises in chapter 2 of Okasaki's 'Purely Functional Data Structures'.

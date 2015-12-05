@@ -1,7 +1,7 @@
 ---
 title: Okasaki's PFDS: Chapter 5
 date: 2015-11-25
-tags: fp, haskell, literate, okasaki, deque, binomial heap, splay heap, pairing heap, heap
+tags: fp, haskell, okasaki, deque, binomial heap, splay heap, pairing heap, heap
 ---
 
 This post contains my solutions to the exercises in chapter 5 of Okasaki's 'Purely Functional Data Structures'.

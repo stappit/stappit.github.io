@@ -2,7 +2,7 @@
 title: Okasaki's PFDS: Chapter 4
 author: Brian
 date: 2015-11-08
-tags: fp, haskell, literate, okasaki, lazy, strict
+tags: fp, haskell, okasaki, lazy, strict
 ---
 
 This post contains my solutions to the exercises in chapter 4 of Okasaki's "Purely Functional Data Structures".

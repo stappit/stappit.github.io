@@ -87,7 +87,7 @@ Posted on November 25, 2015  by Brian </br>
 2n + 2r + k - 1 - (1 - r + k) = 2n + 3r - 2
 .
 \]</span></p>
-<p>Note that this is indeed logarithmic since, if a heap has a tree of rank <span class="math inline">\(r\)</span>, then it must have at least <span class="math inline">\(2^r\)</span> elements; that is, <span class="math inline">\(r = \mathcal O (n)\)</span>.</p>
+<p>Note that this is indeed logarithmic since, if a heap has a tree of rank <span class="math inline">\(r\)</span>, then it must have at least <span class="math inline">\(2^r\)</span> elements; that is, <span class="math inline">\(r = \mathcal O (\log n)\)</span>.</p>
 <h2 id="splay-heaps">Splay Heaps</h2>
 <p>A splay heap is a BST that rebalances the tree using a <code>partition</code> function when performing update operations. However, we now allow the insertion of the same element multiple times since we are implementing a heap and not a set.</p>
 <figure>

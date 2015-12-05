@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../css/default.css">
+	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+        <title>My Hakyll Blog - Okasaki's PFDS: Chapter 6</title>
+    </head>
+
+    <body>
+    <nav id="navbar-container" class="navbar navbar-default navbar-static-top">
+	    <div class="container">
+		    <div class="navbar-header">
+			    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+			    </button>
+			    <a class="navbar-brand" href="../../index.html">Brian</a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+			    <ul class="nav navbar-nav">
+				    <li><a class="blog-nav-item" href="../../index.html"><i class="fa fa-home"></i> Recent</a></li>
+				    <li><a class="blog-nav-item" href="../../archive.html"><i class="fa fa-globe"></i> Archive</a></li>
+				    <li><a class="blog-nav-item" href="https://github.com/stappit"><i class="fa fa-github"></i> GitHub</a></li>
+				    <li><a class="blog-nav-item" href="../../about.html"><i class="fa fa-info-circle"></i> About</a></li>
+				    <li><a class="blog-nav-item" href="../../atom.xml"><i class="fa fa-rss"></i> Atom</a></li>
+			    </ul>
+		    </div><!--/.nav-collapse -->
+	    </div>
+    </nav>
+
+    <div id="content" class="container">
+	    
+
+
+<h1 class="blog-post-title">Okasaki's PFDS: Chapter 6</h1>
+<p class="blog-post-meta">
+Posted on November 22, 2015  by Brian </br>
+ Tags: <a href="../../tags/fp.html">fp</a>, <a href="../../tags/haskell.html">haskell</a>, <a href="../../tags/okasaki.html">okasaki</a>, <a href="../../tags/execution%20trace.html">execution trace</a>, <a href="../../tags/queue.html">queue</a>, <a href="../../tags/merge%20sort.html">merge sort</a>, <a href="../../tags/sortable.html">sortable</a> </br>
+ Category: <a href="../../categories/pfds.html">pfds</a> 
+</p>
+
+<p>This post contains my solutions to the exercises in chapter 6 of Okasaki’s “Purely Functional Data Structures”.</p>
+<h2 id="exercise-6.1">Exercise 6.1</h2>
+<p>Draw the execution trace for the following set of operations.</p>
+<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">a <span class="fu">=</span> snoc empty <span class="dv">0</span>
+b <span class="fu">=</span> snoc a <span class="dv">1</span>
+c <span class="fu">=</span> tail b
+d <span class="fu">=</span> snoc b <span class="dv">2</span>
+e <span class="fu">=</span> c <span class="fu">++</span> d
+f <span class="fu">=</span> tail c
+g <span class="fu">=</span> snoc d <span class="dv">3</span></code></pre></div>
+<p>Annotate each node in the trace with the number of logical futures at that node.</p>
+<h2 id="solution-6.1">Solution 6.1</h2>
+<figure>
+<img src="../../images/pfds_ex6-1.pdf.png" alt="The execution trace." /><figcaption>The execution trace.</figcaption>
+</figure>
+<p>There are three terminal nodes (i.e. out-degree = 0): <code>e</code>, <code>f</code>, and <code>g</code>.</p>
+<p>Each terminal node has precisely one logical future. The number of logical futures of a non-terminal node is the sum of the number of logical futures of its neighbours.</p>
+<h2 id="exercise-6.2">Exercise 6.2</h2>
+<p>Change the banker’s queue invariant to <span class="math inline">\(2\left| f \right| \ge \left| r \right|\)</span>.</p>
+<ol type="1">
+<li>Show that the <span class="math inline">\(\mathcal O (1)\)</span> amortised bounds still hold.</li>
+<li>Compare the relative performance of the two implementations on a sequence of one hundred <code>snoc</code>s followed by one hundred <code>tail</code>s.</li>
+</ol>
+<h2 id="solution-6.2">Solution 6.2</h2>
+<p><strong>Item 1.</strong></p>
+<p>We assign the debt <span class="math inline">\(D(i) \le \min(3i, 2\left|f\right| - \left|r\right|)\)</span> to the <span class="math inline">\(i\)</span>th element of the front.</p>
+<p>Every <code>snoc</code> that doesn’t cause a rotation increases <span class="math inline">\(|r|\)</span> by 1 and decreases <span class="math inline">\(2\left|f\right| - \left|r\right|\)</span> by 1. This violates the debt invariant by 1 whenever we just previously had <span class="math inline">\(D(i) = 2\left|f\right| - \left|r\right|\)</span>. We can restore the invariant by discharging the first debit in the queue, which decreases the rest by 1.</p>
+<p>Every <code>tail</code> that doesn’t cause a rotation dereases <span class="math inline">\(\left| f \right|\)</span> by 1, so decreases <span class="math inline">\(2\left|f\right| - \left|r\right|\)</span> by 2. It also decreases the the index of the remaining nodes by 1, so decreases <span class="math inline">\(3i\)</span> by 3. Discharging the first three debits in the queue restores the debt invariant.</p>
+<p>Now for a <code>snoc</code> that causes a rotation. Just before the rotation, the invariant guarantees that all debits in the queue have been discharged, so after the rotation the only undischarged debits are those created by the rotation itself. Suppose <span class="math inline">\(\left| f \right|=m\)</span> and <span class="math inline">\(\left| r \right|=2m+1\)</span> at the time of the rotation. Then we create <span class="math inline">\(2m+1\)</span> debits for the reverse and <span class="math inline">\(m\)</span> for the append. The placement of debits is as in the book, which is summarised as follows.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  d (i) 
+  &amp;=
+  \begin{cases}
+    1 &amp; i &lt; m \\
+    3m+1 &amp; i = m \\
+    0 &amp; i &gt; m
+  \end{cases}
+  \\
+  D (i)
+  &amp;=
+  \begin{cases}
+    i + 1 &amp; i &lt; m \\
+    3m+1 &amp; i \ge m 
+  \end{cases}
+\end{align}
+\]</span></p>
+<p>The debit invariant is violated at <span class="math inline">\(i=0\)</span> (since <span class="math inline">\(D(0) = 1 &gt; 0\)</span>) and at <span class="math inline">\(i = m\)</span> (since <span class="math inline">\(D (m) = 3m + 1 &gt; 3m\)</span>). Discharging one debit from the zeroth node restores the invariant.</p>
+<p>Finally, consider a <code>tail</code> which causes a rotation. There are two cases:</p>
+<ol type="1">
+<li>Either <span class="math inline">\(\left| f \right| = m\)</span> and <span class="math inline">\(\left| r \right| = 2m + 1\)</span>; or</li>
+<li>we have <span class="math inline">\(\left| f \right| = m\)</span> and <span class="math inline">\(\left| r \right| = 2m + 2\)</span>.</li>
+</ol>
+<p>The first case is analogous to that of <code>snoc</code>; discharging one debit will restore the invariant.</p>
+<p>For the second case, we have one more debit than in the first case, which we place on the zeroth node. Now</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  d (i) 
+  &amp;=
+  \begin{cases}
+    2 &amp; i = 0 \\
+    1 &amp; 0 &lt; i &lt; m \\
+    m+1 &amp; i = m \\
+    0 &amp; i &gt; m
+  \end{cases}
+  \\
+  D (i)
+  &amp;=
+  \begin{cases}
+    i + 2 &amp; i &lt; m \\
+    3m+2 &amp; i \ge m 
+  \end{cases}.
+\end{align}
+\]</span></p>
+<p>We can restore the invariant by discharging two debits from the zeroth node.</p>
+<p><strong>Item 2.</strong></p>
+<p>Since all suspensions are evaluated, the cost of 100 <code>snocs</code> followed by 100 <code>tails</code> is the complete cost of this sequence of operations. That is, we can pretend that all evaluation is strict.</p>
+<p>The only possible difference is in the sum of the lengths of lists that need to be reversed. With the invariant <span class="math inline">\(\left| r \right| \le \left| f \right|\)</span>, this cost amounts to <span class="math inline">\(2^0 + 2^1 + \dots + 2^5 = 2^6 - 1 = 63\)</span>. With the invariant <span class="math inline">\(\left| r \right| \le 2\left| f \right|\)</span>, this cost amounts to <span class="math inline">\(3^0 + 3^1 + 3^2 + 3^3 = 40\)</span>. Thus, we would expect the second invariant to exhibit better performance for the execution trace above.</p>
+<h2 id="exercise-6.3">Exercise 6.3</h2>
+<p>Prove that <code>findMin</code>, <code>deleteMin</code>, and <code>merge</code> also run in logarithmic amortised time.</p>
+<h2 id="solution-6.3">Solution 6.3</h2>
+<p>The proofs are essentially dual to those of <a href="../../posts/pfds/okasakiPFDSc05.html#exercise-5.3">Exercise 5.3</a>.</p>
+<p><strong><code>findMin</code></strong></p>
+<p>Let <code>h</code> be a heap of size <span class="math inline">\(n\)</span>. Then <code>findMin h</code> makes a call to <code>removeMinTree</code>, which is linear in the length of the list. Since there are <span class="math inline">\(\log n\)</span> elements in the list, the complete cost of <code>findMin</code> is logarithmic. We must also add the potential, but this is at most <span class="math inline">\(\log n\)</span>, so <code>findMin</code> has indeed <span class="math inline">\(\mathcal O (\log n)\)</span> time.</p>
+<p><strong><code>merge</code></strong></p>
+<p>The unshared cost is constant. Let <code>h1</code>, <code>h2</code> be binomial heaps of sizes <span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span>, respectively. The shared cost is bounded by <span class="math inline">\(\log n_1 + \log n_2 + k\)</span>, where <code>link</code> is called <span class="math inline">\(k\)</span> times. Since <span class="math inline">\(\Phi (m+n) - \Phi (m) - \Phi (n) = -k\)</span>, we have <span class="math inline">\(\Psi (n_1+n_2) - \Psi (n_1) - \Psi (n_2) = k + d (n_1 +n_2) - d(n_1) - d(n_2)\)</span>, where <span class="math inline">\(d (x)\)</span> is the number of bits of <span class="math inline">\(x\)</span>. Thus, the potential increase is greater than <span class="math inline">\(k - \log n_1 - \log n_2\)</span>, giving an amortised cost <span class="math inline">\(\mathcal O (\log n_1 + \log n_2)\)</span>.</p>
+<p><strong><code>deleteMin</code></strong></p>
+<p>Now we show that <code>deleteMin</code> is also logarithmic. We start with a heap <code>h</code> with <span class="math inline">\(n\)</span> elements. The unshared cost is constant. The shared cost consists of: a call to <code>removeMinTree</code>, which is <span class="math inline">\(\mathcal O (\log n)\)</span>; reversing the list of children, which is <span class="math inline">\(\mathcal O (r)\)</span>; and a call to <code>mrg</code>, which is <span class="math inline">\(k + r + \log n\)</span> where <span class="math inline">\(k\)</span> is the number of calls to <code>link</code>. As with <code>merge</code>, the increase in potential is <span class="math inline">\(k - 2\log n\)</span>, leaving us with an amortised cost of <span class="math inline">\(\mathcal O(r + \log n)\)</span>.</p>
+<h2 id="exercise-6.4">Exercise 6.4</h2>
+<p>Show that removing the keyword <code>lazy</code> from the definitions of <code>merge</code> and <code>deleteMin</code> doesn’t change the amortised complexity of these funtions.</p>
+<h2 id="solution-6.4">Solution 6.4</h2>
+<p>For <code>merge</code>, we saw that the complete cost is <span class="math inline">\(\log n_1 + \log n_2 + k\)</span> and the potential increase is <span class="math inline">\(k - \log n_1 - \log n_2\)</span>. Thus, the amortised cost is <span class="math inline">\(\mathcal O (\log n_1 + \log n_2)\)</span> whether <code>merge</code> is lazy or not. A similar argument also works for <code>deleteMin</code>.</p>
+<h2 id="exercise-6.5">Exercise 6.5</h2>
+<p>Implement a functor <code>SizedHeap</code> that transforms any implementation of heaps into one that explicitly maintains the size.</p>
+<h2 id="solution-6.5">Solution 6.5</h2>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/430c770236fd25e29913204fde61128bc89a8f54/src/Chap06/Data/SizedHeap.hs">source</a>.</p>
+<h2 id="exercise-6.6">Exercise 6.6</h2>
+<p>Show that the following break the <span class="math inline">\(\mathcal O (1)\)</span> amortised time bounds.</p>
+<ol type="1">
+<li>Never force <code>f</code> until <code>w</code> becomes empty.</li>
+<li>During <code>tail</code>, don’t change <code>f</code> but instead just decrease <code>lenf</code> to indicate that the element has been removed.</li>
+</ol>
+<h2 id="solution-6.6">Solution 6.6</h2>
+<p><strong>Item 1</strong></p>
+<p>When analysing <code>snoc</code> or <code>tail</code>, part of the shared costs comes from the suspension <code>$(f' @ rev r)</code>. If <code>f' = force f</code>, then evaluating this suspension is linear, as Okasaki shows. If <code>f' = f</code>, then evaluating this suspension is slower than linear. This is due to the fact that we have cascading dependencies of nested suspensions</p>
+<p>For <span class="math inline">\(n = 2^k - 1\)</span>, the suspension would contribute to a shared cost of</p>
+<p class="mathjaxWide"><span class="math display">\[
+  (2^{k-1} + 2^{k-1} - 1) + \dots + (2^0 + 2^0 - 1)
+  =
+  2n - k - 2
+\]</span></p>
+<p>Since the increase in potential is <span class="math inline">\(n\)</span>, the amortised cost is <span class="math inline">\(\mathcal O (n)\)</span>, which isn’t constant.</p>
+<p><strong>Item 2</strong></p>
+<p>This change has two very obvious drawbacks:</p>
+<ol type="1">
+<li><p>it renders the algorithms incorrect.</p>
+<p>For example, <code>head . tail . snoc 1 (empty)</code> should yield an error but instead yields <code>1</code>.</p></li>
+<li><p>it is incredibly memory inefficient.</p>
+<p>For example, <code>iterate (tail . snoc 1) empty !! k</code> uses at least <span class="math inline">\(\mathcal O (k+1)\)</span> memory instead of constant memory.</p></li>
+</ol>
+<p>We need to show that it is also inefficient with respect to the time complexity. The <span class="math inline">\(\left| f \right|\)</span> in the potential should be interpreted as <code>lenf</code> instead of <code>length f</code> in order to guarantee that the potential is zero when we force the suspended list. Calling <code>snoc 1</code> on the queue <code>iterate (tail . snoc 1) empty !! k</code> will cause a rotation. However, the shared cost is now <span class="math inline">\(k + m + 1\)</span> instead of <span class="math inline">\(2m+1\)</span>, where <span class="math inline">\(k \ge m\)</span>. For <span class="math inline">\(k = cm\)</span>, <span class="math inline">\(c &gt; 1\)</span>, the new potential is <span class="math inline">\(2m+1\)</span>. Thus, the amortised complexity is <span class="math inline">\(1 + (k+m+1) - (2m+1) \ge (c-1)m\)</span>; that is, <code>snoc</code> is no longer constant time.</p>
+<h2 id="exercise-6.7">Exercise 6.7</h2>
+<p>Changing the representation from suspended list to a list of streams:</p>
+<ol type="1">
+<li>Prove the bounds on <code>add</code> and <code>sort</code> using the banker’s method; and</li>
+<li>Write a function to extract the <span class="math inline">\(k\)</span> smallest elements from a sortable collection, proving that the funtion runs in <span class="math inline">\(\mathcal O (k \log n)\)</span> time.</li>
+</ol>
+<h2 id="solution-6.7">Solution 6.7</h2>
+<p><strong>Item 1</strong>.</p>
+<p>Due to the monolithic nature of the functions, it suffices to assign all debits to the root. This way, we could just maintain the debit invariant that the number of debits in the collection is <span class="math inline">\(D \le \Psi (n)\)</span>, where <span class="math inline">\(n\)</span> is the length of the list. However, for the next part, we will require the list of streams representation and to assign the debits in an incremental fashion.</p>
+<p>First, a couple of definitions. Let <span class="math inline">\(s_n (i)\)</span> be the length of the ith stream in a collection of size <span class="math inline">\(n\)</span>. Then define <span class="math inline">\(\sigma_n (i) := \sum_{k=0}^i s_n (i)\)</span>. Note that <span class="math inline">\(n = \sigma_n (B-1)\)</span> where <span class="math inline">\(B\)</span> is the number of one-bits (streams) of <span class="math inline">\(n\)</span>.</p>
+<p>Let <span class="math inline">\(d_n (i, j)\)</span> be the number of debits on the jth element of the ith stream in a collection of size <span class="math inline">\(n\)</span>. Then</p>
+<p class="mathjaxWide"><span class="math display">\[
+D_n (i, j) := \sum_{l=0}^j d_n (i, l) + \sum_{k = 0}^{i-1} \sum_{l = 0}^{s_n (i)} d_n (k, l)
+\]</span></p>
+<p>is the total number of debits up to the jth element of the ith stream in a collection of size <span class="math inline">\(n\)</span>. For convenience, we also define</p>
+<p class="mathjaxWide"><span class="math display">\[
+\Delta_n (i, j) := \sum_{k=0}^j d_n (i, k),
+\]</span> the total number of debits up to the jth element counting only within the ith stream.</p>
+<p>We maintain two debit invariants:</p>
+<ol type="1">
+<li>each stream has <span class="math inline">\(\Delta_n (i, j) \le 2j\)</span> debits; and</li>
+<li>the cummulative total of debits is <span class="math inline">\(D_n (i, j) \le \Psi (\sigma_n (i))\)</span>.</li>
+</ol>
+<p>We show that the amortised cost of <code>add</code> is logarithmic in the size of the collection. Suppose we have a collection of <span class="math inline">\(n\)</span> elements satisfying both debit invariants. Let <span class="math inline">\(k\)</span> be the largest integer such that the first <span class="math inline">\(k\)</span> bits of <span class="math inline">\(n\)</span> are one-bits. The unshared cost of <code>add</code> is constant, as already shown in the book. The shared cost is <span class="math inline">\(2^{k+1}-2\)</span>, so we create that many debits. We assign two of these debits to each element of the new zeroth stream, except from the zeroth element. More precisely,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\Delta_{n+1} (0, j) = 2j.
+\]</span></p>
+<p>Since the size of the zeroth stream is <span class="math inline">\(s_{n+1} (0) = 2^k\)</span>, we have assigned a total of <span class="math inline">\(2(2^k - 1)\)</span> debits as required. There are no more debits to reassign since</p>
+<p class="mathjaxWide"><span class="math display">\[
+D_n (k-1) \le \Psi (\sigma_n (k-1)) = \Psi (2^k - 1) = 0.
+\]</span></p>
+<p>We have maintained the first invariant by construction but may have violated the second invariant. There are now a total of</p>
+<p class="mathjaxWide"><span class="math display">\[
+D_{n+1} (i, j) = D_n (i+k-1, j) + 2^{k+1} - 2
+\]</span> debits but are allowed at most <span class="math inline">\(\Psi (\sigma_{n+1} (i))\)</span>. Thus, we should pay off</p>
+<p class="mathjaxWide"><span class="math display">\[
+D_n (i+k-1, j) + 2^{k+1} - 2 - \Psi (\sigma_{n+1} (i))
+\]</span></p>
+<p>debits. This is at least <span class="math inline">\(\Psi (\sigma_n (i+k-1)) - \Psi (\sigma_{n+1} (i)) + 2^{k+1} - 2\)</span>. Note that <span class="math inline">\(\sigma_{n+1} (i) = \sigma_n (i+k-1) + 1\)</span>. It follows that we need to pay at least <span class="math inline">\(2B_i'-2\)</span> debits from the first <span class="math inline">\(i\)</span> streams, where <span class="math inline">\(B_i'\)</span> is the number of one-bits of <span class="math inline">\((n+1) \mod 2 s_{n+1} (i)\)</span>; that is, the number of one-bits in the first <span class="math inline">\(i\)</span> bits of <span class="math inline">\(n+1\)</span>. Therefore, we can restore the second invariant by paying off two debits from each stream. The realised shared cost is thus <span class="math inline">\(2B'-2\)</span>.</p>
+<p>Showing that <code>sort</code> is linear is much easier. The second invariant guarantees that there are at most <span class="math inline">\(\Psi (n)\)</span> debits. We can just pay them all off, giving basically the same analysis as with the physicist’s method.</p>
+<p><strong>Item 2</strong>.</p>
+<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/2b33c51b47e266b83f05ce6a7c6fd4063f5dd75f/src/Chap06/Exercise07.hs">source</a>.</p>
+<p>Note that the first invariant allows us to access the head of each stream whenever we want. The unshared cost is <span class="math inline">\(2\log n\)</span> since we make one pass over the streams to find the minimum and then one more pass to remove it. In order to be able to access the heads of all remaining streams, we should pay at most two more debits. Thus, <code>extract 1</code> has complexity <span class="math inline">\(\mathcal O (\log n)\)</span>. It follows by induction, that <code>extract k</code> has complexity <span class="math inline">\(\mathcal O (k\log n)\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+    </div>
+
+    <footer class="blog-footer">
+	    <div class="social">
+		    <a href="https://github.com/stappit"><i class="fa fa-github"></i></a>
+		    <a href="../../atom.xml"><i class="fa fa-rss"></i></a>
+	    </div>
+
+	    </br>
+
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <!--<script type="text/x-mathjax-config">-->
+      <!--MathJax.Hub.Config({-->
+        <!--"HTML-CSS": { linebreaks: { automatic: true } }-->
+      <!--});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

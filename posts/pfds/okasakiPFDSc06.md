@@ -1,5 +1,5 @@
 ---
-title: Okasaki's PFDS: Chapter 6
+title: Okasaki's PFDS, Chapter 6
 author: Brian
 date: 2015-12-05
 tags: fp, haskell, okasaki, execution trace, queue, merge sort, sortable

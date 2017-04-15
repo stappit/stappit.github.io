@@ -1,5 +1,5 @@
 ---
-title: Okasaki's PFDS: Chapter 3
+title: Okasaki's PFDS, Chapter 3
 author: Brian
 date: 2015-11-01
 tags: fp, haskell, okasaki, leftist tree, leftist heap, binomial tree, binomial heap, heap, red black tree

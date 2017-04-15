@@ -1,5 +1,5 @@
 ---
-title: Okasaki's PFDS: Chapter 4
+title: Okasaki's PFDS, Chapter 4
 author: Brian
 date: 2015-11-08
 tags: fp, haskell, okasaki, lazy, strict

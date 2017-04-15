@@ -1,5 +1,5 @@
 ---
-title: Okasaki's PFDS: Chapter 2
+title: Okasaki's PFDS, Chapter 2
 date: 2015-10-26
 tags: fp, haskell, okasaki, binary tree, binary search tree, set
 ---

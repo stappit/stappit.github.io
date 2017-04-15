@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../css/default.css">
+	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+        <title>My Hakyll Blog - Wasserman's AoS, Chapter 7, Question 5</title>
+    </head>
+
+    <body>
+    <nav id="navbar-container" class="navbar navbar-default navbar-static-top">
+	    <div class="container">
+		    <div class="navbar-header">
+			    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+			    </button>
+			    <a class="navbar-brand" href="../../index.html">Brian</a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+			    <ul class="nav navbar-nav">
+				    <li><a class="blog-nav-item" href="../../index.html"><i class="fa fa-home"></i> Recent</a></li>
+				    <li><a class="blog-nav-item" href="../../archive.html"><i class="fa fa-globe"></i> Archive</a></li>
+				    <li><a class="blog-nav-item" href="https://github.com/stappit"><i class="fa fa-github"></i> GitHub</a></li>
+				    <li><a class="blog-nav-item" href="../../about.html"><i class="fa fa-info-circle"></i> About</a></li>
+				    <li><a class="blog-nav-item" href="../../atom.xml"><i class="fa fa-rss"></i> Atom</a></li>
+			    </ul>
+		    </div><!--/.nav-collapse -->
+	    </div>
+    </nav>
+
+    <div id="content" class="container">
+	    
+
+
+<h1 class="blog-post-title">Wasserman's AoS, Chapter 7, Question 5</h1>
+<p class="blog-post-meta">
+Posted on April 11, 2017  by Brian </br>
+ Tags: <a href="../../tags/wasserman.html">wasserman</a>, <a href="../../tags/all%20of%20statistics.html">all of statistics</a>, <a href="../../tags/covariance.html">covariance</a>, <a href="../../tags/empirical%20distribution%20function.html">empirical distribution function</a> </br>
+ Category: <a href="../../categories/allofstatistics.html">allofstatistics</a> 
+</p>
+
+<p>We show that the covariance <span class="math inline">\(C\)</span> of <span class="math inline">\(\hat F_n(x)\)</span> and <span class="math inline">\(\hat F_n(y)\)</span> is <span class="math inline">\(\frac{1}{n} F(x) \left( 1 + F(y) \right)\)</span>, for <span class="math inline">\(x \le y\)</span>. For <span class="math inline">\(x \ge y\)</span>, we have <span class="math inline">\(\frac{1}{n} F(y) \left( 1 + F(x) \right)\)</span>.</p>
+<p>Using <span class="math inline">\(\mathbb E \hat F_n(y) = F(y)\)</span> and linearity of expectation, we obtain</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E (\hat F_n(x) - F(x)) (\hat F_n(y) - F(y))
+=
+\mathbb E (\hat F_n(x)\hat F_n(y)) - F(x)F(y)
+.
+\]</span></p>
+<p>By definition of the empirical cumulative distribution funtion, the first term is equal to</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{1}{n^2} \sum_{i, j} \mathbb E (I(X_i \le x)I(X_j \le y))
+=
+\frac{1}{n^2} \left( 
+	\sum_{i = j} \mathbb E (I(X_i \le x)I(X_i \le y))
+	+ \sum_{i \ne j} \mathbb E (I(X_i \le x)I(X_j \le y))
+\right)
+.
+\]</span></p>
+<p>We now simplify the two summations. Note that the Bernoulli variables <span class="math inline">\(I(X_i \le x)\)</span> and <span class="math inline">\(I(X_j \le y)\)</span> are independent for <span class="math inline">\(i \ne j\)</span> since <span class="math inline">\(X_i\)</span> and <span class="math inline">\(X_j\)</span> are independent. This implies that the expectation of the product is the product of the expectations.</p>
+<p>Also, without loss of generality, we may assume that <span class="math inline">\(x \le y\)</span>. With this assumption, <span class="math inline">\(I(X_i \le x)I(X_i \le y) = I(X_i \le x)\)</span>. Thus, we obtain</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+	\frac{1}{n^2} \left( 
+			\sum_{i = j} \mathbb E (I(X_i \le x))
+			+ \sum_{i \ne j} \mathbb E (I(X_i \le x)) \mathbb E (I(X_j \le y))
+			\right)
+	&amp;=
+	\frac{1}{n^2} \left( 
+			\sum_{i = j} F(x)
+			+ \sum_{i \ne j} F(x)F(y)
+			\right)
+	\\
+	&amp;=
+	\frac{1}{n} F(x) (
+			1 + (n-1) F(y)
+			)
+\end{align}
+.
+\]</span></p>
+<p>Putting everything together, we see that the covariance <span class="math inline">\(C\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\frac{1}{n} F(x) (1 + (n-1) F(y)) - F(x)F(y)
+&amp;=
+\frac{1}{n} F(x) (1 + F(y))
+\end{align}
+\]</span></p>
+<p>for <span class="math inline">\(x \le y\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+    </div>
+
+    <footer class="blog-footer">
+	    <div class="social">
+		    <a href="https://github.com/stappit"><i class="fa fa-github"></i></a>
+		    <a href="../../atom.xml"><i class="fa fa-rss"></i></a>
+	    </div>
+
+	    </br>
+
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <!--<script type="text/x-mathjax-config">-->
+      <!--MathJax.Hub.Config({-->
+        <!--"HTML-CSS": { linebreaks: { automatic: true } }-->
+      <!--});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

@@ -8,9 +8,101 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2015-12-05T00:00:00Z</updated>
+    <updated>2017-04-11T00:00:00Z</updated>
     <entry>
-    <title>Okasaki's PFDS: Chapter 6</title>
+    <title>Wasserman's AoS, Chapter 7, Question 5</title>
+    <link href="http://stappit.github.io/posts/allofstatistics/ch07q05.html" />
+    <id>http://stappit.github.io/posts/allofstatistics/ch07q05.html</id>
+    <published>2017-04-11T00:00:00Z</published>
+    <updated>2017-04-11T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+
+
+<h1 class="blog-post-title">Wasserman's AoS, Chapter 7, Question 5</h1>
+<p class="blog-post-meta">
+Posted on April 11, 2017  by Brian </br>
+ Tags: <a href="/tags/wasserman.html">wasserman</a>, <a href="/tags/all%20of%20statistics.html">all of statistics</a>, <a href="/tags/covariance.html">covariance</a>, <a href="/tags/empirical%20distribution%20function.html">empirical distribution function</a> </br>
+ Category: <a href="/categories/allofstatistics.html">allofstatistics</a> 
+</p>
+
+<p>We show that the covariance <span class="math inline">\(C\)</span> of <span class="math inline">\(\hat F_n(x)\)</span> and <span class="math inline">\(\hat F_n(y)\)</span> is <span class="math inline">\(\frac{1}{n} F(x) \left( 1 + F(y) \right)\)</span>, for <span class="math inline">\(x \le y\)</span>. For <span class="math inline">\(x \ge y\)</span>, we have <span class="math inline">\(\frac{1}{n} F(y) \left( 1 + F(x) \right)\)</span>.</p>
+<p>Using <span class="math inline">\(\mathbb E \hat F_n(y) = F(y)\)</span> and linearity of expectation, we obtain</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E (\hat F_n(x) - F(x)) (\hat F_n(y) - F(y))
+=
+\mathbb E (\hat F_n(x)\hat F_n(y)) - F(x)F(y)
+.
+\]</span></p>
+<p>By definition of the empirical cumulative distribution funtion, the first term is equal to</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{1}{n^2} \sum_{i, j} \mathbb E (I(X_i \le x)I(X_j \le y))
+=
+\frac{1}{n^2} \left( 
+	\sum_{i = j} \mathbb E (I(X_i \le x)I(X_i \le y))
+	+ \sum_{i \ne j} \mathbb E (I(X_i \le x)I(X_j \le y))
+\right)
+.
+\]</span></p>
+<p>We now simplify the two summations. Note that the Bernoulli variables <span class="math inline">\(I(X_i \le x)\)</span> and <span class="math inline">\(I(X_j \le y)\)</span> are independent for <span class="math inline">\(i \ne j\)</span> since <span class="math inline">\(X_i\)</span> and <span class="math inline">\(X_j\)</span> are independent. This implies that the expectation of the product is the product of the expectations.</p>
+<p>Also, without loss of generality, we may assume that <span class="math inline">\(x \le y\)</span>. With this assumption, <span class="math inline">\(I(X_i \le x)I(X_i \le y) = I(X_i \le x)\)</span>. Thus, we obtain</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+	\frac{1}{n^2} \left( 
+			\sum_{i = j} \mathbb E (I(X_i \le x))
+			+ \sum_{i \ne j} \mathbb E (I(X_i \le x)) \mathbb E (I(X_j \le y))
+			\right)
+	&amp;=
+	\frac{1}{n^2} \left( 
+			\sum_{i = j} F(x)
+			+ \sum_{i \ne j} F(x)F(y)
+			\right)
+	\\
+	&amp;=
+	\frac{1}{n} F(x) (
+			1 + (n-1) F(y)
+			)
+\end{align}
+.
+\]</span></p>
+<p>Putting everything together, we see that the covariance <span class="math inline">\(C\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\frac{1}{n} F(x) (1 + (n-1) F(y)) - F(x)F(y)
+&amp;=
+\frac{1}{n} F(x) (1 + F(y))
+\end{align}
+\]</span></p>
+<p>for <span class="math inline">\(x \le y\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>Okasaki's PFDS, Chapter 6</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc06.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc06.html</id>
     <published>2015-12-05T00:00:00Z</published>
@@ -18,7 +110,7 @@
     <summary type="html"><![CDATA[
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 6</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 6</h1>
 <p class="blog-post-meta">
 Posted on December  5, 2015  by Brian </br>
  Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/execution%20trace.html">execution trace</a>, <a href="/tags/queue.html">queue</a>, <a href="/tags/merge%20sort.html">merge sort</a>, <a href="/tags/sortable.html">sortable</a> </br>
@@ -218,7 +310,7 @@ D_n (i+k-1, j) + 2^{k+1} - 2 - \Psi (\sigma_{n+1} (i))
 ]]></summary>
 </entry>
 <entry>
-    <title>Okasaki's PFDS: Chapter 5</title>
+    <title>Okasaki's PFDS, Chapter 5</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc05.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc05.html</id>
     <published>2015-11-25T00:00:00Z</published>
@@ -226,7 +318,7 @@ D_n (i+k-1, j) + 2^{k+1} - 2 - \Psi (\sigma_{n+1} (i))
     <summary type="html"><![CDATA[
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 5</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 5</h1>
 <p class="blog-post-meta">
 Posted on November 25, 2015  by Brian </br>
  Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/deque.html">deque</a>, <a href="/tags/binomial%20heap.html">binomial heap</a>, <a href="/tags/splay%20heap.html">splay heap</a>, <a href="/tags/pairing%20heap.html">pairing heap</a>, <a href="/tags/heap.html">heap</a> </br>
@@ -492,7 +584,7 @@ Posted on November 25, 2015  by Brian </br>
 <dl>
 <dt>Lemma</dt>
 <dd>Define <span class="math inline">\(s_2\)</span> to be the tree <code>T y b c</code> and <span class="math inline">\(s_1\)</span> to be the tree <code>T x a s2</code>.<br />
- Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
+Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
 </dd>
 </dl>
 <p>Proof. Without loss of generality, assume <span class="math inline">\(y \le x\)</span>. Define <span class="math inline">\(t_2\)</span> to be the tree <code>T x a b</code> and <span class="math inline">\(t_1\)</span> to be <code>T y t2 c</code>; that is, <span class="math inline">\(t_1\)</span> is the result of applying <code>merge</code> to <span class="math inline">\(s_1\)</span>. The potential increase is <span class="math inline">\(\Phi(t_1) - \Phi(s_1)\)</span>, by definition. This expands to <span class="math inline">\(\phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)\)</span>, which is equal to <span class="math inline">\(\phi(t_2) - \phi(s_2)\)</span> since <span class="math inline">\(\phi(t_1) = \phi(s_1)\)</span>. Now</p>
@@ -601,7 +693,7 @@ tooSlow <span class="fu">=</span> map deleteMin <span class="fu">.</span> replic
 ]]></summary>
 </entry>
 <entry>
-    <title>Okasaki's PFDS: Chapter 4</title>
+    <title>Okasaki's PFDS, Chapter 4</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc04.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc04.html</id>
     <published>2015-11-08T00:00:00Z</published>
@@ -609,7 +701,7 @@ tooSlow <span class="fu">=</span> map deleteMin <span class="fu">.</span> replic
     <summary type="html"><![CDATA[
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 4</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 4</h1>
 <p class="blog-post-meta">
 Posted on November  8, 2015  by Brian </br>
  Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/lazy.html">lazy</a>, <a href="/tags/strict.html">strict</a> </br>
@@ -697,7 +789,7 @@ Posted on November  8, 2015  by Brian </br>
 ]]></summary>
 </entry>
 <entry>
-    <title>Okasaki's PFDS: Chapter 3</title>
+    <title>Okasaki's PFDS, Chapter 3</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc03.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc03.html</id>
     <published>2015-11-01T00:00:00Z</published>
@@ -705,7 +797,7 @@ Posted on November  8, 2015  by Brian </br>
     <summary type="html"><![CDATA[
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 3</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 3</h1>
 <p class="blog-post-meta">
 Posted on November  1, 2015  by Brian </br>
  Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/leftist%20tree.html">leftist tree</a>, <a href="/tags/leftist%20heap.html">leftist heap</a>, <a href="/tags/binomial%20tree.html">binomial tree</a>, <a href="/tags/binomial%20heap.html">binomial heap</a>, <a href="/tags/heap.html">heap</a>, <a href="/tags/red%20black%20tree.html">red black tree</a> </br>
@@ -1022,7 +1114,7 @@ T (2k) = T(k) + T (k-1) + \mathcal O (1).
 ]]></summary>
 </entry>
 <entry>
-    <title>Okasaki's PFDS: Chapter 2</title>
+    <title>Okasaki's PFDS, Chapter 2</title>
     <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc02.html" />
     <id>http://stappit.github.io/posts/pfds/okasakiPFDSc02.html</id>
     <published>2015-10-26T00:00:00Z</published>
@@ -1030,7 +1122,7 @@ T (2k) = T(k) + T (k-1) + \mathcal O (1).
     <summary type="html"><![CDATA[
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 2</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 2</h1>
 <p class="blog-post-meta">
 Posted on October 26, 2015  by Brian </br>
  Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/binary%20tree.html">binary tree</a>, <a href="/tags/binary%20search%20tree.html">binary search tree</a>, <a href="/tags/set.html">set</a> </br>

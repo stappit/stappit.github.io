@@ -9,4 +9,4 @@ The source for the blog is in the `hakyll` branch.  The master branch is include
 
 The main difficulty arises with a hakyll `rebuild`, as this deletes the `_site` directory then recreates it without the `.git` subdirectory.  If we simply re-add the submodule, we confuse hakyll by losing the modified dates.
 
-As a workaround, we use a custom script to copy the `.git` directory before running a `rebuild`, making sure to replace it afterwards.
+As a workaround, we use a [rebuild.sh](.publish.sh) to copy the `.git` directory before running a `rebuild`, making sure to replace it afterwards. We can then publish with [publish.sh](.publish.sh).

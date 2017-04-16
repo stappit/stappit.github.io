@@ -183,11 +183,11 @@ Binomial Heaps
 
 We define the binomial tree of rank 0 to be the singleton node.
 
-![The binomial tree of rank 0](/images/binomial-tree-0.pdf.png)
+![The binomial tree of rank 0](/images/binomial-tree-0.pdf.png){.nottoobig}
 
 The binomial tree of rank r is defined as the tree formed by adding the binomial tree of rank n-1 as a left child of itself.
 
-![The binomial tree of rank 1](/images/binomial-tree-1.pdf.png)
+![The binomial tree of rank 1](/images/binomial-tree-1.pdf.png){.nottoobig}
 
 ![The binomial tree of rank 2](/images/binomial-tree-2.pdf.png)
 

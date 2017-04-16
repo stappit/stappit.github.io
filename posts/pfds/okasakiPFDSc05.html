@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="../../css/default.css">
 	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
 
-        <title>My Hakyll Blog - Okasaki's PFDS: Chapter 5</title>
+        <title>My Hakyll Blog - Okasaki's PFDS, Chapter 5</title>
     </head>
 
     <body>
@@ -42,7 +42,7 @@
 	    
 
 
-<h1 class="blog-post-title">Okasaki's PFDS: Chapter 5</h1>
+<h1 class="blog-post-title">Okasaki's PFDS, Chapter 5</h1>
 <p class="blog-post-meta">
 Posted on November 25, 2015  by Brian </br>
  Tags: <a href="../../tags/fp.html">fp</a>, <a href="../../tags/haskell.html">haskell</a>, <a href="../../tags/okasaki.html">okasaki</a>, <a href="../../tags/deque.html">deque</a>, <a href="../../tags/binomial%20heap.html">binomial heap</a>, <a href="../../tags/splay%20heap.html">splay heap</a>, <a href="../../tags/pairing%20heap.html">pairing heap</a>, <a href="../../tags/heap.html">heap</a> </br>
@@ -308,7 +308,7 @@ Posted on November 25, 2015  by Brian </br>
 <dl>
 <dt>Lemma</dt>
 <dd>Define <span class="math inline">\(s_2\)</span> to be the tree <code>T y b c</code> and <span class="math inline">\(s_1\)</span> to be the tree <code>T x a s2</code>.<br />
- Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
+Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
 </dd>
 </dl>
 <p>Proof. Without loss of generality, assume <span class="math inline">\(y \le x\)</span>. Define <span class="math inline">\(t_2\)</span> to be the tree <code>T x a b</code> and <span class="math inline">\(t_1\)</span> to be <code>T y t2 c</code>; that is, <span class="math inline">\(t_1\)</span> is the result of applying <code>merge</code> to <span class="math inline">\(s_1\)</span>. The potential increase is <span class="math inline">\(\Phi(t_1) - \Phi(s_1)\)</span>, by definition. This expands to <span class="math inline">\(\phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)\)</span>, which is equal to <span class="math inline">\(\phi(t_2) - \phi(s_2)\)</span> since <span class="math inline">\(\phi(t_1) = \phi(s_1)\)</span>. Now</p>

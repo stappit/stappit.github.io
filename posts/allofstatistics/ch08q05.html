@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="../../css/default.css">
 	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
 
-        <title>My Hakyll Blog - Wasserman's AoS, Chapter 7, Question 5</title>
+        <title>My Hakyll Blog - Wasserman's AoS, Chapter 8, Question 5</title>
     </head>
 
     <body>
@@ -42,68 +42,99 @@
 	    
 
 
-<h1 class="blog-post-title">Wasserman's AoS, Chapter 7, Question 5</h1>
+<h1 class="blog-post-title">Wasserman's AoS, Chapter 8, Question 5</h1>
 <p class="blog-post-meta">
-Posted on April 11, 2017  by Brian </br>
- Tags: <a href="../../tags/wasserman.html">wasserman</a>, <a href="../../tags/all%20of%20statistics.html">all of statistics</a>, <a href="../../tags/covariance.html">covariance</a>, <a href="../../tags/empirical%20distribution%20function.html">empirical distribution function</a> </br>
+Posted on April 16, 2017  by Brian </br>
+ Tags: <a href="../../tags/wasserman.html">wasserman</a>, <a href="../../tags/all%20of%20statistics.html">all of statistics</a>, <a href="../../tags/bootstrap.html">bootstrap</a>, <a href="../../tags/conditional%20expectation.html">conditional expectation</a>, <a href="../../tags/conditional%20variance.html">conditional variance</a> </br>
  Category: <a href="../../categories/allofstatistics.html">allofstatistics</a> 
 </p>
 
-<p>We show that the covariance <span class="math inline">\(\text{Cov} (\hat F_n(x), \hat F_n(y))\)</span> is <span class="math display">\[
-\frac{1}{n} F(x) \left( 1 + F(y) \right)
-,
-\]</span> for <span class="math inline">\(x \le y\)</span>. For <span class="math inline">\(x \ge y\)</span>, we have <span class="math inline">\(\frac{1}{n} F(y) \left( 1 + F(x) \right)\)</span>.</p>
-<p>Using linearity of expectation and the fact that <span class="math inline">\(\mathbb E \hat F_n(y) = F(y)\)</span>, we obtain</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mathbb E (\hat F_n(x) - F(x)) (\hat F_n(y) - F(y))
-=
-\mathbb E (\hat F_n(x)\hat F_n(y)) - F(x)F(y)
-.
-\]</span></p>
-<p>By definition of the empirical cumulative distribution function, the first term is equal to</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{n^2} \sum_{i, j} \mathbb E (I(X_i \le x)I(X_j \le y))
-=
-\frac{1}{n^2} \left( 
-	\sum_{i = j} \mathbb E (I(X_i \le x)I(X_i \le y))
-	+ \sum_{i \ne j} \mathbb E (I(X_i \le x)I(X_j \le y))
-\right)
-.
-\]</span></p>
-<p>We now simplify the two summations:</p>
-<ol type="1">
-<li><p>Without loss of generality, we may assume that <span class="math inline">\(x \le y\)</span>. With this assumption, <span class="math inline">\(I(X_i \le x)I(X_i \le y) = I(X_i \le x)\)</span>.</p></li>
-<li><p>Note that the Bernoulli variables <span class="math inline">\(I(X_i \le x)\)</span> and <span class="math inline">\(I(X_j \le y)\)</span> are independent for <span class="math inline">\(i \ne j\)</span> since <span class="math inline">\(X_i\)</span> and <span class="math inline">\(X_j\)</span> are independent. This implies that the expectation of the product is the product of the expectations.</p></li>
-</ol>
-<p>These two facts allow us to rewrite the first term as</p>
+<p>We solve question 5 from chapter 8 os Wasserman’s “All of Statistics” making the implicit assumption that <span class="math inline">\(X_1, \dotsc, X_n\)</span> are iid. Other computation solutions can be found in the corresponding <a href="https://github.com/stappit/all-of-statistics">GitHub reepo</a>.</p>
+<p>Given <span class="math inline">\(X_1, \dotsc, X_n\)</span>, the random variable <span class="math inline">\(X_i^*\)</span> can take any of those <span class="math inline">\(\le n\)</span> values. With the assumption that there are no ties (i.e. there are n distinct values), <span class="math inline">\(X_i^*\)</span> has a discrete uniform distribution over <span class="math inline">\(X_1, \dotsc, X_n\)</span>. (If there are ties, then the distribution is not uniform). We use this fact multiple times to obtain the result.</p>
 <p class="mathjaxWide"><span class="math display">\[
 \begin{align}
-	\frac{1}{n^2} \left( 
-			\sum_{i = j} \mathbb E (I(X_i \le x))
-			+ \sum_{i \ne j} \mathbb E (I(X_i \le x)) \mathbb E (I(X_j \le y))
-			\right)
-	&amp;=
-	\frac{1}{n^2} \left( 
-			\sum_{i = j} F(x)
-			+ \sum_{i \ne j} F(x)F(y)
-			\right)
-	\\
-	&amp;=
-	\frac{1}{n} F(x) (
-			1 + (n-1) F(y)
-			)
+  \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
+  &amp;=
+  \frac{1}{n} \sum_1^n \mathbb E (X_i^* \vert \dotsc)
+  \\
+  &amp;=
+  \frac{1}{n} \sum_1^n \sum_1^n X_j \frac{1}{n}
+  \\
+  &amp;=
+  \frac{1}{n} \sum_1^n \bar X_n
+  \\
+  &amp;=
+  \bar X_n
+  ,
 \end{align}
-.
 \]</span></p>
-<p>Putting everything together, we see that the covariance is</p>
+<p>where we used The Fact for the 2nd equality.</p>
+<p>Moreover,</p>
 <p class="mathjaxWide"><span class="math display">\[
 \begin{align}
-\frac{1}{n} F(x) (1 + (n-1) F(y)) - F(x)F(y)
-&amp;=
-\frac{1}{n} F(x) (1 + F(y))
+  \mathbb E (\bar X_n^*)
+  &amp;=
+  \mathbb E \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
+  \\
+  &amp;=
+  \mathbb E \bar X_n
+  \\
+  &amp;=
+  \mu
+  ,
 \end{align}
 \]</span></p>
-<p>for <span class="math inline">\(x \le y\)</span>.</p>
+<p>where <span class="math inline">\(\mu := \mathbb E X_1\)</span>, assuming it exists.</p>
+<p>For the conditional variance,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb V (\bar X_n^* \vert X_1, \dotsc, X_n)
+  &amp;=
+  \frac{1}{n^2} \sum_1^n \mathbb V (X_i^* \vert \dotsc)
+  \\
+  &amp;=
+  \frac{1}{n^2} \sum_1^n \sum_1^n \frac{(X_j - \bar X_n)^2}{n}
+  \\
+  &amp;=
+  \frac{1}{n} \sum_1^n \frac{(X_i - \bar X_n)^2}{n}
+  \\
+  &amp;=
+  \frac{S_n}{n}
+  .
+\end{align}
+\]</span></p>
+<p>This has expectation <span class="math inline">\(\frac{\sigma^2}{n}\)</span>, where <span class="math inline">\(\sigma^2 := \mathbb V X_1\)</span>, assuming it exists.</p>
+<p>Before calculating the variance, we require one more identity - the variance of the conditional expectation.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb V \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
+  &amp;=
+  \mathbb V \bar X_n
+  \\
+  &amp;=
+  \frac{\sigma^2}{n}
+  .
+\end{align}
+\]</span></p>
+<p>The expression for the variance now follows from Theorem 3.27.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb V (\bar X_n^*)
+  &amp;=
+  \mathbb V \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
+  +
+  \mathbb E \mathbb V (\bar X_n^* \vert X_1, \dotsc, X_n)
+  \\
+  &amp;=
+  \frac{\sigma^2}{n}
+  +
+  \frac{\sigma^2}{n}
+  \\
+  &amp;=
+  2 \frac{\sigma^2}{n}
+  .
+\end{align}
+\]</span></p>
 
 <div id="disqus_thread"></div>
 <script>

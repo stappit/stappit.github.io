@@ -67,9 +67,9 @@ Other:
 * MP3 player (Scan Disk Clip Sport)
 * Waste bag + toilet paper
 
-## Prerace
+## Pre-Race
 
-The race start was at 07:00 in São Vicente on the north of the island.  The race organisors offered a shuttle service from Machico (east) to the start, leaving at 05:00, which took away much of the stress of using Madeira's awkward public transport system.  Apart from forgetting my pre-rrace breakfast of oats, everything ran very smoothly.  Two cliff bars and a gel had to suffice.
+The race start was at 07:00 in São Vicente on the north of the island.  The race organisors offered a shuttle service from Machico (east) to the start, leaving at 05:00, which took away much of the stress of using Madeira's awkward public transport system.  Apart from forgetting my pre-race breakfast of oats, everything ran very smoothly.  Two Cliff bars and a gel had to suffice for breakfast.
 
 ## Race
 
@@ -85,7 +85,7 @@ This is where I made my biggest mistake: starting to jog the downhills.  They fe
 
 ### Curral das Freiras ➡️ Pico Ruivo (10.8km, 1370m+, 290m-, 2:56)
 
-This section was by far the most stunning and beautiful. Climb, gel, water, repeat, [Moon Hooch](https://www.youtube.com/watch?v=wwBhxBBa7tE)ing all the way to the top. The mountains are epic and it feels almost godlike as you pass through che clouds to the peak. Only occassionallyl did the dense white fog give way to offer a dizzying glimpse at the sheer cliffs.
+This section was by far the most stunning and beautiful. Climb, gel, water, repeat, [Moon Hooch](https://www.youtube.com/watch?v=wwBhxBBa7tE)ing all the way to the top. The mountains are epic and it feels almost godlike as you pass through the clouds to the peak. Only occassionally did the dense white fog give way to offer a dizzying glimpse at the sheer cliffs.
 
 ![Beautiful Mountains](../images/miut_ultra_2017_mordor.jpg)
 
@@ -97,7 +97,7 @@ This section was very technical and the steps were especially steep. Every downh
 
 ![My Feet](../images/miut_ultra_2017_feet.jpg)
 
-Fortunately my dropbag was here and I took the opportunity to rest (~40mins), change my sweat-soaked T-shirt/socks, stock up on calories/water, and take a caffeine pill (200mg). As I lay on the ground waiting for the caffeine to kick in, a guy came sauntering around the corner and, with neithr a break in step nor smile, let forth a jet of vomit. A nearby child started to cry as the guy made another projectile offering to the mountain gods. I hope that guy was alright but I can't deny that this lifted my mood. With a caffeine buzz in my body and the [Oh Hellos](https://www.youtube.com/watch?v=rwvCEWWWt7Q) in my ear, I started the next section.
+Fortunately my dropbag was here and I took the opportunity to rest (~40mins), change my sweat-soaked T-shirt/socks, stock up on calories/water, and take a caffeine pill (200mg). As I lay on the ground waiting for the caffeine to kick in, a guy came sauntering around the corner and, with neither a break in step nor smile, let forth a jet of vomit. A nearby child started to cry as the guy made another projectile offering to the mountain gods. I hope that guy was alright but I can't deny that this lifted my mood. With a caffeine buzz in my body and the [Oh Hellos](https://www.youtube.com/watch?v=rwvCEWWWt7Q) in my ear, I started the next section.
 
 ### Pico do Areeiro ➡️ Ribeiro Frio (9.3km, 125m+, 1035m-, 2:23)
 
@@ -125,8 +125,7 @@ Darkness and the sound of waves. Time seemed to stand still.
 
 ### Ribeira Seca ➡️ Machico (4.3km, 5m+, 220m-, 0:44)
 
-Lots of people ran past me here.  I didn't care any more.  At some point I was walking behing a portuguese guy called [José](https://madeiraultratrail.info/#/event/42/95/results/athlete/10053/24024), who was finishing the full MIUT course.  We walked for an eternity.
-The last downhill into the finish was slippery and painful but when we got to the road we jogged it in together.
+Lots of people ran past me here.  I didn't care any more.  At some point I was walking behing a portuguese guy called [José](https://madeiraultratrail.info/#/event/42/95/results/athlete/10053/24024), who was finishing the full MIUT course.  We walked for an eternity. Thank you, José. The last downhill into the finish was slippery and painful but when we got to the road we jogged it in together.
 
 ## Post-Race
 

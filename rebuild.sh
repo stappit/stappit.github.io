@@ -1,9 +1,3 @@
 #!/bin/sh
 
-GIT=_site/.git
-TMP=_site_git_tmp
-
-mv $GIT $TMP
-stack build
-stack exec site rebuild
-mv $TMP $GIT
+stack build && stack exec site clean && git submodule add https://github.com/stappit/stappit.github.io _site  && stack exec site build

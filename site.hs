@@ -72,8 +72,16 @@ main = hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
             >>= relativizeUrls
 
+    match "posts/**.Rmd" $ version "raw" $ do
+	route   idRoute
+	compile copyFileCompiler
+
+    match "posts/**.png" $ version "raw" $ do
+	route   idRoute
+	compile copyFileCompiler
+
     match "posts/**.lhs" $ version "raw" $ do
-        route   idRoute
+	route   idRoute
 	compile getResourceBody
 
     create ["archive.html"] $ do
@@ -119,7 +127,7 @@ main = hakyll $ do
             renderAtom myFeedConfiguration feedCtx posts
 
 --------------------------------------------------------------------------------
-postsGlob = "posts/**" :: Pattern
+postsGlob = "posts/**.md" :: Pattern
 
 postCtx :: Context String
 postCtx = mconcat

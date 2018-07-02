@@ -10,6 +10,7 @@ cabal-dev
 *.chs.h
 *.dyn_o
 *.dyn_hi
+*.hp
 .hpc
 .hsenv
 .cabal-sandbox/
@@ -20,10 +21,10 @@ cabal.sandbox.config
 # HAKYLL
 #########
 
-*.hp
 site
 _site
 _cache
+*.csv
 
 #########
 # LATEX 

@@ -1,3 +1,5 @@
+secret
+
 #########
 # HASKELL
 #########
@@ -287,6 +289,7 @@ TSWLatexianTemp*
 #########
 
 .Rproj.user
+.rds
 # History files
 .Rhistory
 .Rapp.history
@@ -432,3 +435,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#######
+# OTHER
+#######
+
+.cpp

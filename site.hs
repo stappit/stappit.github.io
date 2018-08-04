@@ -34,12 +34,12 @@ main = hakyll $ do
         compile $ do 
             posts <- recentFirst =<< loadAll pattern 
             let ctx = constField "title" ("Posts tagged \"" ++ tag ++ "\"") 
-    	            `mappend` listField "posts" postCtx (return posts) 
-    	            `mappend` defaultContext 
+                        `mappend` listField "posts" postCtx (return posts) 
+                        `mappend` defaultContext 
             makeItem "" 
-    	        >>= loadAndApplyTemplate "templates/tag.html" ctx 
-	        >>= loadAndApplyTemplate "templates/default.html" ctx 
-	        >>= relativizeUrls
+                    >>= loadAndApplyTemplate "templates/tag.html" ctx 
+                >>= loadAndApplyTemplate "templates/default.html" ctx 
+                >>= relativizeUrls
 
     -- build up categories 
     categories <- buildCategories postsGlob (fromCapture "categories/*.html")
@@ -48,16 +48,16 @@ main = hakyll $ do
         compile $ do 
             posts <- recentFirst =<< loadAll pattern 
             let ctx = constField "title" ("Posts in category \"" ++ tag ++ "\"") 
-    	            `mappend` listField "posts" postCtx (return posts) 
-    	            `mappend` defaultContext 
+                        `mappend` listField "posts" postCtx (return posts) 
+                        `mappend` defaultContext 
             makeItem "" 
-    	        >>= loadAndApplyTemplate "templates/tag.html" ctx 
-	        >>= loadAndApplyTemplate "templates/default.html" ctx 
-	        >>= relativizeUrls
+                    >>= loadAndApplyTemplate "templates/tag.html" ctx 
+                >>= loadAndApplyTemplate "templates/default.html" ctx 
+                >>= relativizeUrls
 
     match postsGlob $ do
         route $ setExtension "html"
-	compile $ pandocMathCompiler
+        compile $ pandocMathCompiler
             >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)
             >>= applyFilter postFilters
             >>= saveSnapshot "content"
@@ -72,17 +72,21 @@ main = hakyll $ do
             >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
             >>= relativizeUrls
 
+    match "posts/**.stan" $ version "raw" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "posts/**.Rmd" $ version "raw" $ do
-	route   idRoute
-	compile copyFileCompiler
+        route   idRoute
+        compile copyFileCompiler
 
     match "posts/**.png" $ version "raw" $ do
-	route   idRoute
-	compile copyFileCompiler
+        route   idRoute
+        compile copyFileCompiler
 
     match "posts/**.lhs" $ version "raw" $ do
-	route   idRoute
-	compile getResourceBody
+        route   idRoute
+        compile getResourceBody
 
     create ["archive.html"] $ do
         route idRoute
@@ -103,7 +107,7 @@ main = hakyll $ do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
+            posts <- fmap (take 5) . recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
             let indexCtx = mconcat
                     [
                       constField "myfield" "woohoo"
@@ -147,14 +151,14 @@ postCtxWithTags tags cats = mconcat
 pandocMathCompiler =
     let mathExtensions = [ Ext_tex_math_dollars
                          , Ext_tex_math_double_backslash
-			 , Ext_latex_macros
-			 ]
+                         , Ext_latex_macros
+                         ]
         defaultExtensions = writerExtensions defaultHakyllWriterOptions
         newExtensions = foldr S.insert defaultExtensions mathExtensions
         writerOptions = defaultHakyllWriterOptions {
                 writerExtensions = newExtensions
               , writerHTMLMathMethod = MathJax ""
-	      , writerHtml5 = True
+              , writerHtml5 = True
         }
     in pandocCompilerWith defaultHakyllReaderOptions writerOptions
 

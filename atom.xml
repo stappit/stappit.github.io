@@ -8,8 +8,513 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-07-02T00:00:00Z</updated>
+    <updated>2018-08-05T00:00:00Z</updated>
     <entry>
+    <title>Understanding the hazard function</title>
+    <link href="http://stappit.github.io/posts/survival_models/hazard.html" />
+    <id>http://stappit.github.io/posts/survival_models/hazard.html</id>
+    <published>2018-08-05T00:00:00Z</published>
+    <updated>2018-08-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+
+
+<h1 class="blog-post-title">Understanding the hazard function</h1>
+<p class="blog-post-meta">
+Posted on August  5, 2018  by Brian </br>
+ Tags: <a href="/tags/hazard.html">hazard</a>, <a href="/tags/censoring.html">censoring</a>, <a href="/tags/survival.html">survival</a>, <a href="/tags/exponential.html">exponential</a>, <a href="/tags/poisson.html">poisson</a> </br>
+ Category: <a href="/categories/survival_models.html">survival_models</a> 
+</p>
+
+<p>Suppose you have fit a distribution to your censored survival times as in the <a href="./censoring.html">previous post</a> and now want to quantify the intuition of an event being imminent. For example, being able to characterise precisely when your customers are about to churn can help identify problem areas to improve on. This notion is called the <em>hazard</em>. We’ll take a look at some of its main properties and how it related to survival analysis.</p>
+<h2 id="definition">Definition</h2>
+<p>Start with a small <span class="math inline">\(\delta\)</span>-interval around t and and consider the average probability density of an event ocurring in that interval given that it occurs after t: <span class="math inline">\(\frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}\)</span>, where <span class="math inline">\(\mathbb P\)</span> is the probability function. To get rid of the arbitrary choice of <span class="math inline">\(\delta\)</span>, we take the limit as <span class="math inline">\(\delta\)</span> goes to zero.</p>
+<p class="mathjaxWide"><span class="math display">\[
+h(t)
+:=
+\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
+.
+\]</span></p>
+<p>This is well-defined whenever the CDF is differentiable. Although it is defined in terms of probabilities, we will show below that the hazard is not itself a probability density function.</p>
+<h2 id="identities">Identities</h2>
+<p>There are a number of useful properties of the hazard function that make it convenient to work with in survival analysis.</p>
+<h3 id="equivalent-definition">Equivalent definition</h3>
+<p>The above definition helps us understand the intuition behind the hazard function but there’s an equivalent formulation that can be easier to work with. Using</p>
+<ul>
+<li>the definition of conditional probabilities,</li>
+<li>the definition of a derivative, and</li>
+<li>that <span class="math inline">\(F&#39;(t) = f(t)\)</span> where <span class="math inline">\(F\)</span> is the CDF and <span class="math inline">\(f\)</span> the probability function,</li>
+</ul>
+<p>we can show that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  h(t)
+  &amp;=
+  \lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta)}{\mathbb P(t \le T)\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{S(t)\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{\delta} \frac{1}{S(t)}
+  \\
+  &amp;= F&#39;(t) \frac{1}{S(t)}
+  \\
+  &amp;= \frac{f(t)}{S(t)}.
+\end{align}
+\]</span></p>
+<p>We will show below how to use this to simplify the likelihood in the case of censored observations for measuring time to an event of interest.</p>
+<h3 id="relation-with-the-survival-function">Relation with the survival function</h3>
+<p>Using the identity above, we can rewrite the hazard as a derivative of the survival function:</p>
+<p class="mathjaxWide"><span class="math display">\[
+h(t)
+=
+\frac{f(t)}{S(t)}
+=
+-\frac{d}{dt} \log S(t)
+.
+\]</span></p>
+<p>It then follows from the <a href="https://en.wikipedia.org/wiki/Fundamental_theorem_of_calculus">first fundamental theorem of calculus</a> that</p>
+<p class="mathjaxWide"><span class="math display">\[
+S(t) = e^{-\int_0^t h(s) ds}.
+\]</span></p>
+<p>In other words, the hazard function completely determines the survival function (and therefore also the mass/density function).</p>
+<p>Since the integral of the hazard appears in the above equation, we can give it a definition for easier reference. We define the <em>cumulative hazard</em> as</p>
+<p class="mathjaxWide"><span class="math display">\[
+H(t) 
+:=
+\int_0^t h(s) ds
+.
+\]</span></p>
+<p>Since <span class="math inline">\(\lim_{t \rightarrow \infty} S(t) = 0\)</span>, it follows that <span class="math inline">\(\lim_{t \rightarrow \infty} H(t) = -\lim \log S(t) = \infty\)</span>. In particular, this means that the hazard function is NOT a probability density function!</p>
+<h3 id="example">Example</h3>
+<p>The exponential distribution has constant hazard. To see this, suppose <span class="math inline">\(h(t) = \lambda\)</span>. Then <span class="math inline">\(S(t) = \exp(-\int_0^t \lambda ds) = \exp(-\lambda t)\)</span> so that <span class="math inline">\(f(t) = -S&#39;(t) = \lambda \exp(-\lambda t)\)</span>, which is the probability function for the <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>.</p>
+<h2 id="hazard-in-censored-survival-analysis">Hazard in censored survival analysis</h2>
+<p>In <a href="./censoring.html">the previous post</a>, we motivated the following likelihood in the case of censored survival times:</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\theta) 
+:= 
+\prod_{i = 1}^N \delta_i f(t_i \mid \theta)
+\times
+\prod_{i = 1}^N (1 - \delta_i) S(t_i \mid \theta)
+\]</span></p>
+<p>where <span class="math inline">\(\delta_i\)</span> is 1 if the event is observed and 0 if it is censored, and <span class="math inline">\(\theta\)</span> is the vector of parameters of the distribution of survival times. Since <span class="math inline">\(f(t) = h(t) S(t)\)</span>, we can rewrite this as</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\theta) 
+:= 
+\prod_{i = 1}^N h(t_i \mid \theta)^{\delta_i}S(t_i \mid \theta).
+\]</span></p>
+<h3 id="example-1">Example</h3>
+<p>Assuming that survival times follow an exponential distribution, the hazard <span class="math inline">\(h(t) = \lambda\)</span> is constant, and the likelihood is</p>
+<p class="mathjaxWide"><span class="math display">\[
+  L(\lambda)
+  = 
+  \prod_{i = 1}^N \lambda^{\delta_i} e^{-\lambda t_i}
+  =
+  \lambda^D e^{-\lambda T}
+\]</span></p>
+<p>where <span class="math inline">\(D := \sum_1^N \delta_i\)</span> is the total number of events observed and <span class="math inline">\(T := \sum_1^N t_i\)</span> is the total observation time. This expression has an interesting interpretation as a <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson</a> likelihood. To see this, first note that <span class="math inline">\(T\)</span> and <span class="math inline">\(D\)</span> can be considered constant in our likelihood because they don’t depend on our only parameter <span class="math inline">\(\lambda\)</span>. We can consider <span class="math inline">\(D\)</span> as a Poisson variable with rate <span class="math inline">\(\lambda\)</span> and exposure <span class="math inline">\(T\)</span>:</p>
+<p class="mathjaxWide"><span class="math display">\[
+D \mid \lambda \sim \text{Poisson}(\lambda T),
+\]</span></p>
+<p>which gives probability of observing <span class="math inline">\(D\)</span> events as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\text{Poisson}(D \mid \lambda T)
+=
+(\lambda T)^D e^{-\lambda T}
+=
+T^D L(\lambda)
+.
+\]</span></p>
+<p>However, likelihoods are equivalent up to a multiplicative constant. Since <span class="math inline">\(T^D\)</span> is constant we can treat our likelihood, <span class="math inline">\(L\)</span>, as Poisson.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>How to deal with right-censored observations</title>
+    <link href="http://stappit.github.io/posts/survival_models/censoring.html" />
+    <id>http://stappit.github.io/posts/survival_models/censoring.html</id>
+    <published>2018-08-04T00:00:00Z</published>
+    <updated>2018-08-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[
+
+
+<h1 class="blog-post-title">How to deal with right-censored observations</h1>
+<p class="blog-post-meta">
+Posted on August  4, 2018  by Brian </br>
+ Tags: <a href="/tags/censoring.html">censoring</a>, <a href="/tags/stan.html">stan</a>, <a href="/tags/likelihood.html">likelihood</a>, <a href="/tags/survival.html">survival</a>, <a href="/tags/mle.html">mle</a>, <a href="/tags/poisson.html">poisson</a> </br>
+ Category: <a href="/categories/survival_models.html">survival_models</a> 
+</p>
+
+<p>I’ve recently been interested in understanding survival models, which model the time to an event of interest (<code>tte</code>) but where we are not always able to wait until that event occurs. This happens, for example, when modelling the time until a customer <a href="https://en.wikipedia.org/wiki/Churn_rate">churns</a>: some of your customers may have cancelled their subscriptions but many hopefully haven’t. Those that haven’t are said to be <code>censored</code> because we haven’t observed them cancel their subscription yet.</p>
+<p>As a first step in that direction, we’ll take a look at modelling censoring when the <code>tte</code> has a Poisson distribution (minor modifications can be made to extend to other distributions). We’ll use <a href="http://mc-stan.org/">Stan</a> to implement our model since Bayesian notation very nicely reflects our statistical understanding. Don’t worry if you aren’t familiar with Stan or Bayesian inference - it should be possible to follow along regardless.</p>
+<p>You can download the <a href="./censoring.Rmd">R markdown</a> and the <a href="./censored_poisson.stan">stan model</a> to try it out.</p>
+<h2 id="some-theory">Some theory</h2>
+<h3 id="the-problem">The Problem</h3>
+<p>Let’s generate some data. We will assume that the time to event (<code>tte</code>) is poisson distributed with mean <span class="math inline">\(\mu = 10\)</span>. However, we will also assume that we don’t get to observe the event of interest in every case, i.e. some cases are censored. What we measure is the time to observation (<code>tto</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">10000</span>
+mu &lt;-<span class="st"> </span><span class="dv">10</span>
+
+df &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+  <span class="dt">id =</span> <span class="dv">1</span><span class="op">:</span>N,
+  <span class="dt">tte =</span> <span class="kw">rpois</span>(N, mu),
+  <span class="dt">tto =</span> <span class="kw">pmin</span>(<span class="kw">rpois</span>(N, <span class="dv">12</span>), tte),
+  <span class="dt">censored =</span> tto <span class="op">&lt;</span><span class="st"> </span>tte
+)
+
+df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">head</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+tte
+</th>
+<th style="text-align:right;">
+tto
+</th>
+<th style="text-align:left;">
+censored
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="censoring_files/figure-markdown/censoring_count-1.png" />
+</figure>
+<p>Note that we observe <code>tto</code> but not <code>tte</code>. How might we estimate <span class="math inline">\(\mu\)</span>? One way is to take the mean.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(tte, tto) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise_all</span>(mean) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+tte
+</th>
+<th style="text-align:right;">
+tto
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+9.9916
+</td>
+<td style="text-align:right;">
+8.9525
+</td>
+</tr>
+</tbody>
+</table>
+<p>This estimate is fairly good for <code>tte</code> but is too low for <code>tto</code>. This was to be expected because we know that <code>tto</code> is smaller than <code>tte</code> for censored observations.</p>
+<p>It’s not possible to just filter out the censored values as this also gives biased estimates. In fact, it makes our estimate worse in this case.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>censored) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(tte, tto) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise_all</span>(mean) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+tte
+</th>
+<th style="text-align:right;">
+tto
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+8.916655
+</td>
+<td style="text-align:right;">
+8.916655
+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a-more-sophisticated-way-to-be-wrong">A more sophisticated way to be wrong</h3>
+<p>So how can we estimate μ using just <code>tto</code>? The first step is to reinterperet the mean as the estimator that maximises a <a href="https://khakieconomics.github.io/2018/07/14/What-is-a-likelihood-anyway.html">likelihood</a> (the maximum likelihood estimator, or MLE). The likelihood is defined as the probability of the data given the estimate. Under the true model, this probability is <span class="math inline">\(f(tte_i \mid \mu) = \text{Poisson}(tte_i \mid \mu)\)</span> for the <span class="math inline">\(i\)</span>th case, giving the likelihood of the whole dataset as:</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\mu) := \prod_{i = 1}^N f(tte_i | \mu)
+.
+\]</span></p>
+<p>The mean maximises this likelihood, which is why the mean of <code>tte</code> is close to the true value.</p>
+<p>To further illustrate this point, note that this is the estimate we get when regressing <code>tte</code> on a constant.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">glm</span>(
+    <span class="dt">formula =</span> tte <span class="op">~</span><span class="st"> </span><span class="dv">1</span>,
+    <span class="dt">family =</span> <span class="kw">poisson</span>(<span class="dt">link =</span> <span class="st">&#39;log&#39;</span>),
+    <span class="dt">data =</span> .
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">tidy</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>(estimate) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">exp</span>()</code></pre></div>
+<pre><code>[1] 9.9916</code></pre>
+<p>However, we don’t observe <code>tte</code>; we observe <code>tto</code>. Simply replacing <code>tte</code> with <code>tto</code> and maximising</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\mu) := \prod_{i = 1}^N f(tto_i \mid \mu)
+\]</span></p>
+<p>gives us the mean of <code>tto</code>, which is a bad estimate because this ‘likelihood’ does not take censoring into account.</p>
+<h3 id="the-correct-likelihood">The correct likelihood</h3>
+<p>So what likelihood can we use? Note that in uncensored cases, <span class="math inline">\(f(tto_i \mid \mu) = f(tte_i \mid \mu)\)</span>, just like above.</p>
+<p>In the censored cases, all we know is that <code>tte</code> must be larger than what was observed. This means that we need to sum over the probabilities of all possibilities: <span class="math inline">\(S(tto_i \mid \mu) := \sum_{t &gt; tto_i} f(t \mid \mu)\)</span>. The full likelihood is then</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\mu) 
+:= 
+\prod_{i = 1}^N \delta_i f(tto_i \mid \mu)
+\times
+\prod_{i = 1}^N (1 - \delta_i) S(tto_i \mid \mu)
+,
+\]</span></p>
+<p>where <span class="math inline">\(\delta_i\)</span> is 1 if the event was observed and 0 if censored. Although we’ll stick to the Poisson model in this post, we can use these ideas to create a likelihood for many different choices of distribution by using the appropriate probability/survival functions <span class="math inline">\(f\)</span>, <span class="math inline">\(S\)</span>.</p>
+<h2 id="implementation">Implementation</h2>
+<p>We will fit this model using Stan because it is relatively easy to write a Bayesian model once we have understood the data generating process. This will require us to define prior distributions (on <span class="math inline">\(\mu\)</span>) just like with any Bayesian method. Since we are mostly interested in understanding the likelihood here, we will not give much consideration to the prior. However, if applying this to a real problem, it would be a good idea to give this more thought in a <a href="https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html">principled Bayesian workflow</a>.</p>
+<h3 id="terminology">Terminology</h3>
+<p>Stan makes the following abbreviations:</p>
+<dl>
+<dt><code>pmf</code></dt>
+<dd>probability mass function, <span class="math inline">\(f(tto_i \mid \mu) = \text{Poisson}(tto_i \mid \mu)\)</span>
+</dd>
+<dt><code>lpmf</code></dt>
+<dd>log(<code>pmf</code>)
+</dd>
+<dt><code>ccdf</code></dt>
+<dd>survival function, a.k.a. complementary cumulative distribution function, <span class="math inline">\(S(tto_i | \mu) := \sum_{t &gt; tto_i} \text{Poisson}(t | \mu)\)</span>
+</dd>
+<dt><code>lccdf</code></dt>
+<dd>log(<code>ccdf</code>)
+</dd>
+<dt><code>target</code></dt>
+<dd>log(posterior probability density) = log(likelihood x prior).
+</dd>
+</dl>
+<p>Stan uses the log-scale for its calculations, so we will need the log-likelihood:</p>
+<p class="mathjaxWide"><span class="math display">\[
+\log L(\mu) 
+:= 
+\sum_{i = 1}^N \delta_i \log f(tto_i \mid \mu)
++
+\sum_{i = 1}^N (1 - \delta_i) \log S(tto_i \mid \mu)
+.
+\]</span></p>
+<h3 id="the-model">The model</h3>
+<p>In <a href="./censored_poisson.stan">our model</a>, we add the <code>lccdf</code> if the observation is censored and <code>lpmf</code> if not censored. Let’s load our model and take a look.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span><span class="kw">stan_model</span>(<span class="st">&#39;censored_poisson.stan&#39;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
+<pre><code>S4 class stanmodel &#39;censored_poisson&#39; coded as follows:
+data {
+  // the input data
+  int&lt;lower = 1&gt; n;                      // number of observations
+  int&lt;lower = 0&gt; tto[n];                 // tto is a list of ints
+  int&lt;lower = 0, upper = 1&gt; censored[n]; // list of 0s and 1s
+  
+  // parameters for the prior
+  real&lt;lower = 0&gt; shape;
+  real&lt;lower = 0&gt; rate;
+}
+
+parameters {
+  // the parameters used in our model
+  real&lt;lower = 0&gt; mu; 
+}
+
+model {
+  // posterior = prior * likelihood
+  
+  // prior
+  mu ~ gamma(shape, rate);
+  
+  // likelihood
+  for (i in 1:n) {
+    if (censored[i]) {
+      target += poisson_lccdf(tto[i] | mu);  
+    } else {
+      target += poisson_lpmf(tto[i] | mu);
+    }
+  }
+  
+} </code></pre>
+<p>The language used in the Stan model is slightly different from R-notation but hopefully intuitive enough to convince yourself that it’s the same model we described above.</p>
+<p>Now we can sample from the posterior of our model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">sampling</span>(
+    <span class="dt">data =</span> <span class="kw">compose_data</span>(df, <span class="dt">shape =</span> <span class="dv">2</span>, <span class="dt">rate =</span> <span class="fl">0.05</span>),
+    <span class="dt">iter =</span> <span class="dv">2000</span>,
+    <span class="dt">warmup =</span> <span class="dv">500</span>
+  ) 
+
+fit</code></pre></div>
+<pre><code>Inference for Stan model: censored_poisson.
+4 chains, each with iter=2000; warmup=500; thin=1; 
+post-warmup draws per chain=1500, total post-warmup draws=6000.
+
+          mean se_mean   sd      2.5%       25%       50%       75%
+mu        9.98    0.00 0.03      9.92      9.96      9.98     10.01
+lp__ -19613.55    0.01 0.69 -19615.54 -19613.71 -19613.29 -19613.09
+         97.5% n_eff Rhat
+mu       10.05  2002    1
+lp__ -19613.04  2924    1
+
+Samples were drawn using NUTS(diag_e) at Sat Aug  4 15:49:36 2018.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).</code></pre>
+<p>Stan has an amazing array of diagnostics to check the quality of the fitted model. Since our model is fairly simple and all checks are in order, I won’t describe them here.</p>
+<p>The point estimate for <code>mu</code> is 9.98 and the true value is contained within the 95% credible interval [9.92, 10.05]. We can also plot all the samples from our posterior.</p>
+<figure>
+<img src="censoring_files/figure-markdown/estimate_histogram-1.png" />
+</figure>
+<h2 id="conclusion">Conclusion</h2>
+<p>We have seen how to change the likelihood to take censored observations into account. Moreover, the same process works for most distributions, so you can swap out the Poisson for Weibull/gamma/lognormal or whatever you want. Using the Bayesian modelling language, Stan, makes it super easy to test your statistical intuitions by turning them into a workable model, so I’ll definitely be exploring Stan more in the future.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>Ageing and Marathon Running</title>
     <link href="http://stappit.github.io/posts/berlin_marathon/age.html" />
     <id>http://stappit.github.io/posts/berlin_marathon/age.html</id>
@@ -1844,434 +2349,6 @@ Posted on November  8, 2015  by Brian </br>
 <p>Let <span class="math inline">\(T (n, k)\)</span> be the asymptotic complexity of computing <code>take k $ sort xs</code>, where <code>xs</code> is a list of length <span class="math inline">\(n\)</span>. By definition of <code>take</code>, <span class="math inline">\(T (n, 0) = \mathcal O (1)\)</span> and <span class="math inline">\(T (0, k) = T (0, 0)\)</span>.</p>
 <p>In <code>take k $ sort xs</code> the function <code>take k</code> needs to put <code>sort xs</code> into weak head normal form. Let <span class="math inline">\(S (m)\)</span> be the complexity of puting <code>sort ys</code> into weak head normal form for a list <code>ys</code> of length <span class="math inline">\(m\)</span>. Clearly <span class="math inline">\(S (0) = \mathcal O (1)\)</span>. Since <code>sort (y:ys) = ins y $ sort ys</code>, we have <span class="math inline">\(S (m) = S (m-1) + \mathcal O (1)\)</span>, since <code>ins y</code> only needs to put <code>sort ys</code> into weak head normal form. This is solved by <span class="math inline">\(S (m) = \mathcal O (m)\)</span>.</p>
 <p>Now, <code>take k $ sort xs = take k $ y : ys = y : take (k-1) ys</code>, where <code>sort xs = y : ys</code>. Thus <span class="math inline">\(T (n, k) = T (n-1, k-1) + \mathcal O (n)\)</span>. This recurrence is solved by <span class="math inline">\(T (n, k) = \mathcal O (nk)\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS, Chapter 3</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc03.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc03.html</id>
-    <published>2015-11-01T00:00:00Z</published>
-    <updated>2015-11-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-
-
-<h1 class="blog-post-title">Okasaki's PFDS, Chapter 3</h1>
-<p class="blog-post-meta">
-Posted on November  1, 2015  by Brian </br>
- Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/leftist%20tree.html">leftist tree</a>, <a href="/tags/leftist%20heap.html">leftist heap</a>, <a href="/tags/binomial%20tree.html">binomial tree</a>, <a href="/tags/binomial%20heap.html">binomial heap</a>, <a href="/tags/heap.html">heap</a>, <a href="/tags/red%20black%20tree.html">red black tree</a> </br>
- Category: <a href="/categories/pfds.html">pfds</a> 
-</p>
-
-<p>This post contains my solutions to the exercises in chapter 3 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
-<h2 id="leftist-trees">Leftist Trees</h2>
-<p>The right spine of a binary tree is the rightmost path from that node to an empty node. For example, the empty tree has a right spine of length 0.</p>
-<p>A binary tree is said to satisfy the leftist property if every node has the property that the rank of its left child (= length of its right spine) is greater than or equal to the rank of its right child. A leftist tree is a binary tree with the leftist property.</p>
-<p>The following are some examples of (the shape of) leftist trees where the keys have been omitted. The number at each node instead indicates the length of its right spine and any blank nodes are empty nodes.</p>
-<figure>
-<img src="/images/leftist-tree-1-node.pdf.png" alt="The only leftist tree with 1 node." /><figcaption>The only leftist tree with 1 node.</figcaption>
-</figure>
-<figure>
-<img src="/images/leftist-tree-2-nodes.pdf.png" alt="The only leftist tree with 2 nodes." /><figcaption>The only leftist tree with 2 nodes.</figcaption>
-</figure>
-<figure>
-<img src="/images/leftist-tree-3-nodes-1.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
-</figure>
-<figure>
-<img src="/images/leftist-tree-3-nodes-2.pdf.png" alt="A leftist tree with 3 nodes." /><figcaption>A leftist tree with 3 nodes.</figcaption>
-</figure>
-<h2 id="heaps">Heaps</h2>
-<p>A tree is said to be heap-ordered if the key of any node is less than or equal to the key of any of its descendants. We capture this structure in the <code>Heap</code> typeclass.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">Heap</span> h <span class="kw">where</span>
-<span class="ot">  empty     ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> h a
-<span class="ot">  isEmpty   ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> h a <span class="ot">-&gt;</span> <span class="dt">Bool</span>
-<span class="ot">  insert    ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span>   a <span class="ot">-&gt;</span> h a <span class="ot">-&gt;</span> h a
-<span class="ot">  merge     ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> h a <span class="ot">-&gt;</span> h a <span class="ot">-&gt;</span> h a
-<span class="ot">  findMin   ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> h a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a     <span class="co">-- may be empty</span>
-<span class="ot">  deleteMin ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> h a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (h a) <span class="co">-- may be empty</span></code></pre></div>
-<p>A leftist heap is a heap-ordered leftist tree. We can implement this as a binary tree with a heap instance.</p>
-<h2 id="exercise-3.1">Exercise 3.1</h2>
-<p>Prove that the right spine of a leftist heap of size <span class="math inline">\(n\)</span> contains at most <span class="math inline">\(\left\lfloor \log (n+1) \right\rfloor\)</span> elements.</p>
-<h2 id="solution-3.1">Solution 3.1</h2>
-<p>We prove the stronger result that a leftist tree of rank <span class="math inline">\(r\)</span> is complete up to depth <span class="math inline">\(r-1\)</span>. The solution then follows from the fact that a tree complete up to depth <span class="math inline">\(r-1\)</span> has at least <span class="math inline">\(2^r - 1\)</span> nodes.</p>
-<p>The proof proceeds by induction on the number of nodes.</p>
-<p>The statement is true for the empty tree.</p>
-<p>Let <span class="math inline">\(T\)</span> be a leftist tree of rank <span class="math inline">\(r\)</span> with <span class="math inline">\(n\)</span> nodes. Then each child is a leftist tree with fewer nodes, so we may apply the induction hypothesis to each child. The right child has rank <span class="math inline">\(r-1\)</span> and, by the leftist property of <span class="math inline">\(T\)</span>, the left child has rank at least <span class="math inline">\(r-1\)</span>. By the induction hypothesis, each child is complete up to depth <span class="math inline">\(r-2\)</span>. Therefore, <span class="math inline">\(T\)</span> is complete up to depth <span class="math inline">\(r-1\)</span>. □</p>
-<h2 id="exercise-3.2">Exercise 3.2</h2>
-<p>Define <code>insert</code> directly rather than via a call to <code>merge</code>.</p>
-<h2 id="solution-3.2">Solution 3.2</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/2ecdad0e72de18d8b250e6cddad011b00debecda/src/Chap03/Exercise02.hs">source</a>.</p>
-<h2 id="exercise-3.3">Exercise 3.3</h2>
-<p>Implement a function <code>fromList</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fromList ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">LeftistHeap</span> a</code></pre></div>
-<p>that produces a leftist heap from an unordered list of elements in <span class="math inline">\(\mathcal O (n)\)</span> time by merging in pairs.</p>
-<h2 id="solution-3.3">Solution 3.3</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise03.hs">source</a>.</p>
-<p>Note that we only use the Heap API, so we are guaranteed both the heap invariants and the leftist invariants. We must only check that the implementation is in fact linear.</p>
-<p>Let’s look at the first few cases in detail.</p>
-<ul>
-<li><p>The first call to <code>mergePairs</code> calls <code>merge</code> a total of <span class="math inline">\(n/2\)</span> times on two heaps of size <span class="math inline">\(2^0\)</span>. This has a cost of <span class="math inline">\(\frac{n}{2} \log 2 = \frac{n}{2}\)</span>.</p></li>
-<li><p>The second call to <code>mergePairs</code> calls <code>merge</code> a total of <span class="math inline">\(n/4\)</span> times on heaps of size <span class="math inline">\(2^1\)</span>. This has a cost of <span class="math inline">\(\frac{n}{4} \log 4 = \frac{n}{4} \cdot 2\)</span>.</p></li>
-<li><p>The third call to <code>mergePairs</code> calls <code>merge</code> a total of <span class="math inline">\(n/8\)</span> times on heaps of size <span class="math inline">\(2^2\)</span>. This has a cost of <span class="math inline">\(\frac{n}{8} \log 8 = \frac{n}{8} \cdot 3\)</span>.</p></li>
-</ul>
-<p>Indeed, the <span class="math inline">\(k\)</span>th all to <code>mergePairs</code> calls <code>merge</code> a total of <span class="math inline">\(\frac{n}{2^k}\)</span> times on two heaps of size <span class="math inline">\(2^{k-1}\)</span>. From this we see that the total cost is of order</p>
-<p class="mathjaxWide"><span class="math display">\[
-\sum_{k=1}^{\log n} \frac{n}{2^k} k
-=
-n \sum_{k=1}^{\log n} \frac{k}{2^k}
-.
-\]</span></p>
-<p>Since</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{2i+1}{2^{2i+1}} + \frac{2i+2}{2^{2i+2}} \le \frac{1}{2^i}
-,
-\]</span></p>
-<p>we can pair the terms in the sum to get a total cost of order</p>
-<p class="mathjaxWide"><span class="math display">\[
-n \sum_{k=0}^{\log n} \frac{1}{2^k}
-\le
-n \sum_{k=0}^{\infty} \frac{1}{2^k}
-\le
-2n
-.
-\]</span></p>
-<p>□</p>
-<h2 id="exercise-3.4">Exercise 3.4</h2>
-<p>A binary tree is said to satisfy the weight-biased leftist property if the size (= number of nodes) of any node’s left child is at least as large as that of its right child.</p>
-<ol type="1">
-<li>Prove that the right spine of a weight-biased leftist heap contains at most <span class="math inline">\(\left\lfloor \log (n+1) \right\rfloor\)</span> elements.</li>
-<li>Modify the implementation in figure 3.2 to obtain weight-biased leftist heaps.</li>
-<li>Modify <code>merge</code> for weight-biased leftist heaps to operate in a single top-down pass.</li>
-<li>What advantages would the top-down version of <code>merge</code> have in a lazy environment? In a concurrent environment?</li>
-</ol>
-<h2 id="solution-3.4">Solution 3.4</h2>
-<p><strong>Item 1.</strong></p>
-<p>The proof is almost identical to that for leftist trees in <a href="#exercise-3.1">Exercise 3.1</a>.</p>
-<p>The statement is true for the empty tree.</p>
-<p>Let <span class="math inline">\(T\)</span> be a weight-biased leftist heap of rank <span class="math inline">\(r\)</span> with <span class="math inline">\(n\)</span> nodes. Then each child is a weight-biased leftist tree with fewer nodes. The right child has rank <span class="math inline">\(r-1\)</span> and by the induction hypothesis must have at least <span class="math inline">\(2^{r-1}-1\)</span> nodes. By the weight-biased property of <span class="math inline">\(T\)</span>, the left child also has at least <span class="math inline">\(2^{r-1}-1\)</span> nodes. Therefore, <span class="math inline">\(T\)</span> has at least <span class="math inline">\(2^r-1\)</span> nodes. In other words, <span class="math inline">\(\log (n+1) \ge r\)</span>. Since <span class="math inline">\(r\)</span> is an integer, <span class="math inline">\(\left\lfloor \log (n+1) \right\rfloor \ge r\)</span>. □</p>
-<p><strong>Item 2.</strong></p>
-<p>The implementation of leftist heaps encompasses both the leftist and weight-biased variants.</p>
-<p><strong>Item 3.</strong></p>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise04.hs">source</a>.</p>
-<p><strong>Item 4.</strong></p>
-<p>In a lazy environment, the top-down version has the advantage that some queries can be made to the merged heap without calculating the entire heap. For example, <code>weight (merge h1 h2)</code> would run in constant time regardless of the sizes of <code>h1</code> and <code>h2</code>.</p>
-<h2 id="binomial-heaps">Binomial Heaps</h2>
-<p>We define the binomial tree of rank 0 to be the singleton node.</p>
-<figure>
-<img src="/images/binomial-tree-0.pdf.png" alt="The binomial tree of rank 0" class="nottoobig" /><figcaption>The binomial tree of rank 0</figcaption>
-</figure>
-<p>The binomial tree of rank r is defined as the tree formed by adding the binomial tree of rank n-1 as a left child of itself.</p>
-<figure>
-<img src="/images/binomial-tree-1.pdf.png" alt="The binomial tree of rank 1" class="nottoobig" /><figcaption>The binomial tree of rank 1</figcaption>
-</figure>
-<figure>
-<img src="/images/binomial-tree-2.pdf.png" alt="The binomial tree of rank 2" /><figcaption>The binomial tree of rank 2</figcaption>
-</figure>
-<figure>
-<img src="/images/binomial-tree-3.pdf.png" alt="The binomial tree of rank 3" /><figcaption>The binomial tree of rank 3</figcaption>
-</figure>
-<p>Note that the binomial tree of rank r has exactly <span class="math inline">\(2^r\)</span> nodes. This follows from the fact that we double the number of nodes in the tree each time we increase the rank by 1.</p>
-<p>There is an alternative definition of binomial trees. A binomial tree of rank <span class="math inline">\(r\)</span> is a node with <span class="math inline">\(r\)</span> children <span class="math inline">\(t_1, \dotsc, t_r\)</span>, where <span class="math inline">\(t_i\)</span> is a binomial tree of rank <span class="math inline">\(r-i\)</span>.</p>
-<p>We represent a node in a binomial tree as a key with a list of children. The extra <code>Int</code> is to keep track of the rank.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">BinomialTree</span> a <span class="fu">=</span> <span class="dt">Node</span> <span class="dt">Int</span> a [<span class="dt">BinTree</span> a]
-                    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
-<p>We shall maintain two invariants:</p>
-<ol type="1">
-<li>Each list of children is in decreasing order of rank; and</li>
-<li>The elements are stored in heap order.</li>
-</ol>
-<p>A binomial heap is a forest of heap-ordered binomial trees, where no two trees in the forest have the same rank. Thus, the trees in a binomial heap of size n correspond to the 1s in the binomial representation of n. For example, a binomial heap of size 21 would have one tree of rank 4 (size <span class="math inline">\(2^4 = 16\)</span>), one of rank 2 (size <span class="math inline">\(2^2=4\)</span>), and one of rank 0 (size <span class="math inline">\(2^0=1\)</span>), corresponding to 21’s binomial representation 10101. The binary representation of n contains <span class="math inline">\(\left\lfloor \log (n+1) \right\rfloor\)</span> digits, giving a bound for the number of trees in a binomial heap.</p>
-<h2 id="exercise-3.5">Exercise 3.5</h2>
-<p>Define <code>findMin</code> directly rather than via a call to <code>removeMinTree</code>.</p>
-<h2 id="solution-3.5">Solution 3.5</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise05.hs">source</a>.</p>
-<h2 id="exercise-3.6">Exercise 3.6</h2>
-<p>Given a binomial tree, the rank of the root determines the rank of the children. Reimplement binomial heaps without the redundant rank annotations.</p>
-<h2 id="solution-3.6">Solution 3.6</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise06.hs">source</a>.</p>
-<h2 id="exercise-3.7">Exercise 3.7</h2>
-<p>Make a funtor <code>ExplicitMin</code> that creates a heap with a constant time <code>findMin</code> and logarithmic time <code>deleteMin</code>.</p>
-<h2 id="solution-3.7">Solution 3.7</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise07.hs">source</a>.</p>
-<h2 id="red-black-trees">Red-Black Trees</h2>
-<p>A red-black tree is a type of balanced binary search tree. The balance is achieved by painting the nodes either red or black whilst maintaining the following two invariants:</p>
-<dl>
-<dt>Red invariant</dt>
-<dd>No red node has a red child
-</dd>
-<dt>Black invariant</dt>
-<dd>Every path from the root node to an empty node contains the same number of black nodes.
-</dd>
-</dl>
-<p>By convention, the empty node is defined to be black.</p>
-<figure>
-<img src="/images/red-black-1-node.pdf.png" alt="The red-black tree of size 1" /><figcaption>The red-black tree of size 1</figcaption>
-</figure>
-<figure>
-<img src="/images/red-black-2-nodes.pdf.png" alt="The red-black tree of size 2" /><figcaption>The red-black tree of size 2</figcaption>
-</figure>
-<figure>
-<img src="/images/red-black-3-nodes.pdf.png" alt="The red-black tree of size 3" /><figcaption>The red-black tree of size 3</figcaption>
-</figure>
-<figure>
-<img src="/images/red-black-nontrivial.pdf.png" alt="A non-trivial red-black tree" /><figcaption>A non-trivial red-black tree</figcaption>
-</figure>
-<p>Our data type is based on a BST with an extra colour field.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Colour</span> <span class="fu">=</span> <span class="dt">R</span>
-            <span class="fu">|</span> <span class="dt">B</span>
-            <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)
-
-<span class="kw">data</span> <span class="dt">RBTree</span> a <span class="fu">=</span> <span class="dt">E</span>
-              <span class="fu">|</span> <span class="dt">T</span> <span class="dt">Colour</span> (<span class="dt">RBTree</span> a) a (<span class="dt">RBTree</span> a)
-              <span class="kw">deriving</span> (<span class="dt">Eq</span>)</code></pre></div>
-<h2 id="exercise-3.8">Exercise 3.8</h2>
-<p>Prove that the the maximum depth of a node in a red-black tree of size n is at most <span class="math inline">\(2\left\lfloor \log (n+1) \right\rfloor\)</span>.</p>
-<h2 id="solution-3.8">Solution 3.8</h2>
-<p>We prove this by induction on the number of nodes.</p>
-<p>The statement is true for empty trees.</p>
-<p>Let <span class="math inline">\(T\)</span> be a red-black tree of depth <span class="math inline">\(d\)</span> with <span class="math inline">\(n\)</span> nodes. Suppose the trees rooted at its children have depths <span class="math inline">\(d_0\)</span> and <span class="math inline">\(d_1\)</span>, with sizes <span class="math inline">\(n_0 \le n_1\)</span>, respectively. In particular, the children are red-black trees with fewer than <span class="math inline">\(n\)</span> nodes. A consequence of the red-black invariant of <span class="math inline">\(T\)</span> is that <span class="math inline">\(d \le 2(d_0 + 1)\)</span>, since <span class="math inline">\(d\)</span> is the length of the longest path and <span class="math inline">\(d_0\)</span> is at least the length of the shortest path. Applying the induction hypothesis to the children yields</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  d 
-  &amp;\le 
-  2(d_0 +1) 
-  \\
-  &amp;\le 
-  2(\log (n_0 + 1) + 1)
-  \\
-  &amp;= 
-  2\log (2n_0 + 2) 
-  \\
-  &amp;\le 
-  2\log (n_0 + n_1 + 2) 
-  \\
-  &amp;= 
-  2\log (n + 1).
-\end{align}
-\]</span></p>
-<p>□</p>
-<h2 id="exercise-3.9">Exercise 3.9</h2>
-<p>Write a function <code>fromOrdList</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">fromOrdList ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">RedBlackTree</span> a</code></pre></div>
-<p>that converts a sorted list with no duplicates into a red-black tree in <span class="math inline">\(\mathcal O (n)\)</span> time.</p>
-<h2 id="solution-3.9">Solution 3.9</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/5cd2c0ae4641edb65ba88f4c7bf0e0a49a23063a/src/Chap03/Exercise09.hs">source</a>.</p>
-<p>We must prove both that this implementation has linear complexity and that the resulting tree is red-black invariant.</p>
-<dl>
-<dt>Proposition</dt>
-<dd>The function <code>fromOrdList</code> has linear complexity.
-</dd>
-</dl>
-<p>The helper <code>go</code> makes at most two recursive calls to a list half the size of the original. More precisely,</p>
-<p class="mathjaxWide"><span class="math display">\[
-T (2k+1) = 2T (k) + \mathcal O (1)
-\]</span></p>
-<p>and</p>
-<p class="mathjaxWide"><span class="math display">\[
-T (2k) = T(k) + T (k-1) + \mathcal O (1).
-\]</span></p>
-<p>These are solved by <span class="math inline">\(T (n) = \mathcal O (n)\)</span>.</p>
-<p>□</p>
-<p>For the invariants, note that the shape and colouring of the tree doesn’t depend on the particular elements of the list. With this in mind, we will prove a couple of lemmas.</p>
-<dl>
-<dt>Lemma</dt>
-<dd>The black depth (as measured by the algorithm) of <code>fromOrdList xs</code> is exactly <span class="math inline">\(\left\lfloor \log (n+1) - 1\right\rfloor\)</span>, where <code>xs</code> is a list of length <span class="math inline">\(n\)</span>.
-</dd>
-</dl>
-<p>Proof. We prove this by induction on the length of the list.</p>
-<p>For length <span class="math inline">\(0\)</span>, the black depth of the resulting empty tree is <span class="math inline">\(-1 = \log (0 + 1) - 1\)</span>.</p>
-<p>By the induction hypothesis, the black depth in the odd length case <span class="math inline">\(n=2k+1\)</span> is <span class="math inline">\(\left\lfloor \log (k+1) \right\rfloor\)</span>. This is equal to</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  &amp;
-  \quad \left\lfloor \log (k+1) \right\rfloor +1 -1 
-  \\
-  &amp;= 
-  \left\lfloor \log (k + 1) + \log 2 \right\rfloor - 1 
-  \\
-  &amp;=
-  \left\lfloor \log (2k + 1 + 1) \right\rfloor - 1 
-  \\
-  &amp;= 
-  \left\lfloor \log (n + 1)\right\rfloor - 1.
-\end{align}
-\]</span></p>
-<p>In the even case <span class="math inline">\(n=2k\)</span>, the black depth is <span class="math inline">\(\left\lfloor \log k \right\rfloor\)</span>, again using the induction hypothesis. This simplifies to</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  &amp;
-  \quad
-  \left\lfloor \log k \right\rfloor +1 -1 
-  \\
-  &amp;= 
-  \left\lfloor \log 2k \right\rfloor - 1 
-  \\
-  &amp;= 
-  \left\lfloor \log (2k+1) \right\rfloor -1 
-  \\
-  &amp;= 
-  \left\lfloor \log (n+1) \right\rfloor - 1.
-\end{align}
-\]</span></p>
-<p>The second line follows from the fact that <span class="math inline">\(\left\lfloor \log a \right\rfloor &lt; \left\lfloor \log (a+1) \right\rfloor\)</span> if and only if <span class="math inline">\(a = 2^i - 1\)</span> for some <span class="math inline">\(i \in \mathbb N_{\ge 1}\)</span>.</p>
-<p>□</p>
-<dl>
-<dt>Proposition</dt>
-<dd>The tree <code>fromOrdList xs</code> is black invariant for any list <code>xs</code>.
-</dd>
-</dl>
-<p>Proof. When the two recursive calls in <code>go (length) xs</code> produce trees of differing black depth, their black depths may differ by at most one. This follows from the previous lemma. By painting the tree with the larger black depth red, we maintain the invariant that both black depths are equal. Thus, the tree <code>fromOrdList xs</code> is black invariant.</p>
-<p>□</p>
-<dl>
-<dt>Lemma</dt>
-<dd>The root of the tree <code>fromOrdList xs</code> has a red left child if and only if the length of <code>xs</code> is <span class="math inline">\(2^i - 2\)</span> for some <span class="math inline">\(i \in \mathbb N_{\ge 2}\)</span>. In any other case, both children are black.
-</dd>
-</dl>
-<p>Proof. Let <span class="math inline">\(n\)</span> be the size of the list <code>xs</code>. The function <code>go (length xs) xs</code> makes two recursive calls to create children of sizes approximately <span class="math inline">\(n/2\)</span>. We paint the root of the left child red when their black depths differ, which can only occur if <span class="math inline">\(n = 2k\)</span> is even. Note that the left child always has the greater size and, by the previous lemma, the greater black depth. In this case the black depth of the left is <span class="math inline">\(\left\lfloor \log (k+1) \right\rfloor - 1\)</span>, and the black depth of the right is <span class="math inline">\(\left\lfloor \log k \right\rfloor - 1\)</span>. These differ precisely when <span class="math inline">\(k = 2^i - 1\)</span> for some <span class="math inline">\(i \in \mathbb N_{\ge 1}\)</span>; that is, when <span class="math inline">\(n = 2 (2^i - 1) = 2^{i+1} - 2\)</span>.</p>
-<p>□</p>
-<dl>
-<dt>Proposition</dt>
-<dd>The tree <code>fromOrdList xs</code> is red invariant for any list <code>xs</code>.
-</dd>
-</dl>
-<p>Proof. From the previous lemma, <code>fromOrdList xs</code> has a red left child, then then length of <code>xs</code> is <span class="math inline">\(n = 2^{i+1} - 2\)</span>. But then the size of the left child is <span class="math inline">\(n/2 = 2^i - 1\)</span>, so the left child has no red children. Therefore, no red invariant violation is introduced.</p>
-<p>□</p>
-<h2 id="exercise-3.10">Exercise 3.10</h2>
-<p>Reduce redundancy in the <code>balance</code> function as follows:</p>
-<ol type="1">
-<li>Split <code>balance</code> into two functions, <code>lbalance</code> and <code>rbalance</code>, that test for colour violations in the left and right child, respectively.</li>
-<li>Rewrite <code>ins</code> so that it never tests the colour of nodes not on the search path.</li>
-</ol>
-<h2 id="solution-3.10">Solution 3.10</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/ca52a0986bb5baab4bb36266d39235f035378f80/src/Chap03/Exercise10.hs">source</a> for both parts.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS, Chapter 2</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc02.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc02.html</id>
-    <published>2015-10-26T00:00:00Z</published>
-    <updated>2015-10-26T00:00:00Z</updated>
-    <summary type="html"><![CDATA[
-
-
-<h1 class="blog-post-title">Okasaki's PFDS, Chapter 2</h1>
-<p class="blog-post-meta">
-Posted on October 26, 2015  by Brian </br>
- Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/binary%20tree.html">binary tree</a>, <a href="/tags/binary%20search%20tree.html">binary search tree</a>, <a href="/tags/set.html">set</a> </br>
- Category: <a href="/categories/pfds.html">pfds</a> 
-</p>
-
-<p>This post contains my solutions to the exercises in chapter 2 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
-<h2 id="exercise-2.1">Exercise 2.1</h2>
-<p>Write a function <code>suffixes</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">suffixes ::</span> [a] <span class="ot">-&gt;</span> [[a]]</code></pre></div>
-<p>that takes a list <code>xs</code> and returns a list of all the suffixes of <code>xs</code> in decreasing order of length. For example,</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">suffixes [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>] <span class="fu">==</span> [[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">3</span>, <span class="dv">4</span>], [<span class="dv">4</span>], []]</code></pre></div>
-<p>Show that the resulting list of suffixes can be generated in <span class="math inline">\(\mathcal O (n)\)</span> time and represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
-<h2 id="solution-2.1">Solution 2.1</h2>
-<p>Since there are as many recursive calls to <code>suffixes</code> as there are elements of <code>xs</code>, and both <code>:</code> and <code>tail</code> run in constant time, <code>suffixes</code> must be linear in the length of the list <code>xs</code>. That is, the solution to the recursion <span class="math inline">\(T (n) = T(n-1) + \mathcal O (1)\)</span> is <span class="math inline">\(T (n) = \mathcal O (n)\)</span>.</p>
-<p>Moreover, we use the <span class="math inline">\(n\)</span> lists that already exist and also <span class="math inline">\(\mathcal O (n)\)</span> new pointers to each of those lists. Therefore, <code>suffixes xs</code> is represented in <span class="math inline">\(\mathcal O (n)\)</span> space.</p>
-<h2 id="binary-search-trees-bsts">Binary Search Trees (BSTs)</h2>
-<p>We start with binary trees (not search trees yet!). A binary tree is either empty or has two children, which we call ‘left’ and ‘right’.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Tree</span> a <span class="fu">=</span> <span class="dt">E</span>
-            <span class="fu">|</span> <span class="dt">T</span> (<span class="dt">Tree</span> a) a (<span class="dt">Tree</span> a)
-            <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</code></pre></div>
-<p>In the binary trees below, empty nodes are depicted as squares.</p>
-<figure>
-<img src="/images/binary-tree-nontrivial.pdf.png" alt="A binary tree (which is NOT a BST)." /><figcaption>A binary tree (which is NOT a BST).</figcaption>
-</figure>
-<p>A BST is a binary tree with some extra structure. In particular, we require that the key of a node be greater than that of any of its left descendants and smaller than that of any of its right descendants.</p>
-<figure>
-<img src="/images/bst-nontrivial.pdf.png" alt="A binary tree which IS a BST." /><figcaption>A binary tree which IS a BST.</figcaption>
-</figure>
-<p>In the following exercises, we implement BSTs in the context of sets.</p>
-<h2 id="exercise-2.2">Exercise 2.2</h2>
-<p>Rewrite <code>member</code> to take no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
-<h2 id="solution-2.2">Solution 2.2</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise02.hs">source</a>.</p>
-<h2 id="exercise-2.3">Exercise 2.3</h2>
-<p>Rewrite <code>insert</code> using exceptions to avoid copying the entire search path (in the case of inserting an existing element).</p>
-<h2 id="solution-2.3">Solution 2.3</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise03.hs">source</a>.</p>
-<p>We use the <code>Maybe</code> data structure for our errors, i.e. <code>Nothing</code> indicates an error.</p>
-<h2 id="exercise-2.4">Exercise 2.4</h2>
-<p>Combine the ideas of <a href="#exercise-2.2">Exercise 2.2</a> and <a href="#exercise-2.3">Exercise 2.3</a> to create an insert function that performs no unnecessary copying and uses no more than <span class="math inline">\(d+1\)</span> comparisons.</p>
-<h2 id="solution-2.4">Solution 2.4</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise04.hs">source</a>.</p>
-<h2 id="exercise-2.5">Exercise 2.5</h2>
-<ol type="1">
-<li><p>Write a function <code>complete</code> of type</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">complete ::</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">UnbalancedSet</span> a</code></pre></div>
-<p>such that <code>complete a d</code> is a complete binary tree of depth d with the key <code>a</code> at every node. This function should run in <span class="math inline">\(\mathcal O (d)\)</span> time.</p></li>
-<li><p>Extend <code>complete</code> to create balanced trees of arbitrary size that runs in <span class="math inline">\(\mathcal O (n)\)</span> time, where <span class="math inline">\(n\)</span> is the number of nodes. A tree is said to be balanced if the size of any node’s left child differs by at most one from the size of that node’s right child.</p></li>
-</ol>
-<h2 id="solution-2.5">Solution 2.5</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise05.hs">source</a>.</p>
-<p><strong>Item 1.</strong></p>
-<p>The recursion is given by <span class="math inline">\(T(d) = T(d-1) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (d) = \mathcal O (d)\)</span>.</p>
-<p><strong>Item 2.</strong></p>
-<p>The complexity of <code>balance</code> is equal to that of <code>create2</code>. The recursion for <code>create2</code> is given by <span class="math inline">\(T (n) = T (n/2) + \mathcal O (1)\)</span>, which is solved by <span class="math inline">\(T (n) = \mathcal O (\log n)\)</span>.</p>
-<h2 id="exercise-2.6">Exercise 2.6</h2>
-<p>Adapt the <code>UnbalancedSet</code> functor to support finite maps rather than sets. The signature for finite maps is as follows.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="kw">class</span> <span class="dt">FiniteMap</span> m k a <span class="kw">where</span>
-<span class="ot">  empty  ::</span> m k a 
-<span class="ot">  bind   ::</span> k <span class="ot">-&gt;</span>     a <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> m k a
-<span class="ot">  lookup ::</span> k <span class="ot">-&gt;</span> m k a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</code></pre></div>
-<h2 id="solution-2.6">Solution 2.6</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap02/Exercise06.hs">source</a>.</p>
-<p>We reuse the set implementation for <code>UnbalancedSet</code> by creating the <code>Binding</code> data type with the appropriate ordering. Note that this doesn’t allow updating key-value pairs.</p>
 
 <div id="disqus_thread"></div>
 <script>

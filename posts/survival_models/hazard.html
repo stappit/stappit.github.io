@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+	<link rel="stylesheet" href="../../css/default.css">
+	<link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+        <title>My Hakyll Blog - Understanding the hazard function</title>
+    </head>
+
+    <body>
+    <nav id="navbar-container" class="navbar navbar-default navbar-static-top">
+	    <div class="container">
+		    <div class="navbar-header">
+			    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				    <span class="sr-only">Toggle navigation</span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+				    <span class="icon-bar"></span>
+			    </button>
+			    <a class="navbar-brand" href="../../index.html">Brian</a>
+		    </div>
+		    <div id="navbar" class="navbar-collapse collapse">
+			    <ul class="nav navbar-nav">
+				    <li><a class="blog-nav-item" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+				    <li><a class="blog-nav-item" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+				    <li><a class="blog-nav-item" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+				    <li><a class="blog-nav-item" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+				    <li><a class="blog-nav-item" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+				    <li><a class="blog-nav-item" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+				    <li><a class="blog-nav-item" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+				    <li><a class="blog-nav-item" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+				    <li><a class="blog-nav-item" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+				    <li><a class="blog-nav-item" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+			    </ul>
+		    </div><!--/.nav-collapse -->
+	    </div>
+    </nav>
+
+    <div id="content" class="container">
+	    
+
+
+<h1 class="blog-post-title">Understanding the hazard function</h1>
+<p class="blog-post-meta">
+Posted on August  5, 2018  by Brian </br>
+ Tags: <a href="../../tags/hazard.html">hazard</a>, <a href="../../tags/censoring.html">censoring</a>, <a href="../../tags/survival.html">survival</a>, <a href="../../tags/exponential.html">exponential</a>, <a href="../../tags/poisson.html">poisson</a> </br>
+ Category: <a href="../../categories/survival_models.html">survival_models</a> 
+</p>
+
+<p>Suppose you have fit a distribution to your censored survival times as in the <a href="./censoring.html">previous post</a> and now want to quantify the intuition of an event being imminent. For example, being able to characterise precisely when your customers are about to churn can help identify problem areas to improve on. This notion is called the <em>hazard</em>. We’ll take a look at some of its main properties and how it related to survival analysis.</p>
+<h2 id="definition">Definition</h2>
+<p>Start with a small <span class="math inline">\(\delta\)</span>-interval around t and and consider the average probability density of an event ocurring in that interval given that it occurs after t: <span class="math inline">\(\frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}\)</span>, where <span class="math inline">\(\mathbb P\)</span> is the probability function. To get rid of the arbitrary choice of <span class="math inline">\(\delta\)</span>, we take the limit as <span class="math inline">\(\delta\)</span> goes to zero.</p>
+<p class="mathjaxWide"><span class="math display">\[
+h(t)
+:=
+\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
+.
+\]</span></p>
+<p>This is well-defined whenever the CDF is differentiable. Although it is defined in terms of probabilities, we will show below that the hazard is not itself a probability density function.</p>
+<h2 id="identities">Identities</h2>
+<p>There are a number of useful properties of the hazard function that make it convenient to work with in survival analysis.</p>
+<h3 id="equivalent-definition">Equivalent definition</h3>
+<p>The above definition helps us understand the intuition behind the hazard function but there’s an equivalent formulation that can be easier to work with. Using</p>
+<ul>
+<li>the definition of conditional probabilities,</li>
+<li>the definition of a derivative, and</li>
+<li>that <span class="math inline">\(F'(t) = f(t)\)</span> where <span class="math inline">\(F\)</span> is the CDF and <span class="math inline">\(f\)</span> the probability function,</li>
+</ul>
+<p>we can show that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  h(t)
+  &amp;=
+  \lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta)}{\mathbb P(t \le T)\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{S(t)\delta}
+  \\
+  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{\delta} \frac{1}{S(t)}
+  \\
+  &amp;= F'(t) \frac{1}{S(t)}
+  \\
+  &amp;= \frac{f(t)}{S(t)}.
+\end{align}
+\]</span></p>
+<p>We will show below how to use this to simplify the likelihood in the case of censored observations for measuring time to an event of interest.</p>
+<h3 id="relation-with-the-survival-function">Relation with the survival function</h3>
+<p>Using the identity above, we can rewrite the hazard as a derivative of the survival function:</p>
+<p class="mathjaxWide"><span class="math display">\[
+h(t)
+=
+\frac{f(t)}{S(t)}
+=
+-\frac{d}{dt} \log S(t)
+.
+\]</span></p>
+<p>It then follows from the <a href="https://en.wikipedia.org/wiki/Fundamental_theorem_of_calculus">first fundamental theorem of calculus</a> that</p>
+<p class="mathjaxWide"><span class="math display">\[
+S(t) = e^{-\int_0^t h(s) ds}.
+\]</span></p>
+<p>In other words, the hazard function completely determines the survival function (and therefore also the mass/density function).</p>
+<p>Since the integral of the hazard appears in the above equation, we can give it a definition for easier reference. We define the <em>cumulative hazard</em> as</p>
+<p class="mathjaxWide"><span class="math display">\[
+H(t) 
+:=
+\int_0^t h(s) ds
+.
+\]</span></p>
+<p>Since <span class="math inline">\(\lim_{t \rightarrow \infty} S(t) = 0\)</span>, it follows that <span class="math inline">\(\lim_{t \rightarrow \infty} H(t) = -\lim \log S(t) = \infty\)</span>. In particular, this means that the hazard function is NOT a probability density function!</p>
+<h3 id="example">Example</h3>
+<p>The exponential distribution has constant hazard. To see this, suppose <span class="math inline">\(h(t) = \lambda\)</span>. Then <span class="math inline">\(S(t) = \exp(-\int_0^t \lambda ds) = \exp(-\lambda t)\)</span> so that <span class="math inline">\(f(t) = -S'(t) = \lambda \exp(-\lambda t)\)</span>, which is the probability function for the <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>.</p>
+<h2 id="hazard-in-censored-survival-analysis">Hazard in censored survival analysis</h2>
+<p>In <a href="./censoring.html">the previous post</a>, we motivated the following likelihood in the case of censored survival times:</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\theta) 
+:= 
+\prod_{i = 1}^N \delta_i f(t_i \mid \theta)
+\times
+\prod_{i = 1}^N (1 - \delta_i) S(t_i \mid \theta)
+\]</span></p>
+<p>where <span class="math inline">\(\delta_i\)</span> is 1 if the event is observed and 0 if it is censored, and <span class="math inline">\(\theta\)</span> is the vector of parameters of the distribution of survival times. Since <span class="math inline">\(f(t) = h(t) S(t)\)</span>, we can rewrite this as</p>
+<p class="mathjaxWide"><span class="math display">\[
+L(\theta) 
+:= 
+\prod_{i = 1}^N h(t_i \mid \theta)^{\delta_i}S(t_i \mid \theta).
+\]</span></p>
+<h3 id="example-1">Example</h3>
+<p>Assuming that survival times follow an exponential distribution, the hazard <span class="math inline">\(h(t) = \lambda\)</span> is constant, and the likelihood is</p>
+<p class="mathjaxWide"><span class="math display">\[
+  L(\lambda)
+  = 
+  \prod_{i = 1}^N \lambda^{\delta_i} e^{-\lambda t_i}
+  =
+  \lambda^D e^{-\lambda T}
+\]</span></p>
+<p>where <span class="math inline">\(D := \sum_1^N \delta_i\)</span> is the total number of events observed and <span class="math inline">\(T := \sum_1^N t_i\)</span> is the total observation time. This expression has an interesting interpretation as a <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson</a> likelihood. To see this, first note that <span class="math inline">\(T\)</span> and <span class="math inline">\(D\)</span> can be considered constant in our likelihood because they don’t depend on our only parameter <span class="math inline">\(\lambda\)</span>. We can consider <span class="math inline">\(D\)</span> as a Poisson variable with rate <span class="math inline">\(\lambda\)</span> and exposure <span class="math inline">\(T\)</span>:</p>
+<p class="mathjaxWide"><span class="math display">\[
+D \mid \lambda \sim \text{Poisson}(\lambda T),
+\]</span></p>
+<p>which gives probability of observing <span class="math inline">\(D\)</span> events as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\text{Poisson}(D \mid \lambda T)
+=
+(\lambda T)^D e^{-\lambda T}
+=
+T^D L(\lambda)
+.
+\]</span></p>
+<p>However, likelihoods are equivalent up to a multiplicative constant. Since <span class="math inline">\(T^D\)</span> is constant we can treat our likelihood, <span class="math inline">\(L\)</span>, as Poisson.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+    </div>
+
+    <footer class="blog-footer">
+	    <div class="social">
+		    <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+		    <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+		    <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+		    <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+		    <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+		    <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+		    <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+	    </div>
+
+	    </br>
+
+	    Site proudly generated by
+	    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+    <!--<script type="text/x-mathjax-config">-->
+      <!--MathJax.Hub.Config({-->
+        <!--"HTML-CSS": { linebreaks: { automatic: true } }-->
+      <!--});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </body>
+</html>

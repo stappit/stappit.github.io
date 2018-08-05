@@ -7,6 +7,8 @@ tags: running, trail running, miut, ultra
 
 This is my race report for the [MIUT ultra](http://www.madeiraultratrail.com/en/the-event/ultra-course), 2017.
 
+<!--more-->
+
 ## Summary
 
 Here is an overview of the course.

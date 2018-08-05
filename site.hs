@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend, mconcat)
+import           Data.Monoid (mappend, mconcat, (<>))
 import           Hakyll
 import           Text.Pandoc (WriterOptions (..), HTMLMathMethod (MathJax))
 import           Text.Pandoc.Options
@@ -57,20 +57,21 @@ main = hakyll $ do
 
     match postsGlob $ do
         route $ setExtension "html"
-        compile $ pandocMathCompiler
+        compile $ postCompiler
+            >>= saveSnapshot "teaser"
             >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)
             >>= applyFilter postFilters
             >>= saveSnapshot "content"
             >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
             >>= relativizeUrls
 
-    match "drafts/*" $ do
-        route $ setExtension "html"
-        compile $ pandocMathCompiler
-            >>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)
-            >>= applyFilter postFilters
-            >>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)
-            >>= relativizeUrls
+    {-match "drafts/*" $ do-}
+        {-route $ setExtension "html"-}
+        {-compile $ pandocMathCompiler-}
+            {->>= loadAndApplyTemplate "templates/post.html"    (postCtxWithTags tags categories)-}
+            {->>= applyFilter postFilters-}
+            {->>= loadAndApplyTemplate "templates/default.html" (postCtxWithTags tags categories)-}
+            {->>= relativizeUrls-}
 
     match "posts/**.stan" $ version "raw" $ do
         route   idRoute
@@ -109,10 +110,8 @@ main = hakyll $ do
         compile $ do
             posts <- fmap (take 5) . recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
             let indexCtx = mconcat
-                    [
-                      constField "myfield" "woohoo"
-                    , listField "posts" postCtx (return posts) 
-                    , constField "title" "Home"               
+                    [ constField "title" "Home"
+		    , listField "posts" (teaserField "teaser" "teaser" <> postCtx) (return posts) 
                     , defaultContext
                     ]
 
@@ -148,19 +147,36 @@ postCtxWithTags tags cats = mconcat
     , postCtx
     ]
 
-pandocMathCompiler =
-    let mathExtensions = [ Ext_tex_math_dollars
-                         , Ext_tex_math_double_backslash
-                         , Ext_latex_macros
-                         ]
-        defaultExtensions = writerExtensions defaultHakyllWriterOptions
-        newExtensions = foldr S.insert defaultExtensions mathExtensions
-        writerOptions = defaultHakyllWriterOptions {
-                writerExtensions = newExtensions
-              , writerHTMLMathMethod = MathJax ""
-              , writerHtml5 = True
-        }
-    in pandocCompilerWith defaultHakyllReaderOptions writerOptions
+postWriterOptions :: WriterOptions
+postWriterOptions = defaultHakyllWriterOptions {
+      writerExtensions = newExtensions
+    , writerHTMLMathMethod = MathJax ""
+    , writerHtml5 = True
+    }
+  where
+      mathExtensions = [ Ext_tex_math_dollars
+                             , Ext_tex_math_double_backslash
+                             , Ext_latex_macros
+                             ]
+      defaultExtensions = writerExtensions defaultHakyllWriterOptions
+      newExtensions = foldr S.insert defaultExtensions mathExtensions
+
+postWriterOptionsToc :: WriterOptions
+postWriterOptionsToc = postWriterOptions{
+      writerTableOfContents = True
+    , writerTOCDepth = 2
+    , writerTemplate = Just "$if(toc)$<div id=\"toc\">$toc$</div>$endif$\n$body$"
+    } 
+
+postCompiler = do
+    ident <- getUnderlying 
+    toc   <- getMetadataField ident "withtoc"
+    let writerSettings = case toc of      
+            Just "true" -> postWriterOptionsToc
+            Just "yes"  -> postWriterOptionsToc
+            Just _      -> postWriterOptions
+            Nothing     -> postWriterOptions    
+    pandocCompilerWith defaultHakyllReaderOptions writerSettings
 
 ----------------------------------------------------------------------------------
 applyFilter :: (Monad m, Functor f) => (String -> String) -> f String -> m (f String)

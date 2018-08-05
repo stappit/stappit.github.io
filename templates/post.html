@@ -1,12 +1,14 @@
+<h1 class="post-title">$title$</h1>
 
-
-
-<h1 class="blog-post-title">$title$</h1>
-<p class="blog-post-meta">
-Posted on $date$ $if(author)$ by $author$ $endif$</br>
-$if(tags)$ Tags: $tags$ $endif$</br>
-$if(cat)$ Category: $cat$ $endif$
-</p>
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on $date$ $if(author)$ by $author$ $endif$</br>
+    $if(tags)$ Tags: $tags$ $endif$</br>
+    $if(cat)$ Category: $cat$ $endif$
+    </p>
+  </div>
+</div>
 
 $body$
 

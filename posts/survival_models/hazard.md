@@ -18,6 +18,8 @@ identify problem areas to improve on. This notion is called the
 *hazard*. We'll take a look at some of its main properties and how it
 related to survival analysis.
 
+<!--more-->
+
 Definition
 ----------
 

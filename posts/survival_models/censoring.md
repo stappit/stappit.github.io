@@ -19,6 +19,8 @@ customers may have cancelled their subscriptions but many hopefully
 haven't. Those that haven't are said to be `censored` because we haven't
 observed them cancel their subscription yet.
 
+<!--more-->
+
 As a first step in that direction, we'll take a look at modelling
 censoring when the `tte` has a Poisson distribution (minor modifications
 can be made to extend to other distributions). We'll use

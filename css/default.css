@@ -11,13 +11,22 @@
 	overflow-y: hidden;
 }
 
-/*#content {*/
-	/*margin-top: 2em;*/
-/*}*/
+#navbar-container {
+  font-size: 1.2em;
+  margin-bottom: 2em;
+}
 
 #navbar-container a:hover,
 #navbar-container a:focus {
   color: #B22222;
+}
+
+.container {
+  max-width: 900px;
+}
+
+a:visited {
+  color: #660066;
 }
 
 a:hover,
@@ -25,13 +34,16 @@ a:focus {
   color: #B22222;
 }
 
-/*This fixes sizing issues on mobile*/
+a, a:active {
+  color: #0099cc;
+}
+
 html, body
 {
     width: 100%;
     height: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     overflow-x: hidden; 
 }
 
@@ -56,6 +68,8 @@ pre code {
 
 #content {
     padding-bottom: 4em;
+    margin-bottom: 4em;
+    font-size: 1.2em;
 }
 
 p {
@@ -80,35 +94,8 @@ figcaption {
     text-align: center;
 }
 
-dd {
-    margin-left: 1em;
-    margin-bottom: 0.3em;
-}
-
-.list-group {
-    margin-top: 0.7em;
-}
-
-/*
- * Globals
- */
-
 body {
-  font-family: Georgia, "Times New Roman", Times, serif;
   color: #555;
-  font-size: 2em;
-}
-
-h1, .h1,
-h2, .h2,
-h3, .h3,
-h4, .h4,
-h5, .h5,
-h6, .h6 {
-  margin-top: 1em;
-  margin-bottom: 0.6em;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: normal;
 }
 
 h1, h2 {
@@ -119,122 +106,37 @@ h1, h2 {
 
 h3, h4, h5, h6 {
     color: #B22222;
-    /*color: #006400;*/
 }
 
-/*
- * Override Bootstrap's default container.
- */
-
-@media (min-width: 1200px) {
-  .container {
-    width: 970px;
-  }
+.post-item h5, .post-item h6 {
+  color: #0099cc;
 }
 
-
-/*
- * Masthead for nav
- */
-
-
-.blog-nav-item:hover,
-.blog-nav-item:focus {
-  color: #fff;
-  text-decoration: none;
+.post-item a:hover, .post-item a:focus {
+    color: #B22222;
 }
 
-/*
- * Blog name and description
- */
-
-.blog-header {
-  /*padding-top: 20px;*/
-  padding-bottom: 20px;
-}
-.blog-title {
-  margin-bottom: 0;
-  font-size: 60px;
-  font-weight: normal;
-}
-.blog-description {
-  font-size: 20px;
-  color: #999;
+.post-item {
+  margin-bottom: 1em;
 }
 
-
-/*
- * Main column and sidebar layout
- */
-
-.blog-main {
-  font-size: 18px;
-  line-height: 1.5;
+div.post-list {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-/* Sidebar modules for boxing content */
-.sidebar-module {
-  padding: 15px;
-  margin: 0 -15px 15px;
-}
-.sidebar-module-inset {
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-}
-.sidebar-module-inset p:last-child,
-.sidebar-module-inset ul:last-child,
-.sidebar-module-inset ol:last-child {
-  margin-bottom: 0;
+.post-meta {
+  font-size: 0.9em;
 }
 
-
-/* Pagination */
-.pager {
-  margin-bottom: 60px;
-  text-align: left;
-}
-.pager > li > a {
-  width: 140px;
-  padding: 10px 20px;
-  text-align: center;
-  border-radius: 30px;
-}
-
-
-/*
- * Blog posts
- */
-
-.blog-post {
-  margin-bottom: 60px;
-}
-.blog-post-title {
-  margin-bottom: 5px;
-  font-size: 40px;
-}
-.blog-post-meta {
-  margin-bottom: 20px;
-  color: #999;
-  font-size: 0.8em;
-}
-
-
-/*
- * Footer
- */
-
-.blog-footer {
-  padding: 40px 0;
-  color: #999;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-top: 1px solid #e5e5e5;
-}
-.blog-footer p:last-child {
-  margin-bottom: 0;
-}
 
 .nottoobig {
   max-height: 150px;
+}
+
+footer {
+  background-color: #f2f2f2;
+  margin: 0;
+  padding: 5em;
+  font-size: 1.3em;
 }

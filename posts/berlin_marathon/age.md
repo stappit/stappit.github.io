@@ -19,8 +19,11 @@ Marathon](https://www.bmw-berlin-marathon.com/en/race-day-/results-list.html),
 after some [cleaning up](https://github.com/stappit/berlin-marathon),
 focussing on the year 2016.
 
+<!--more-->
+
 ![Average finishing time in the Berlin marathon
-2016](age_files/figure-markdown/bm2016-1.png)
+2016](./age_files/figure-markdown/bm2016-1.png)
+
 
 **tl;dr** The performance of the average 20 year old is comparable to
 that of the average 50 year old. The 34 year old men were the fastest on

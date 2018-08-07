@@ -17,6 +17,8 @@ library(tidyverse)
 
 Suppose you have fit a distribution to your censored survival times as in the [previous post](./censoring.html) and now want to quantify the intuition of an event being imminent. For example, being able to characterise precisely when your customers are about to churn can help identify problem areas to improve on. This notion is called the *hazard*. We'll take a look at some of its main properties and how it related to survival analysis.
 
+<!--more-->
+
 ## Definition
 
 Start with a small $\delta$-interval around t and and consider the average probability density of an event ocurring in that interval given that it occurs after t: $\frac{\mathbb P(t \le T < t + \delta \mid t \le T)}{\delta}$, where $\mathbb P$ is the probability function. To get rid of the arbitrary choice of $\delta$, we take the limit as $\delta$ goes to zero.

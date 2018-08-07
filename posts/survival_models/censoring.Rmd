@@ -39,6 +39,8 @@ rstan_options(auto_write = TRUE)
 
 I've recently been interested in understanding survival models, which model the time to an event of interest (`tte`) but where we are not always able to wait until that event occurs. This happens, for example, when modelling the time until a customer [churns](https://en.wikipedia.org/wiki/Churn_rate): some of your customers may have cancelled their subscriptions but many hopefully haven't. Those that haven't are said to be `censored` because we haven't observed them cancel their subscription yet.
 
+<!--more-->
+
 As a first step in that direction, we'll take a look at modelling censoring when the `tte` has a Poisson distribution (minor modifications can be made to extend to other distributions). We'll use [Stan](http://mc-stan.org/) to implement our model since Bayesian notation very nicely reflects our statistical understanding. Don't worry if you aren't familiar with Stan or Bayesian inference - it should be possible to follow along regardless.
 
 You can download the [R markdown](./censoring.Rmd) and the [stan model](./censored_poisson.stan) to try it out.

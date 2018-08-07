@@ -45,8 +45,22 @@ html, body
     margin: 0;
     padding: 0;
     overflow-x: hidden; 
+    font-family: 'Roboto';
+    /*font-size: 22px;*/
+    color: #555;
 }
 
+div.sourceCode { 
+    background: linear-gradient(90deg, white, #f2f2f2, white);
+    padding-top: 0.5em;
+    padding-bottom: 0.1em;
+    padding-left: 50em;
+    padding-right: 50em;
+    margin-left: -50em;
+    margin-right: -50em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
 .sourceCode span.kw { color: #007020; font-weight: bold; }
 .sourceCode span.dt { color: #902000; }
 .sourceCode span.dv { color: #40a070; }
@@ -92,10 +106,6 @@ figure img {
 
 figcaption {
     text-align: center;
-}
-
-body {
-  color: #555;
 }
 
 h1, h2 {

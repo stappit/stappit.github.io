@@ -2,7 +2,7 @@ data {
   int<lower = 1> n;                // length of dataframe
   int<lower = 1> m;                // # intervals
   
-  int<lower = 0, upper = 1> death[n];         // deaths of the i-th case
+  int<lower = 0> death[n];         // deaths of the i-th case
   vector<lower = 0, upper = 1>[n] metastized; //
   vector<lower = 1>[n] exposure;   //
   

@@ -1,5 +1,5 @@
 ---
-title: "Cox Hazard"
+title: "Cox Proportional Hazard"
 author: "Brian Callander"
 date: "2018-08-18"
 always_allow_html: yes
@@ -24,23 +24,97 @@ library(tidyverse)
 library(broom)
 library(scales)
 
-library(rstan)
-library(tidybayes)
-library(bayesplot)
-
 library(survival)
 library(survminer)
 
 library(kableExtra)
 
-options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
+```
+
+[Last time](./hazard.html) we saw that the hazard function can be modelled directly from [right-censored time-to-event observations](./censoring.html) using a Poisson likelihood. In this post, we'll use those ideas to fit a constant hazard to data using Poisson regression, then exend those ideas to fitting arbitrary hazard functions (again with Poisson regression). This latter model is often called a Cox proportional hazards model. We'll finish by comparing our Cox model with that provided by the [survival package](https://cran.r-project.org/web/packages/survival/index.html).
+
+<!--more-->
+
+## Constant hazard
+
+Time-to-event observations have constant hazard when those observations have an exponential distribution. We'll generate observations from an exponential distribution with mean 5 and with censoring occurring independently of these observations. The hazard should be equal to the reciprocal of the mean, $h = 1 / 5 = 0.2$.
+
+```{r dataset_constant}
+N <- 1000
+mu <- 5
+
+dfc <- tibble(
+  id = 1:N,
+  tte = rexp(N, 1 / mu),
+  tto = pmin(rpois(N, 6) + 1, tte),
+  censored = tto < tte
+)
+
+dfc %>% 
+  head() %>% 
+  kable() %>% kable_styling()
+```
+
+```{r fit_constant_hazard}
+dfc %>% 
+  glm(
+    formula = !censored ~ 1 + offset(log(tto)),
+    family = poisson(link = 'log'),
+    data = .
+  ) %>% 
+  tidy() %>% 
+  pull(estimate) %>% 
+  exp()
 ```
 
 
-## Data
+## Cox model
 
-### Raw
+Instead of assuming that our observations are drawn from a specified distribution, we can try to model arbitrary distributions. We do this by breaking up our observations into intervals and modelling the average hazard (= constant) in each interval using the method outlined above.
+
+### The unknown distribution
+
+Let's use the Weibull distributions as the 'unknown' distribution from which our times-to-event are drawn.
+
+```{r weibull, echo = FALSE}
+scale <- 1.5
+shape <- 6
+
+tibble(x = seq(0, 22, 0.1), y = dweibull(x, scale, shape)) %>% 
+  ggplot() +
+  aes(x, y) +
+  geom_area(fill = 'skyblue') +
+  labs(
+    x = 'time-to-event',
+    y = 'Probability density',
+    title = str_glue('Weibull(scale = {scale}, shape = {shape})')
+  )
+
+```
+
+### The unknown hazard
+
+### Fitting the parameters
+
+```{r dataset_arbitrary}
+N <- 1000
+mu <- 5
+
+dfa <- tibble(
+  id = 1:N,
+  tte = rweibull(N, shape, scale),
+  tto = pmin(rpois(N, 5) + 1, tte),
+  censored = tto < tte
+)
+
+dfa %>% 
+  head() %>% 
+  kable() %>% kable_styling()
+```
+
+## Comparison with `survival`
+
+### Data
 
 ```{r}
 data("mastectomy", package = "HSAUR")
@@ -62,10 +136,11 @@ df %>%
 
 ```{r}
 df %>% 
-  ggplot(aes(x = event, y = ..count../sum(..count..))) +
+  ggplot(aes(x = event, y = ..count.. / sum(..count..))) +
   geom_bar(position = 'stack') +
   scale_y_continuous(labels = percent)
 ```
+
 
 ```{r}
 df %>% 
@@ -80,7 +155,9 @@ df %>%
   ) 
 ```
 
-### Prepared for hazard modelling
+
+
+### Piecewise-constant hazard
 
 ```{r}
 M <- 3 # size of intervals
@@ -167,98 +244,15 @@ df1 %>%
 
 ```
 
-## Model
+### Parameter fitting 
 
 ```{r}
-model <- rstan::stan_model('poisson_regression.stan')
-model
+m <- glm(death ~ 0 + ordered(lower) + metastized + offset(log(exposure)), data = df1, family = poisson())
+
+summary(m)
 ```
 
-```{r}
-fit <- sampling(
-  model,
-  data = df1 %>% 
-           compose_data(
-             m = df1 %>% distinct(lower) %>% nrow(), 
-             I = model.matrix(~ 0 + ordered(lower), df1),
-             h_sh = 2, h_ra = 2,
-             beta_sigma = 5
-           ),
-  iter = 3000,
-  warmup = 500
-)
-
-fit
-```
-
-### Diagnostics
-
-```{r}
-fit %>% 
-  rhat() %>% 
-  summary()
-
-```
-
-```{r}
-fit %>% 
-  neff_ratio() %>% 
-  summary()
-```
-
-```{r}
-fit %>% 
-  neff_ratio() %>% 
-  tidy() %>% 
-  filter(x < 1)
-
-```
-
-```{r}
-fit %>% 
-  as.array() %>% 
-  mcmc_acf(pars = c('beta', 'lp__'))
-
-```
-
-
-```{r}
-fit %>% 
-  as.array() %>% 
-  mcmc_trace(pars = c('beta', 'lp__')) 
-
-```
-
-### Effects
-
-```{r}
-p <- fit %>% 
-  spread_draws(beta, h[idx]) %>% 
-  mutate(
-    lower = (idx - 1) * M,
-    meta = h * exp(beta + log(M))
-  ) %>% 
-  mean_qi()
-  
-p %>% 
-  head()
-```
-
-
-```{r}
-p %>% 
-  select(lower, h, meta) %>%
-  gather(group, estimate, h, meta) %>%
-  group_by(group) %>%
-  arrange(lower) %>%
-  mutate(
-    cum_h = cumsum(estimate),
-    survival = exp(-cum_h)
-  ) %>%
-  ggplot(aes(x = lower, y = survival, colour = group)) +
-  geom_step()
-
-```
+### The survival package
 
 ```{r}
 cx <- coxph(
@@ -268,11 +262,3 @@ cx <- coxph(
 
 cx
 ```
-
-```{r}
-tibble(x = seq(0, 3, 0.001), y = dgamma(x, 2, 2)) %>% 
-  ggplot(aes(x = x, y = y)) + geom_line()
-
-
-```
-

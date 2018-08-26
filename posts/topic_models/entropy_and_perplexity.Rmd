@@ -1,0 +1,71 @@
+---
+title: "Entropy and Perplexity"
+author: "Brian Callander"
+date: "2018-10-01"
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = NA
+  # cache = TRUE
+)
+
+library(tidyverse)
+```
+
+
+I've been working with the unsupervised clustering algorithm [latent Dirichlet allocation](./latent_dirichlet_allocation.html) recently,  which comes along with the notion of *perplexity*. 
+
+[A Mathematical Theory of Communication](http://math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)
+
+## Entropy example
+
+Suppose I pick one of four balls uniformly at random, where each ball has a different colour, and you have to guess the colour. A good guessing strategy is depicted in the tree below.
+
+![]()
+
+You will always need 2 questions to get the the answer using this strategy. We'll show below that it's not possible to guarantee an expected number of questions fewer than 2. For the moment, notice that the number of questions we ask is the negative log-probability of being correct.
+
+$$
+4 \times (1 \times 0.5)
+=
+4 \times (- \log_2 (0.5) \times 0.5 )
+.
+$$
+
+What if I didn't pick them uniformly at random? Suppose blue has a probability of 50%, orange 25%, gray and green 12.5%.
+
+![]()
+
+Let's adapt our strategy so that the probabilities of guessing certain colours matches their probabilities of being chosen.
+
+![]()
+
+We need 1 question 50% of the time, 2 questions 25% of the time, and 3 questions 12.5% of the time. The colour will always be known after 3 questions. So the expected number of questions is 
+
+$$
+\begin{align}
+  1.375
+  &=
+  1 \times 0.5 + 2 \times 0.25 + 3 \times 0.125
+  \\
+  &=
+  -\log_2(0.5) \times 0.5 - \log_2(0.25) \times 0.25 - \log_2(0.125) \times 0.125
+  .
+\end{align}
+$$
+
+Somehow this distribution of colours is easier to guess than the uniform distribution. This is due to the fact tha
+
+Generalising to arbitrary distributions.
+
+What is the expected number of questions if we use a sub-optimal strategy?
+
+
+Perplexity is just cross-entropy in disguise.

@@ -8,8 +8,1085 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-08-05T00:00:00Z</updated>
+    <updated>2018-08-25T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 7</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_07.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_07.html</id>
+    <published>2018-08-25T00:00:00Z</published>
+    <updated>2018-08-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 7</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 25, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/natural%20parameter.html">natural parameter</a>, <a href="/tags/exponential%20family.html">exponential family</a>, <a href="/tags/improper%20prior.html">improper prior</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 7, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>We show that a uniform prior on the natural parameter of a binomial model implies an improper prior under a different parameterisation.</p>
+<p>The binomial likelihood can be written as a member of the exponential family as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \dbinomial(y \mid \theta)
+  &amp;=
+  \binom{n}{y} \theta^y (1 - \theta)^{n - y}
+  \\
+  &amp;=
+  \binom{n}{y} \cdot (1 - \theta)^n \cdot \exp \left(y \log \left(\frac{\theta}{1 - \theta}\right)\right)
+  \\
+  &amp;=
+  f(y) \cdot g(\theta) \cdot \exp (\phi(\theta) \cdot u(y))
+  ,
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\phi(\theta) := \log \frac{\theta}{1 - \theta}\)</span>, <span class="math inline">\(u(y) := y\)</span>, <span class="math inline">\(g(\theta) := (1 - \theta)^n\)</span>. Suppose the natural parameter <span class="math inline">\(\phi \sim \dbeta(1, 1)\)</span> is uniformly distributed. Then the distribution of <span class="math inline">\(\theta\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta) 
+  &amp;\propto
+  p(\phi) \cdot \vert \invlogit^\prime (\phi) \vert^{-1}
+  \\
+  &amp;=
+  \left \vert \frac{1}{1 + \exp(-\phi)}^\prime \right\vert^{-1}
+  \\
+  &amp;=
+  \left \vert \frac{1}{\left(1 + \exp(-\phi)\right)^2} \cdot \exp(-\phi) \right\vert^{-1}
+  \\
+  &amp;=
+  \frac{1 + 2 \exp(-\phi) + \exp(-2\phi)}{\exp(-\phi)}
+  \\
+  &amp;=
+  \exp(\phi) + 2 + \exp(-\phi)
+  \\
+  &amp;=
+  \frac{\theta}{1 - \theta} + 2 + \frac{1 - \theta}{\theta}
+  \\
+  &amp;=
+  \frac{\theta^2 + 2\theta(1 - \theta) + (1 - \theta)^2}{\theta(1 - \theta)}
+  \\
+  &amp;=
+  \frac{1}{\theta(1 - \theta)}
+  \\
+  &amp;=
+  \theta^{-1}(1 - \theta)^{-1}
+  \qquad \square
+\end{align}
+\]</span></p>
+<p>This is an improper distribution on <span class="math inline">\(\theta\)</span> because</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \int_0^1 \frac{1}{\theta(1 - \theta)}
+  &amp;\ge
+  \int_0^1 \frac{1}{\theta}
+  \\
+  &amp;=
+  \log\theta \vert_0^1
+  \\
+  &amp;=
+  \infty.
+\end{align}
+\]</span></p>
+<p>When <span class="math inline">\(y = 0\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = 0) \propto (1 - \theta)^{n - 1}\theta^{-1}\)</span>. When <span class="math inline">\(y = n\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = n) \propto \theta^{n-1}(1 - \theta)^{-1}\)</span>. These two cases are equivalent by the change of variable <span class="math inline">\(\theta \mapsto 1 - \theta\)</span>.</p>
+<p>We show that the distribution is improper for <span class="math inline">\(y = 0\)</span> by induction. The case <span class="math inline">\(n = 0\)</span> is shown above (for the prior). Assume the distribution is improper for any integer <span class="math inline">\(k &lt; n\)</span>. Then</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\int_0^1 \theta^{- 1}(1 - \theta)^{n - 1} d\theta
+&amp;=
+\int_0^1 \theta^{- 1}(1 - \theta)^{n - 2} \cdot (1 - \theta)d\theta
+\\
+&amp;=
+\left[(1 - \theta)^{n-2}(1 - \frac{\theta}{2}) \right]_0^1
++
+\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta}
++
+(n-2)(1 - \theta)^{n-3}
+-
+\frac{(1 - \theta)^{n-2}}{2}
+-
+(n - 2)\theta\frac{(1 - \theta)^{n-3}}{2}
+d\theta
+\\
+&amp;=
+c
++
+\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta} d\theta,
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(c &lt; \infty\)</span>. By the induction hypothesis, the integral on the last line is <span class="math inline">\(\infty\)</span>. Therefore, the distribution is also improper for <span class="math inline">\(n\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 6</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_06.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_06.html</id>
+    <published>2018-08-25T00:00:00Z</published>
+    <updated>2018-08-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 6</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 25, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/poisson.html">poisson</a>, <a href="/tags/gamma.html">gamma</a>, <a href="/tags/negative%20binomial.html">negative binomial</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 6, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Considering the negative binomial variable <span class="math inline">\(y\)</span> as a gamma-Poisson variable, we derive expressions for the mean and variance.</p>
+<p>From equation 1.6, <span class="math inline">\(\mathbb E (y) = \mathbb E (\mathbb E(y \mid \theta))\)</span>. Since <span class="math inline">\(y \mid \theta \sim \dpois(10n\theta)\)</span>, it follows that <span class="math inline">\(\mathbb E (y \mid \theta) = 10n\theta\)</span>. The rate <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span> so <span class="math inline">\(\mathbb E(\theta) = \frac{\alpha}{\beta}\)</span>. Thus, <span class="math inline">\(\mathbb E(y) = 10n\mathbb E(\theta) = 10n \frac{\alpha}{\beta}\)</span>.</p>
+<p>We also have <span class="math inline">\(\mathbb V(\theta) = \frac{\alpha}{\beta^2}\)</span> since <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>, and <span class="math inline">\(\mathbb V(y \mid \theta) = 10n\theta\)</span> since <span class="math inline">\(y \mid \theta \sim \dpois(10n\theta)\)</span>. Thus,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb V (y) 
+  &amp;= 
+  \mathbb E(\mathbb V(y \mid \theta)) + \mathbb V (\mathbb E (y \mid \theta)) 
+  \\
+  &amp;=
+  \mathbb E(10n\theta) + \mathbb V (10n\theta)
+  \\
+  &amp;=
+  10n\frac{\alpha}{\beta} + (10n)^2\frac{\alpha}{\beta^2}
+  \qquad \square
+\end{align}
+\]</span></p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 5</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_05.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_05.html</id>
+    <published>2018-08-24T00:00:00Z</published>
+    <updated>2018-08-24T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 5</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 24, 2018  by Brian </br>
+     Tags: <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/beta-binomial.html">beta-binomial</a>, <a href="/tags/variance.html">variance</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 5, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Let’s derive the prior predictive distribution of a beta-binomial model with a uniform prior. See <a href="https://math.stackexchange.com/questions/122296/how-to-evaluate-this-integral-relating-to-binomial">stackexchange</a> and <a href="https://en.wikipedia.org/wiki/Beta_function">wikipedia</a> for useful results for solving the integral below.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(y = k)
+  &amp;=
+  \int_0^1 p(y = k \mid \theta) p(\theta) d\theta
+  \\
+  &amp;=
+  \binom{n}{k} \cdot \int_0^1 \theta^k (1 - \theta)^{n - k} d\theta
+  \\
+  &amp;=
+  \binom{n}{k} \cdot \frac{1}{\binom{n}{k} \cdot (n + 1)}
+  \\
+  &amp;=
+  \frac{1}{n + 1}
+\end{align}
+\]</span></p>
+<p>Now let’s show that the posterior mean of <span class="math inline">\(\theta\)</span> lies between the prior mean and observed frequency. The posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y)
+  &amp;\propto
+  p(y \mid \theta) \cdot p(\theta)
+  \\
+  &amp;\propto
+  \theta^y (1 - \theta)^{n - y}\cdot \theta^{\alpha - 1} (1 - \theta)^{\beta - 1}
+  \\
+  &amp;=
+  \theta^{y + \alpha - 1} (1 - \theta)^{n + \beta - y - 1}.
+\end{align}
+\]</span></p>
+<p>So <span class="math inline">\(p(\theta \mid y) \sim \dbeta(y + \alpha, n - y + \beta)\)</span>, which has mean <span class="math inline">\(\frac{y + \alpha}{n + \alpha + \beta}\)</span>. Suppose <span class="math inline">\(\frac{y}{n} \le \frac{\alpha}{\alpha + \beta}\)</span>. Then</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \frac{y}{n}
+  &amp;\le
+  \frac{y + \alpha}{n + \alpha + \beta}
+  \\
+  \Leftrightarrow
+  y(n + \alpha + \beta)
+  &amp;\le
+  n(y + \alpha)
+  \\
+  \Leftrightarrow
+  y(\alpha + \beta)
+  &amp;\le
+  n\alpha
+  \\
+  \Leftrightarrow
+  \frac{y}{n} 
+  &amp;\le 
+  \frac{\alpha}{\alpha + \beta}
+\end{align}
+\]</span></p>
+<p>A similar argument shows that <span class="math inline">\(\frac{y + \alpha}{n + \alpha + \beta} \le \frac{\alpha}{\alpha + \beta}\)</span>.</p>
+<p>If <span class="math inline">\(\frac{y}{n} \ge \frac{\alpha}{\alpha + \beta}\)</span>, then the analogous argument shows that <span class="math inline">\(\frac{\alpha}{\alpha + \beta} \le \frac{y + \alpha}{n + \alpha + \beta} \le \frac{y}{n}. \square\)</span></p>
+<p>The prior variance is <span class="math inline">\(\mathbb V (\theta) = \frac{\alpha \beta}{(\alpha + \beta)^2(\alpha + \beta + 1)}\)</span>. For a uniform prior this is <span class="math inline">\(\frac{1}{4 \cdot 3} = \frac{1}{12}\)</span>. The posterior variance with a uniform prior is <span class="math inline">\(\frac{y + 1}{n + 2} \cdot \frac{n - y + 1}{n + 2} \cdot \frac{1}{n + 3}\)</span>. For <span class="math inline">\(p \in [0, 1]\)</span>, the function <span class="math inline">\(p \mapsto p(1 - p)\)</span> is maximised when <span class="math inline">\(p = 0.5\)</span>. Thus for fixed <span class="math inline">\(n\)</span>, the posterior variance is maximised when <span class="math inline">\(y = \frac{n}{2}\)</span>. This means that the posterior variance is at most <span class="math inline">\(\frac{1}{4} \cdot \frac{1}{n + 3} \le \frac{1}{4n + 12} \le \frac{1}{12}. \square\)</span></p>
+<p>Intuitively, the posterior variance should be larger than the prior variance when the observed data is different from what would be expected from the prior distribution. (This can’t happen with a uniform prior because every value is equally likely). Indeed, with prior <span class="math inline">\(\theta \sim \dbeta(1, 9)\)</span> and observed data <span class="math inline">\(y = 9, n = 10\)</span>, we have <span class="math inline">\(\mathbb V(\theta) = \frac{9}{1100}\)</span> and <span class="math inline">\(\mathbb V(\theta \mid y) = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{21} = \frac{1}{84}\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 4</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_04.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_04.html</id>
+    <published>2018-08-23T00:00:00Z</published>
+    <updated>2018-08-23T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 4</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 23, 2018  by Brian </br>
+     Tags: <a href="/tags/binomial.html">binomial</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/normal%20approximation.html">normal approximation</a>, <a href="/tags/multi-modal.html">multi-modal</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 4, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Consider 1000 rolls of an unfair die, where the probability of a 6 is either 1/4, 1/6, or 1/12. Let’s draw the distribution and the normal approximation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">1000</span>
+p6 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">4</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">6</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">12</span>)
+
+ex4 &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
+    <span class="dt">y =</span> <span class="kw">seq</span>(<span class="dv">0</span>, N),
+    <span class="dt">theta =</span> p6
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">mu =</span> N <span class="op">*</span><span class="st"> </span>theta,
+    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(N <span class="op">*</span><span class="st"> </span>theta <span class="op">*</span><span class="st"> </span>(<span class="dv">10</span> <span class="op">-</span><span class="st"> </span>theta)),
+    <span class="dt">binomial =</span> <span class="kw">dbinom</span>(y, N, theta),
+    <span class="dt">normal_approx =</span> <span class="kw">dnorm</span>(y, mu, sigma),
+    <span class="dt">theta =</span> scales<span class="op">::</span><span class="kw">percent</span>(<span class="kw">signif</span>(theta))
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>mu, <span class="op">-</span>sigma) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">gather</span>(distribution, probability, binomial, normal_approx) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(theta, probability) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior_probability =</span> <span class="fl">0.25</span> <span class="op">*</span><span class="st"> `</span><span class="dt">8.3%</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> `</span><span class="dt">16.7%</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.25</span> <span class="op">*</span><span class="st"> `</span><span class="dt">25.0%</span><span class="st">`</span>)</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:left;">
+distribution
+</th>
+<th style="text-align:right;">
+16.7%
+</th>
+<th style="text-align:right;">
+25.0%
+</th>
+<th style="text-align:right;">
+8.3%
+</th>
+<th style="text-align:right;">
+prior_probability
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0.0e+00
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.00e+00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+normal_approx
+</td>
+<td style="text-align:right;">
+2.1e-06
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0002078
+</td>
+<td style="text-align:right;">
+5.30e-05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0.0e+00
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.00e+00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+normal_approx
+</td>
+<td style="text-align:right;">
+2.3e-06
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0002297
+</td>
+<td style="text-align:right;">
+5.86e-05
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0.0e+00
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.00e+00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+normal_approx
+</td>
+<td style="text-align:right;">
+2.5e-06
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0002536
+</td>
+<td style="text-align:right;">
+6.47e-05
+</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="chapter_02_exercise_04_files/figure-markdown/ex4_plot-1.png" />
+</figure>
+<p>The normal approximation underestimates the maxima and overestimates the values between the maxima. From the percentiles in the table below, we see that the normal approximation is best near the median but becomes gradually worse towards towards both extremes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">percentiles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)
+
+ex4 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(distribution) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(y) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">cdf =</span> <span class="kw">cumsum</span>(prior_probability),
+    <span class="dt">percentile =</span> <span class="kw">case_when</span>(
+      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">~</span><span class="st"> &#39;05%&#39;</span>,
+      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.25</span> <span class="op">~</span><span class="st"> &#39;25%&#39;</span>,
+      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.50</span> <span class="op">~</span><span class="st"> &#39;50%&#39;</span>,
+      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.75</span> <span class="op">~</span><span class="st"> &#39;75%&#39;</span>,
+      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.95</span> <span class="op">~</span><span class="st"> &#39;95%&#39;</span>
+    )
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.95</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(distribution, percentile) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">slice</span>(<span class="kw">which.max</span>(cdf)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(distribution, percentile, y) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(distribution, y) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(percentile) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+percentile
+</th>
+<th style="text-align:right;">
+binomial
+</th>
+<th style="text-align:right;">
+normal_approx
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+05%
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+58
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25%
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50%
+</td>
+<td style="text-align:right;">
+166
+</td>
+<td style="text-align:right;">
+164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+75%
+</td>
+<td style="text-align:right;">
+206
+</td>
+<td style="text-align:right;">
+214
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+95%
+</td>
+<td style="text-align:right;">
+260
+</td>
+<td style="text-align:right;">
+291
+</td>
+</tr>
+</tbody>
+</table>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 3</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_03.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_03.html</id>
+    <published>2018-08-22T00:00:00Z</published>
+    <updated>2018-08-22T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 3</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 22, 2018  by Brian </br>
+     Tags: <a href="/tags/binomial.html">binomial</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/normal%20approximation.html">normal approximation</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 3, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>For 1000 rolls of a fair die, The mean number of sixs is 1000/6 = 166.667, the variance is 138.889, and the standard deviation is 11.7851.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">1000</span>
+p &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">6</span>
+mu &lt;-<span class="st"> </span>N <span class="op">*</span><span class="st"> </span>p
+sigma &lt;-<span class="st"> </span><span class="kw">sqrt</span>(N <span class="op">*</span><span class="st"> </span>p <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p))
+
+ex3 &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+    <span class="dt">y =</span> <span class="kw">seq</span>(<span class="dv">0</span>, N),
+    <span class="dt">binomial =</span> <span class="kw">dbinom</span>(y, N, p),
+    <span class="dt">normal_approx =</span> <span class="kw">dnorm</span>(y, mu, sigma)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">gather</span>(metric, probability, <span class="op">-</span>y) </code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:left;">
+metric
+</th>
+<th style="text-align:right;">
+probability
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+binomial
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="chapter_02_exercise_03_files/figure-markdown/ex3_plot-1.png" />
+</figure>
+<p>The two curves are visually indistinguishable. The percentiles are listed in the table below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">percentiles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)
+
+<span class="kw">tibble</span>(
+    <span class="dt">percentile =</span> scales<span class="op">::</span><span class="kw">percent</span>(percentiles),
+    <span class="dt">binom =</span> <span class="kw">qbinom</span>(percentiles, N, p),
+    <span class="dt">norm =</span> <span class="kw">qnorm</span>(percentiles, mu, sigma)
+) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+percentile
+</th>
+<th style="text-align:right;">
+binom
+</th>
+<th style="text-align:right;">
+norm
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+5%
+</td>
+<td style="text-align:right;">
+147
+</td>
+<td style="text-align:right;">
+147.2819
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25%
+</td>
+<td style="text-align:right;">
+159
+</td>
+<td style="text-align:right;">
+158.7177
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50%
+</td>
+<td style="text-align:right;">
+167
+</td>
+<td style="text-align:right;">
+166.6667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+75%
+</td>
+<td style="text-align:right;">
+175
+</td>
+<td style="text-align:right;">
+174.6156
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+95%
+</td>
+<td style="text-align:right;">
+186
+</td>
+<td style="text-align:right;">
+186.0515
+</td>
+</tr>
+</tbody>
+</table>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 2</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_02.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_02.html</id>
+    <published>2018-08-21T00:00:00Z</published>
+    <updated>2018-08-21T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 2</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 21, 2018  by Brian </br>
+     Tags: <a href="/tags/stan.html">stan</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 2, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>We are given the following information about the two coins.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(C_1) &amp;= 0.5 &amp; p(H \mid C_1) &amp;= \dbern(H \mid 0.6) 
+  \\
+  p(C_2) &amp;= 0.5 &amp; p(H \mid C_2) &amp;= \dbern(H \mid 0.4)
+\end{align}
+\]</span></p>
+<p>The posterior probability of each coin given two tails is:</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(C_1 \mid TT )
+  &amp;\propto
+  p(TT \mid C_1) \cdot p(C_1)
+  \\
+  &amp;=
+  \left(\frac{2}{5}\right)^2 \frac{1}{2}
+  \\
+  &amp;=
+  \frac{2}{25}
+\end{align}
+\]</span> <span class="math display">\[
+\begin{align}
+  p(C_2 \mid TT )
+  &amp;\propto
+  p(TT \mid C_2) \cdot p(C_2)
+  \\
+  &amp;=
+  \left(\frac{3}{5}\right)^2 \frac{1}{2}
+  \\
+  &amp;=
+  \frac{9}{50}
+\end{align}
+\]</span></p>
+<p>Both of the previous probabilities are normalised by the same constant. Since <span class="math inline">\(p(C_1 \mid TT) + p(C_2 \mid TT) = 1\)</span>, the normalising constant is <span class="math inline">\(\frac{2}{25} + \frac{9}{50} = \frac{13}{50}\)</span>. Thus</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(C_1 \mid TT) = \frac{4}{13}
+\qquad
+\text{and}
+\qquad
+p(C_2 \mid TT) = \frac{9}{13}.
+\]</span></p>
+<p>Let <span class="math inline">\(y\)</span> be the number of additional spins until the next head. Conditional on a coin, <span class="math inline">\(y\)</span> is <a href="https://en.wikipedia.org/wiki/Geometric_distribution">geometrically</a> distributed. So the expected number of spins before the next head is:</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb E(y \mid TT)
+  &amp;=
+  \frac{4}{13}\mathbb E(y \mid C_1)
+  +
+  \frac{9}{13}\mathbb E(y \mid C_1)
+  \\
+  &amp;=
+  \frac{4}{13}\frac{5}{3}
+  +
+  \frac{9}{13}\frac{5}{2}
+  \\
+  &amp;=
+  \frac{20}{39}
+  +
+  \frac{45}{26}
+  \\
+  &amp;=
+  \frac{175}{78},
+\end{align}
+\]</span></p>
+<p>which is 2.24359.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 1</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_01.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_01.html</id>
+    <published>2018-08-20T00:00:00Z</published>
+    <updated>2018-08-20T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 1</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 20, 2018  by Brian </br>
+     Tags: <a href="/tags/stan.html">stan</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 1, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Let <span class="math inline">\(H\)</span> be the number of heads in 10 tosses of the coin. With a <span class="math inline">\(\dbeta(4, 4)\)</span> prior on the probability <span class="math inline">\(\theta\)</span> of a head, the posterior after finding out <span class="math inline">\(H \le 2\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid H \le 2)
+  &amp;\propto
+  p(H \le 2 \mid \theta) \cdot p(\theta)
+  \\
+  &amp;=
+  \dbeta(\theta \mid 4, 4) \sum_{h = 0}^2 \dbinomial(h \mid \theta, 10)
+  \\
+  &amp;=
+  \theta^3 (1 - \theta)^3 \sum_{h = 0}^2 \binom{10}{h} \theta^h (1 - \theta)^{10 - h}.
+\end{align}
+\]</span></p>
+<p>We can plot this unnormalised posterior density from the following dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ex1 &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+         <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>), 
+         <span class="dt">prior =</span> theta<span class="op">^</span><span class="dv">3</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)<span class="op">^</span><span class="dv">3</span>,
+         <span class="dt">posterior =</span> prior <span class="op">*</span><span class="st"> </span>(
+           <span class="kw">choose</span>(<span class="dv">10</span>, <span class="dv">0</span>) <span class="op">*</span><span class="st"> </span>theta<span class="op">^</span><span class="dv">0</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)<span class="op">^</span><span class="dv">10</span> <span class="op">+</span>
+<span class="st">           </span><span class="kw">choose</span>(<span class="dv">10</span>, <span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>theta<span class="op">^</span><span class="dv">1</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)<span class="op">^</span><span class="dv">9</span> <span class="op">+</span>
+<span class="st">           </span><span class="kw">choose</span>(<span class="dv">10</span>, <span class="dv">2</span>) <span class="op">*</span><span class="st"> </span>theta<span class="op">^</span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)<span class="op">^</span><span class="dv">8</span> 
+         )
+       )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_01_files/figure-markdown/ex1_plot-1.png" />
+</figure>
+<p>With the help of <a href="http://mc-stan.org/">Stan</a>, we can obtain the normalised posterior density. We include the information that there are at most 2 heads observed by using the (log) cumulative density function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m1 &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">&#39;src/ex_02_01.stan&#39;</span>)</code></pre></div>
+<pre><code>S4 class stanmodel &#39;ex_02_01&#39; coded as follows:
+transformed data {
+  int tosses = 10;
+  int max_heads = 2;
+}
+
+parameters {
+  real&lt;lower = 0, upper = 1&gt; theta;
+}
+
+model {
+  theta ~ beta(4, 4); // prior 
+  target += binomial_lcdf(max_heads | tosses, theta); // likelihood
+} </code></pre>
+<p>The following posterior has the same shape as our exact unnormalised density above. The difference is that we now have a normalised probability distribution without having to work out the maths ourselves.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f1 &lt;-<span class="st"> </span><span class="kw">sampling</span>(m1, <span class="dt">iter =</span> <span class="dv">40000</span>, <span class="dt">warmup =</span> <span class="dv">500</span>, <span class="dt">chains =</span> <span class="dv">1</span>)</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_01_files/figure-markdown/ex1_stan_plot-1.png" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>Understanding the hazard function</title>
     <link href="http://stappit.github.io/posts/survival_models/hazard.html" />
     <id>http://stappit.github.io/posts/survival_models/hazard.html</id>
@@ -1209,1172 +2286,6 @@ all_years_modelled &lt;-<span class="st"> </span>df0 <span class="op">%&gt;%</sp
 </figure>
 <h2 id="conclusion">Conclusion</h2>
 <p>On the basis of our dataset, there is no indication that performance declines at 30. Indeed, those in their early 30s tend to be the fastest age group, both for men and women. Moreover, the performance of the 20 year olds is comparable to that of the ~50 year olds, perhaps suggesting that running performance doesn’t degrade as fast as people often think it does.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Wasserman's AoS, Chapter 8, Question 5</title>
-    <link href="http://stappit.github.io/posts/allofstatistics/ch08q04.html" />
-    <id>http://stappit.github.io/posts/allofstatistics/ch08q04.html</id>
-    <published>2017-05-01T00:00:00Z</published>
-    <updated>2017-05-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Wasserman's AoS, Chapter 8, Question 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on May  1, 2017  by Brian </br>
-     Tags: <a href="/tags/wasserman.html">wasserman</a>, <a href="/tags/all%20of%20statistics.html">all of statistics</a>, <a href="/tags/bootstrap.html">bootstrap</a>, <a href="/tags/combinatorics.html">combinatorics</a> </br>
-     Category: <a href="/categories/allofstatistics.html">allofstatistics</a> 
-    </p>
-  </div>
-</div>
-
-<p>We show here that the number of possible bootstrap samples <span class="math inline">\(X_1^*, \dotsc, X_n^*\)</span> is</p>
-<p class="mathjaxWide"><span class="math display">\[
-{2n - 1 \choose n - 1}.
-\]</span></p>
-<p>given a sample <span class="math inline">\(X_1, \dotsc, X_n\)</span>.</p>
-<!--more-->
-<p>In fact, we prove the more general result that the number of ways of choosing a sample (with replacement) of size k from n objects is</p>
-<p class="mathjaxWide"><span class="math display">\[
-{n + k - 1 \choose n - 1}.
-\]</span></p>
-<h2 id="wrong-solution">Wrong Solution</h2>
-<p>It is tempting to answer that there are <span class="math inline">\(n^n\)</span> possibilities with the reasoning that there are n free choices for n balls. However, this overcounts the possibilities, which can be verified by hand in the simple case where <span class="math inline">\(n=k=2\)</span>.</p>
-<h2 id="correct-solution">Correct Solution</h2>
-<p>The proof actually counts the number of ways to write down a solution using a certain notation called <a href="https://en.wikipedia.org/wiki/Stars_and_bars_(combinatorics)">stars and bars</a>. Consider each of our observations, <span class="math inline">\(X_i\)</span>, as a bucket and each choice as a ball that we put into a bucket. By drawing the k balls in a row, we can show which bucket they fall into by separating the balls with a line. For example, for <span class="math inline">\(n=4\)</span> and <span class="math inline">\(k=3\)</span>, the choice <span class="math inline">\(X_3, X_4, X_4\)</span> would be written</p>
-<pre><code>||*|**</code></pre>
-<p>Similarly, we can write all solutions for <span class="math inline">\(n=2, k=3\)</span> as</p>
-<pre><code>|***
-*|**
-**|*
-***|</code></pre>
-<p>The crucial point to note is that we always use <span class="math inline">\(n + k - 1\)</span> symbols for a solution: <span class="math inline">\(n-1\)</span> bars and <span class="math inline">\(k\)</span> balls. Any ordering of these symbols is a solution so we just need to figure out how many orderings there are. The positions of the bars completely determine the positions of the stars. There are <span class="math inline">\(n + k - 1\)</span> positions in total and we choose <span class="math inline">\(n-1\)</span> of these to be bars, so there are</p>
-<p class="mathjaxWide"><span class="math display">\[
-{n + k - 1 \choose n - 1}
-\]</span></p>
-<p>possible solutions.</p>
-<h2 id="example">Example</h2>
-<p>Here are all 10 possibilities for <span class="math inline">\(n=k=3\)</span>.</p>
-<pre><code>||***
-|*|**
-|**|*
-|***|
-*||**
-*|*|*
-*|**|
-**||*
-**|*|
-***||</code></pre>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>MIUT Ultra 2017 Race Report</title>
-    <link href="http://stappit.github.io/posts/miut_ultra_2017.html" />
-    <id>http://stappit.github.io/posts/miut_ultra_2017.html</id>
-    <published>2017-04-25T00:00:00Z</published>
-    <updated>2017-04-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">MIUT Ultra 2017 Race Report</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on April 25, 2017  by Brian </br>
-     Tags: <a href="/tags/running.html">running</a>, <a href="/tags/trail%20running.html">trail running</a>, <a href="/tags/miut.html">miut</a>, <a href="/tags/ultra.html">ultra</a> </br>
-     Category: <a href="/categories/posts.html">posts</a> 
-    </p>
-  </div>
-</div>
-
-<p>This is my race report for the <a href="http://www.madeiraultratrail.com/en/the-event/ultra-course">MIUT ultra</a>, 2017.</p>
-<!--more-->
-<h2 id="summary">Summary</h2>
-<p>Here is an overview of the course.</p>
-<figure>
-<img src="../images/miut_ultra_2017_profile.png" alt="Course Profile: The first checkpoint, Rosário, wasn’t there this year." /><figcaption>Course Profile: The first checkpoint, Rosário, wasn’t there this year.</figcaption>
-</figure>
-<dl>
-<dt>Distance</dt>
-<dd>83.9km
-</dd>
-<dt>Elevation Gain</dt>
-<dd>4400m
-</dd>
-<dt>Elevation Loss</dt>
-<dd>4400m
-</dd>
-<dt>Time</dt>
-<dd><a href="https://madeiraultratrail.info/#/event/42/96/results/athlete/10226/24697?embed">17:13</a>
-</dd>
-<dt>Where</dt>
-<dd>Madeira, Portugal
-</dd>
-<dt>When</dt>
-<dd>April 22nd, 2017
-</dd>
-</dl>
-<h2 id="goals">Goals</h2>
-<p>My main goal was just to finish. I had never run an ultra before and living in Berlin doesn’t offer much by way of preparation for something like MIUT. Finishing in a little over 17h was a pleasant surprise.</p>
-<h2 id="training">Training</h2>
-<p>I was primarily training for a sub 3h marathon in march with the intention to reverse-taper into the ultra. This would have probably been fine if my motivation hadn’t waned. This was partly due to calf problems but, as it was, I should have trained more. Much more. I hit a max of 90 km/week in training with fairly minimal speed work.</p>
-<h2 id="gear">Gear</h2>
-<p>I felt fairly well equipped for the run.</p>
-<figure>
-<img src="../images/miut_ultra_2017_gear.jpg" alt="Gear" /><figcaption>Gear</figcaption>
-</figure>
-<p>Required:</p>
-<ul>
-<li>Race vest (Nathan Vapor Air)</li>
-<li>Bladder</li>
-<li>Water bottle</li>
-<li>Bivy</li>
-<li>Bandage</li>
-<li>Headlamp (Black Diamond Astro) + spare batteries</li>
-<li>Torch + spare batteries</li>
-<li>Red taillight (Nathan)</li>
-<li>Food (gels, Cliff Bars, trail mix)</li>
-</ul>
-<p>Other:</p>
-<ul>
-<li>Running shoes (Saucony Kinvara 7)</li>
-<li>Poles (Black Diamond FLZ Carbon)</li>
-<li>Cap (Salomon)</li>
-<li>Sunglasses</li>
-<li>Gloves</li>
-<li>MP3 player (Scan Disk Clip Sport)</li>
-<li>Waste bag + toilet paper</li>
-</ul>
-<h2 id="pre-race">Pre-Race</h2>
-<p>The race start was at 07:00 in São Vicente on the north of the island. The race organisors offered a shuttle service from Machico (east) to the start, leaving at 05:00, which took away much of the stress of using Madeira’s awkward public transport system. Apart from forgetting my pre-race breakfast of oats, everything ran very smoothly. Two Cliff bars and a gel had to suffice for breakfast.</p>
-<h2 id="race">Race</h2>
-<h3 id="são-vicente-encumeada-12.8km-1100m-390m--146">São Vicente ➡️ Encumeada (12.8km, 1100m+, 390m-, 1:46)</h3>
-<p>My average speed of over 7kph felt super easy at the time but was too fast in retrospect. I passed many runners on the uphills throughout the entire race, especially here at the start, which perhaps led to overconfidence. ‘Easy’ in a marathon is different form ‘easy’ in an ultra.</p>
-<h3 id="encumeada-curral-das-freiras-15.3km-890m-1060m--319">Encumeada ➡️ Curral das Freiras (15.3km, 890m+, 1060m-, 3:19)</h3>
-<p>This is where I made my biggest mistake: starting to jog the downhills. They felt easy and non-technical but after the massive descent into Curral das Freiras I wasn’t able to do any more downhill without pain. I ran out of water (it was HOT) and also thought I had run out gels so I was knackered by the time I got into the checkpoint. After downing a half litre of Pepsi and devouring a Cliff bar amongst other snacks, I sorted out my pack and found my gels. They were mega useful for the next section.</p>
-<figure>
-<img src="../images/miut_ultra_2017_downhill.jpg" alt="Downhill" /><figcaption>Downhill</figcaption>
-</figure>
-<h3 id="curral-das-freiras-pico-ruivo-10.8km-1370m-290m--256">Curral das Freiras ➡️ Pico Ruivo (10.8km, 1370m+, 290m-, 2:56)</h3>
-<p>This section was by far the most stunning and beautiful. Climb, gel, water, repeat, <a href="https://www.youtube.com/watch?v=wwBhxBBa7tE">Moon Hooch</a>ing all the way to the top. The mountains are epic and it feels almost godlike as you pass through the clouds to the peak. Only occassionally did the dense white fog give way to offer a dizzying glimpse at the sheer cliffs.</p>
-<figure>
-<img src="../images/miut_ultra_2017_mordor.jpg" alt="Beautiful Mountains" /><figcaption>Beautiful Mountains</figcaption>
-</figure>
-<p>The checkpoint was out of power and was running on candlelight as I arrived. It was so cramped and I was feeling good so I thought I’d ‘just’ confinue on the next and much larger checkpoint. “Just 5km”, I thought. Haha!</p>
-<h3 id="pico-ruivo-pico-do-areeiro-5.5km-460m-420m--125">Pico Ruivo ➡️ Pico do Areeiro (5.5km, 460m+, 420m-, 1:25)</h3>
-<p>This section was very technical and the steps were especially steep. Every downhill was agony for my quads and I was grateful for every uphill. I ate lots of trail mix and arrived at the checkpoint utterly exhausted.</p>
-<figure>
-<img src="../images/miut_ultra_2017_feet.jpg" alt="My Feet" /><figcaption>My Feet</figcaption>
-</figure>
-<p>Fortunately my dropbag was here and I took the opportunity to rest (~40mins), change my sweat-soaked T-shirt/socks, stock up on calories/water, and take a caffeine pill (200mg). As I lay on the ground waiting for the caffeine to kick in, a guy came sauntering around the corner and, with neither a break in step nor smile, let forth a jet of vomit. A nearby child started to cry as the guy made another projectile offering to the mountain gods. I hope that guy was alright but I can’t deny that this lifted my mood. With a caffeine buzz in my body and the <a href="https://www.youtube.com/watch?v=rwvCEWWWt7Q">Oh Hellos</a> in my ear, I started the next section.</p>
-<h3 id="pico-do-areeiro-ribeiro-frio-9.3km-125m-1035m--223">Pico do Areeiro ➡️ Ribeiro Frio (9.3km, 125m+, 1035m-, 2:23)</h3>
-<p>The scenery changed drastically here, from single-track mountain paths to open fields, which fitted my now chilled-out mood. The descents still hurt but were manageable.</p>
-<figure>
-<img src="../images/miut_ultra_2017_happy.jpg" alt="Happy :)" /><figcaption>Happy :)</figcaption>
-</figure>
-<p>As I neared the checkpoint, I realised something wasn’t right: my stomach was sore, felt blocked up, and I couldn’t eat any more. Drinking was also unpleasant. This remained for the rest of the race and, other than two gels, stopped eating for the day. Too much solid food, too early?</p>
-<h3 id="ribeiro-frio-poiso-3.8km-485m-0m--112">Ribeiro Frio ➡️ Poiso (3.8km, 485m+, 0m-, 1:12)</h3>
-<p>Ugh, my stomach.</p>
-<h3 id="poiso-portela-8.8km-30m-805m--143">Poiso ➡️ Portela (8.8km, 30m+, 805m-, 1:43)</h3>
-<p>Eternal downhill of pain. The last of the sunlight disappeared as I arrived at the checkpoint.</p>
-<h3 id="portela-larano-5.2km-35m-320m--055">Portela ➡️ Larano (5.2km, 35m+, 320m-, 0:55)</h3>
-<p>Three portuguese women were running behind me on the way into Portela and I joined them as they passed. I’m so grateful to them for getting me moving again.</p>
-<h3 id="larano-ribeira-seca-7.5km-80m-175m--130">Larano ➡️ Ribeira Seca (7.5km, 80m+, 175m-, 1:30)</h3>
-<p>Darkness and the sound of waves. Time seemed to stand still.</p>
-<h3 id="ribeira-seca-machico-4.3km-5m-220m--044">Ribeira Seca ➡️ Machico (4.3km, 5m+, 220m-, 0:44)</h3>
-<p>Lots of people ran past me here. I didn’t care any more. At some point I was walking behing a portuguese guy called <a href="https://madeiraultratrail.info/#/event/42/95/results/athlete/10053/24024">José</a>, who was finishing the full MIUT course. We walked for an eternity. Thank you, José. The last downhill into the finish was slippery and painful but when we got to the road we jogged it in together.</p>
-<h2 id="post-race">Post-Race</h2>
-<p>Sleep, breakfast x 3, sleep, lunch, ice-cream, jacuzzi.</p>
-<h2 id="learnings">Learnings</h2>
-<ul>
-<li>Take it really, really easy at the start, especially on the downhills.</li>
-<li>I’m good at uphills.</li>
-<li>Be careful on the downhills, especially when technical.</li>
-<li>I still need to find out why my stomach gave up at ~60km:
-<ul>
-<li>too much water?</li>
-<li>too much fibre/solid food early on?</li>
-</ul></li>
-<li>Do the proper training!</li>
-</ul>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Wasserman's AoS, Chapter 8, Question 5</title>
-    <link href="http://stappit.github.io/posts/allofstatistics/ch08q05.html" />
-    <id>http://stappit.github.io/posts/allofstatistics/ch08q05.html</id>
-    <published>2017-04-16T00:00:00Z</published>
-    <updated>2017-04-16T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Wasserman's AoS, Chapter 8, Question 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on April 16, 2017  by Brian </br>
-     Tags: <a href="/tags/wasserman.html">wasserman</a>, <a href="/tags/all%20of%20statistics.html">all of statistics</a>, <a href="/tags/bootstrap.html">bootstrap</a>, <a href="/tags/conditional%20expectation.html">conditional expectation</a>, <a href="/tags/conditional%20variance.html">conditional variance</a> </br>
-     Category: <a href="/categories/allofstatistics.html">allofstatistics</a> 
-    </p>
-  </div>
-</div>
-
-<p>We solve question 5 from chapter 8 os Wasserman’s “All of Statistics” making the implicit assumption that <span class="math inline">\(X_1, \dotsc, X_n\)</span> are iid. Other computation solutions can be found in the corresponding <a href="https://github.com/stappit/all-of-statistics">GitHub reepo</a>.</p>
-<!--more-->
-<p>Given <span class="math inline">\(X_1, \dotsc, X_n\)</span>, the random variable <span class="math inline">\(X_i^*\)</span> can take any of those <span class="math inline">\(\le n\)</span> values. With the assumption that there are no ties (i.e. there are n distinct values), <span class="math inline">\(X_i^*\)</span> has a discrete uniform distribution over <span class="math inline">\(X_1, \dotsc, X_n\)</span>. (If there are ties, then the distribution is not uniform). We use this fact multiple times to obtain the result.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
-  &amp;=
-  \frac{1}{n} \sum_1^n \mathbb E (X_i^* \vert \dotsc)
-  \\
-  &amp;=
-  \frac{1}{n} \sum_1^n \sum_1^n X_j \frac{1}{n}
-  \\
-  &amp;=
-  \frac{1}{n} \sum_1^n \bar X_n
-  \\
-  &amp;=
-  \bar X_n
-  ,
-\end{align}
-\]</span></p>
-<p>where we used The Fact for the 2nd equality.</p>
-<p>Moreover,</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb E (\bar X_n^*)
-  &amp;=
-  \mathbb E \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
-  \\
-  &amp;=
-  \mathbb E \bar X_n
-  \\
-  &amp;=
-  \mu
-  ,
-\end{align}
-\]</span></p>
-<p>where <span class="math inline">\(\mu := \mathbb E X_1\)</span>, assuming it exists.</p>
-<p>For the conditional variance,</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb V (\bar X_n^* \vert X_1, \dotsc, X_n)
-  &amp;=
-  \frac{1}{n^2} \sum_1^n \mathbb V (X_i^* \vert \dotsc)
-  \\
-  &amp;=
-  \frac{1}{n^2} \sum_1^n \sum_1^n \frac{(X_j - \bar X_n)^2}{n}
-  \\
-  &amp;=
-  \frac{1}{n} \sum_1^n \frac{(X_i - \bar X_n)^2}{n}
-  \\
-  &amp;=
-  \frac{S_n}{n}
-  .
-\end{align}
-\]</span></p>
-<p>This has expectation <span class="math inline">\(\frac{\sigma^2}{n}\)</span>, where <span class="math inline">\(\sigma^2 := \mathbb V X_1\)</span>, assuming it exists.</p>
-<p>Before calculating the variance, we require one more identity - the variance of the conditional expectation.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb V \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
-  &amp;=
-  \mathbb V \bar X_n
-  \\
-  &amp;=
-  \frac{\sigma^2}{n}
-  .
-\end{align}
-\]</span></p>
-<p>The expression for the variance now follows from Theorem 3.27.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb V (\bar X_n^*)
-  &amp;=
-  \mathbb V \mathbb E (\bar X_n^* \vert X_1, \dotsc, X_n)
-  +
-  \mathbb E \mathbb V (\bar X_n^* \vert X_1, \dotsc, X_n)
-  \\
-  &amp;=
-  \frac{\sigma^2}{n}
-  +
-  \frac{\sigma^2}{n}
-  \\
-  &amp;=
-  2 \frac{\sigma^2}{n}
-  .
-\end{align}
-\]</span></p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Wasserman's AoS, Chapter 7, Question 5</title>
-    <link href="http://stappit.github.io/posts/allofstatistics/ch07q05.html" />
-    <id>http://stappit.github.io/posts/allofstatistics/ch07q05.html</id>
-    <published>2017-04-11T00:00:00Z</published>
-    <updated>2017-04-11T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Wasserman's AoS, Chapter 7, Question 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on April 11, 2017  by Brian </br>
-     Tags: <a href="/tags/wasserman.html">wasserman</a>, <a href="/tags/all%20of%20statistics.html">all of statistics</a>, <a href="/tags/covariance.html">covariance</a>, <a href="/tags/empirical%20distribution%20function.html">empirical distribution function</a> </br>
-     Category: <a href="/categories/allofstatistics.html">allofstatistics</a> 
-    </p>
-  </div>
-</div>
-
-<p>We show that the covariance <span class="math inline">\(\text{Cov} (\hat F_n(x), \hat F_n(y))\)</span> is <span class="math display">\[
-\frac{1}{n} F(x) \left( 1 + F(y) \right)
-,
-\]</span> for <span class="math inline">\(x \le y\)</span>. For <span class="math inline">\(x \ge y\)</span>, we have <span class="math inline">\(\frac{1}{n} F(y) \left( 1 + F(x) \right)\)</span>.</p>
-<p>Using linearity of expectation and the fact that <span class="math inline">\(\mathbb E \hat F_n(y) = F(y)\)</span>, we obtain</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mathbb E (\hat F_n(x) - F(x)) (\hat F_n(y) - F(y))
-=
-\mathbb E (\hat F_n(x)\hat F_n(y)) - F(x)F(y)
-.
-\]</span></p>
-<p>By definition of the empirical cumulative distribution function, the first term is equal to</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{n^2} \sum_{i, j} \mathbb E (I(X_i \le x)I(X_j \le y))
-=
-\frac{1}{n^2} \left( 
-	\sum_{i = j} \mathbb E (I(X_i \le x)I(X_i \le y))
-	+ \sum_{i \ne j} \mathbb E (I(X_i \le x)I(X_j \le y))
-\right)
-.
-\]</span></p>
-<p>We now simplify the two summations:</p>
-<ol type="1">
-<li><p>Without loss of generality, we may assume that <span class="math inline">\(x \le y\)</span>. With this assumption, <span class="math inline">\(I(X_i \le x)I(X_i \le y) = I(X_i \le x)\)</span>.</p></li>
-<li><p>Note that the Bernoulli variables <span class="math inline">\(I(X_i \le x)\)</span> and <span class="math inline">\(I(X_j \le y)\)</span> are independent for <span class="math inline">\(i \ne j\)</span> since <span class="math inline">\(X_i\)</span> and <span class="math inline">\(X_j\)</span> are independent. This implies that the expectation of the product is the product of the expectations.</p></li>
-</ol>
-<p>These two facts allow us to rewrite the first term as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-	\frac{1}{n^2} \left( 
-			\sum_{i = j} \mathbb E (I(X_i \le x))
-			+ \sum_{i \ne j} \mathbb E (I(X_i \le x)) \mathbb E (I(X_j \le y))
-			\right)
-	&amp;=
-	\frac{1}{n^2} \left( 
-			\sum_{i = j} F(x)
-			+ \sum_{i \ne j} F(x)F(y)
-			\right)
-	\\
-	&amp;=
-	\frac{1}{n} F(x) (
-			1 + (n-1) F(y)
-			)
-\end{align}
-.
-\]</span></p>
-<p>Putting everything together, we see that the covariance is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-\frac{1}{n} F(x) (1 + (n-1) F(y)) - F(x)F(y)
-&amp;=
-\frac{1}{n} F(x) (1 + F(y))
-\end{align}
-\]</span></p>
-<p>for <span class="math inline">\(x \le y\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS, Chapter 6</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc06.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc06.html</id>
-    <published>2015-12-05T00:00:00Z</published>
-    <updated>2015-12-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Okasaki's PFDS, Chapter 6</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on December  5, 2015  by Brian </br>
-     Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/execution%20trace.html">execution trace</a>, <a href="/tags/queue.html">queue</a>, <a href="/tags/merge%20sort.html">merge sort</a>, <a href="/tags/sortable.html">sortable</a> </br>
-     Category: <a href="/categories/pfds.html">pfds</a> 
-    </p>
-  </div>
-</div>
-
-<p>This post contains my solutions to the exercises in chapter 6 of Okasaki’s “Purely Functional Data Structures”.</p>
-<h2 id="exercise-6.1">Exercise 6.1</h2>
-<p>Draw the execution trace for the following set of operations.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">a <span class="fu">=</span> snoc empty <span class="dv">0</span>
-b <span class="fu">=</span> snoc a <span class="dv">1</span>
-c <span class="fu">=</span> tail b
-d <span class="fu">=</span> snoc b <span class="dv">2</span>
-e <span class="fu">=</span> c <span class="fu">++</span> d
-f <span class="fu">=</span> tail c
-g <span class="fu">=</span> snoc d <span class="dv">3</span></code></pre></div>
-<p>Annotate each node in the trace with the number of logical futures at that node.</p>
-<h2 id="solution-6.1">Solution 6.1</h2>
-<figure>
-<img src="/images/pfds_ex6-1.pdf.png" alt="The execution trace." /><figcaption>The execution trace.</figcaption>
-</figure>
-<p>There are three terminal nodes (i.e. out-degree = 0): <code>e</code>, <code>f</code>, and <code>g</code>.</p>
-<p>Each terminal node has precisely one logical future. The number of logical futures of a non-terminal node is the sum of the number of logical futures of its neighbours.</p>
-<h2 id="exercise-6.2">Exercise 6.2</h2>
-<p>Change the banker’s queue invariant to <span class="math inline">\(2\left| f \right| \ge \left| r \right|\)</span>.</p>
-<ol type="1">
-<li>Show that the <span class="math inline">\(\mathcal O (1)\)</span> amortised bounds still hold.</li>
-<li>Compare the relative performance of the two implementations on a sequence of one hundred <code>snoc</code>s followed by one hundred <code>tail</code>s.</li>
-</ol>
-<h2 id="solution-6.2">Solution 6.2</h2>
-<p><strong>Item 1.</strong></p>
-<p>We assign the debt <span class="math inline">\(D(i) \le \min(3i, 2\left|f\right| - \left|r\right|)\)</span> to the <span class="math inline">\(i\)</span>th element of the front.</p>
-<p>Every <code>snoc</code> that doesn’t cause a rotation increases <span class="math inline">\(|r|\)</span> by 1 and decreases <span class="math inline">\(2\left|f\right| - \left|r\right|\)</span> by 1. This violates the debt invariant by 1 whenever we just previously had <span class="math inline">\(D(i) = 2\left|f\right| - \left|r\right|\)</span>. We can restore the invariant by discharging the first debit in the queue, which decreases the rest by 1.</p>
-<p>Every <code>tail</code> that doesn’t cause a rotation dereases <span class="math inline">\(\left| f \right|\)</span> by 1, so decreases <span class="math inline">\(2\left|f\right| - \left|r\right|\)</span> by 2. It also decreases the the index of the remaining nodes by 1, so decreases <span class="math inline">\(3i\)</span> by 3. Discharging the first three debits in the queue restores the debt invariant.</p>
-<p>Now for a <code>snoc</code> that causes a rotation. Just before the rotation, the invariant guarantees that all debits in the queue have been discharged, so after the rotation the only undischarged debits are those created by the rotation itself. Suppose <span class="math inline">\(\left| f \right|=m\)</span> and <span class="math inline">\(\left| r \right|=2m+1\)</span> at the time of the rotation. Then we create <span class="math inline">\(2m+1\)</span> debits for the reverse and <span class="math inline">\(m\)</span> for the append. The placement of debits is as in the book, which is summarised as follows.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  d (i) 
-  &amp;=
-  \begin{cases}
-    1 &amp; i &lt; m \\
-    3m+1 &amp; i = m \\
-    0 &amp; i &gt; m
-  \end{cases}
-  \\
-  D (i)
-  &amp;=
-  \begin{cases}
-    i + 1 &amp; i &lt; m \\
-    3m+1 &amp; i \ge m 
-  \end{cases}
-\end{align}
-\]</span></p>
-<p>The debit invariant is violated at <span class="math inline">\(i=0\)</span> (since <span class="math inline">\(D(0) = 1 &gt; 0\)</span>) and at <span class="math inline">\(i = m\)</span> (since <span class="math inline">\(D (m) = 3m + 1 &gt; 3m\)</span>). Discharging one debit from the zeroth node restores the invariant.</p>
-<p>Finally, consider a <code>tail</code> which causes a rotation. There are two cases:</p>
-<ol type="1">
-<li>Either <span class="math inline">\(\left| f \right| = m\)</span> and <span class="math inline">\(\left| r \right| = 2m + 1\)</span>; or</li>
-<li>we have <span class="math inline">\(\left| f \right| = m\)</span> and <span class="math inline">\(\left| r \right| = 2m + 2\)</span>.</li>
-</ol>
-<p>The first case is analogous to that of <code>snoc</code>; discharging one debit will restore the invariant.</p>
-<p>For the second case, we have one more debit than in the first case, which we place on the zeroth node. Now</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  d (i) 
-  &amp;=
-  \begin{cases}
-    2 &amp; i = 0 \\
-    1 &amp; 0 &lt; i &lt; m \\
-    m+1 &amp; i = m \\
-    0 &amp; i &gt; m
-  \end{cases}
-  \\
-  D (i)
-  &amp;=
-  \begin{cases}
-    i + 2 &amp; i &lt; m \\
-    3m+2 &amp; i \ge m 
-  \end{cases}.
-\end{align}
-\]</span></p>
-<p>We can restore the invariant by discharging two debits from the zeroth node.</p>
-<p><strong>Item 2.</strong></p>
-<p>Since all suspensions are evaluated, the cost of 100 <code>snocs</code> followed by 100 <code>tails</code> is the complete cost of this sequence of operations. That is, we can pretend that all evaluation is strict.</p>
-<p>The only possible difference is in the sum of the lengths of lists that need to be reversed. With the invariant <span class="math inline">\(\left| r \right| \le \left| f \right|\)</span>, this cost amounts to <span class="math inline">\(2^0 + 2^1 + \dots + 2^5 = 2^6 - 1 = 63\)</span>. With the invariant <span class="math inline">\(\left| r \right| \le 2\left| f \right|\)</span>, this cost amounts to <span class="math inline">\(3^0 + 3^1 + 3^2 + 3^3 = 40\)</span>. Thus, we would expect the second invariant to exhibit better performance for the execution trace above.</p>
-<h2 id="exercise-6.3">Exercise 6.3</h2>
-<p>Prove that <code>findMin</code>, <code>deleteMin</code>, and <code>merge</code> also run in logarithmic amortised time.</p>
-<h2 id="solution-6.3">Solution 6.3</h2>
-<p>The proofs are essentially dual to those of <a href="/posts/pfds/okasakiPFDSc05.html#exercise-5.3">Exercise 5.3</a>.</p>
-<p><strong><code>findMin</code></strong></p>
-<p>Let <code>h</code> be a heap of size <span class="math inline">\(n\)</span>. Then <code>findMin h</code> makes a call to <code>removeMinTree</code>, which is linear in the length of the list. Since there are <span class="math inline">\(\log n\)</span> elements in the list, the complete cost of <code>findMin</code> is logarithmic. We must also add the potential, but this is at most <span class="math inline">\(\log n\)</span>, so <code>findMin</code> has indeed <span class="math inline">\(\mathcal O (\log n)\)</span> time.</p>
-<p><strong><code>merge</code></strong></p>
-<p>The unshared cost is constant. Let <code>h1</code>, <code>h2</code> be binomial heaps of sizes <span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span>, respectively. The shared cost is bounded by <span class="math inline">\(\log n_1 + \log n_2 + k\)</span>, where <code>link</code> is called <span class="math inline">\(k\)</span> times. Since <span class="math inline">\(\Phi (m+n) - \Phi (m) - \Phi (n) = -k\)</span>, we have <span class="math inline">\(\Psi (n_1+n_2) - \Psi (n_1) - \Psi (n_2) = k + d (n_1 +n_2) - d(n_1) - d(n_2)\)</span>, where <span class="math inline">\(d (x)\)</span> is the number of bits of <span class="math inline">\(x\)</span>. Thus, the potential increase is greater than <span class="math inline">\(k - \log n_1 - \log n_2\)</span>, giving an amortised cost <span class="math inline">\(\mathcal O (\log n_1 + \log n_2)\)</span>.</p>
-<p><strong><code>deleteMin</code></strong></p>
-<p>Now we show that <code>deleteMin</code> is also logarithmic. We start with a heap <code>h</code> with <span class="math inline">\(n\)</span> elements. The unshared cost is constant. The shared cost consists of: a call to <code>removeMinTree</code>, which is <span class="math inline">\(\mathcal O (\log n)\)</span>; reversing the list of children, which is <span class="math inline">\(\mathcal O (r)\)</span>; and a call to <code>mrg</code>, which is <span class="math inline">\(k + r + \log n\)</span> where <span class="math inline">\(k\)</span> is the number of calls to <code>link</code>. As with <code>merge</code>, the increase in potential is <span class="math inline">\(k - 2\log n\)</span>, leaving us with an amortised cost of <span class="math inline">\(\mathcal O(r + \log n)\)</span>.</p>
-<h2 id="exercise-6.4">Exercise 6.4</h2>
-<p>Show that removing the keyword <code>lazy</code> from the definitions of <code>merge</code> and <code>deleteMin</code> doesn’t change the amortised complexity of these funtions.</p>
-<h2 id="solution-6.4">Solution 6.4</h2>
-<p>For <code>merge</code>, we saw that the complete cost is <span class="math inline">\(\log n_1 + \log n_2 + k\)</span> and the potential increase is <span class="math inline">\(k - \log n_1 - \log n_2\)</span>. Thus, the amortised cost is <span class="math inline">\(\mathcal O (\log n_1 + \log n_2)\)</span> whether <code>merge</code> is lazy or not. A similar argument also works for <code>deleteMin</code>.</p>
-<h2 id="exercise-6.5">Exercise 6.5</h2>
-<p>Implement a functor <code>SizedHeap</code> that transforms any implementation of heaps into one that explicitly maintains the size.</p>
-<h2 id="solution-6.5">Solution 6.5</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/430c770236fd25e29913204fde61128bc89a8f54/src/Chap06/Data/SizedHeap.hs">source</a>.</p>
-<h2 id="exercise-6.6">Exercise 6.6</h2>
-<p>Show that the following break the <span class="math inline">\(\mathcal O (1)\)</span> amortised time bounds.</p>
-<ol type="1">
-<li>Never force <code>f</code> until <code>w</code> becomes empty.</li>
-<li>During <code>tail</code>, don’t change <code>f</code> but instead just decrease <code>lenf</code> to indicate that the element has been removed.</li>
-</ol>
-<h2 id="solution-6.6">Solution 6.6</h2>
-<p><strong>Item 1</strong></p>
-<p>When analysing <code>snoc</code> or <code>tail</code>, part of the shared costs comes from the suspension <code>$(f' @ rev r)</code>. If <code>f' = force f</code>, then evaluating this suspension is linear, as Okasaki shows. If <code>f' = f</code>, then evaluating this suspension is slower than linear. This is due to the fact that we have cascading dependencies of nested suspensions</p>
-<p>For <span class="math inline">\(n = 2^k - 1\)</span>, the suspension would contribute to a shared cost of</p>
-<p class="mathjaxWide"><span class="math display">\[
-  (2^{k-1} + 2^{k-1} - 1) + \dots + (2^0 + 2^0 - 1)
-  =
-  2n - k - 2
-\]</span></p>
-<p>Since the increase in potential is <span class="math inline">\(n\)</span>, the amortised cost is <span class="math inline">\(\mathcal O (n)\)</span>, which isn’t constant.</p>
-<p><strong>Item 2</strong></p>
-<p>This change has two very obvious drawbacks:</p>
-<ol type="1">
-<li><p>it renders the algorithms incorrect.</p>
-<p>For example, <code>head . tail . snoc 1 (empty)</code> should yield an error but instead yields <code>1</code>.</p></li>
-<li><p>it is incredibly memory inefficient.</p>
-<p>For example, <code>iterate (tail . snoc 1) empty !! k</code> uses at least <span class="math inline">\(\mathcal O (k+1)\)</span> memory instead of constant memory.</p></li>
-</ol>
-<p>We need to show that it is also inefficient with respect to the time complexity. The <span class="math inline">\(\left| f \right|\)</span> in the potential should be interpreted as <code>lenf</code> instead of <code>length f</code> in order to guarantee that the potential is zero when we force the suspended list. Calling <code>snoc 1</code> on the queue <code>iterate (tail . snoc 1) empty !! k</code> will cause a rotation. However, the shared cost is now <span class="math inline">\(k + m + 1\)</span> instead of <span class="math inline">\(2m+1\)</span>, where <span class="math inline">\(k \ge m\)</span>. For <span class="math inline">\(k = cm\)</span>, <span class="math inline">\(c &gt; 1\)</span>, the new potential is <span class="math inline">\(2m+1\)</span>. Thus, the amortised complexity is <span class="math inline">\(1 + (k+m+1) - (2m+1) \ge (c-1)m\)</span>; that is, <code>snoc</code> is no longer constant time.</p>
-<h2 id="exercise-6.7">Exercise 6.7</h2>
-<p>Changing the representation from suspended list to a list of streams:</p>
-<ol type="1">
-<li>Prove the bounds on <code>add</code> and <code>sort</code> using the banker’s method; and</li>
-<li>Write a function to extract the <span class="math inline">\(k\)</span> smallest elements from a sortable collection, proving that the funtion runs in <span class="math inline">\(\mathcal O (k \log n)\)</span> time.</li>
-</ol>
-<h2 id="solution-6.7">Solution 6.7</h2>
-<p><strong>Item 1</strong>.</p>
-<p>Due to the monolithic nature of the functions, it suffices to assign all debits to the root. This way, we could just maintain the debit invariant that the number of debits in the collection is <span class="math inline">\(D \le \Psi (n)\)</span>, where <span class="math inline">\(n\)</span> is the length of the list. However, for the next part, we will require the list of streams representation and to assign the debits in an incremental fashion.</p>
-<p>First, a couple of definitions. Let <span class="math inline">\(s_n (i)\)</span> be the length of the ith stream in a collection of size <span class="math inline">\(n\)</span>. Then define <span class="math inline">\(\sigma_n (i) := \sum_{k=0}^i s_n (i)\)</span>. Note that <span class="math inline">\(n = \sigma_n (B-1)\)</span> where <span class="math inline">\(B\)</span> is the number of one-bits (streams) of <span class="math inline">\(n\)</span>.</p>
-<p>Let <span class="math inline">\(d_n (i, j)\)</span> be the number of debits on the jth element of the ith stream in a collection of size <span class="math inline">\(n\)</span>. Then</p>
-<p class="mathjaxWide"><span class="math display">\[
-D_n (i, j) := \sum_{l=0}^j d_n (i, l) + \sum_{k = 0}^{i-1} \sum_{l = 0}^{s_n (i)} d_n (k, l)
-\]</span></p>
-<p>is the total number of debits up to the jth element of the ith stream in a collection of size <span class="math inline">\(n\)</span>. For convenience, we also define</p>
-<p class="mathjaxWide"><span class="math display">\[
-\Delta_n (i, j) := \sum_{k=0}^j d_n (i, k),
-\]</span> the total number of debits up to the jth element counting only within the ith stream.</p>
-<p>We maintain two debit invariants:</p>
-<ol type="1">
-<li>each stream has <span class="math inline">\(\Delta_n (i, j) \le 2j\)</span> debits; and</li>
-<li>the cummulative total of debits is <span class="math inline">\(D_n (i, j) \le \Psi (\sigma_n (i))\)</span>.</li>
-</ol>
-<p>We show that the amortised cost of <code>add</code> is logarithmic in the size of the collection. Suppose we have a collection of <span class="math inline">\(n\)</span> elements satisfying both debit invariants. Let <span class="math inline">\(k\)</span> be the largest integer such that the first <span class="math inline">\(k\)</span> bits of <span class="math inline">\(n\)</span> are one-bits. The unshared cost of <code>add</code> is constant, as already shown in the book. The shared cost is <span class="math inline">\(2^{k+1}-2\)</span>, so we create that many debits. We assign two of these debits to each element of the new zeroth stream, except from the zeroth element. More precisely,</p>
-<p class="mathjaxWide"><span class="math display">\[
-\Delta_{n+1} (0, j) = 2j.
-\]</span></p>
-<p>Since the size of the zeroth stream is <span class="math inline">\(s_{n+1} (0) = 2^k\)</span>, we have assigned a total of <span class="math inline">\(2(2^k - 1)\)</span> debits as required. There are no more debits to reassign since</p>
-<p class="mathjaxWide"><span class="math display">\[
-D_n (k-1) \le \Psi (\sigma_n (k-1)) = \Psi (2^k - 1) = 0.
-\]</span></p>
-<p>We have maintained the first invariant by construction but may have violated the second invariant. There are now a total of</p>
-<p class="mathjaxWide"><span class="math display">\[
-D_{n+1} (i, j) = D_n (i+k-1, j) + 2^{k+1} - 2
-\]</span> debits but are allowed at most <span class="math inline">\(\Psi (\sigma_{n+1} (i))\)</span>. Thus, we should pay off</p>
-<p class="mathjaxWide"><span class="math display">\[
-D_n (i+k-1, j) + 2^{k+1} - 2 - \Psi (\sigma_{n+1} (i))
-\]</span></p>
-<p>debits. This is at least <span class="math inline">\(\Psi (\sigma_n (i+k-1)) - \Psi (\sigma_{n+1} (i)) + 2^{k+1} - 2\)</span>. Note that <span class="math inline">\(\sigma_{n+1} (i) = \sigma_n (i+k-1) + 1\)</span>. It follows that we need to pay at least <span class="math inline">\(2B_i&#39;-2\)</span> debits from the first <span class="math inline">\(i\)</span> streams, where <span class="math inline">\(B_i&#39;\)</span> is the number of one-bits of <span class="math inline">\((n+1) \mod 2 s_{n+1} (i)\)</span>; that is, the number of one-bits in the first <span class="math inline">\(i\)</span> bits of <span class="math inline">\(n+1\)</span>. Therefore, we can restore the second invariant by paying off two debits from each stream. The realised shared cost is thus <span class="math inline">\(2B&#39;-2\)</span>.</p>
-<p>Showing that <code>sort</code> is linear is much easier. The second invariant guarantees that there are at most <span class="math inline">\(\Psi (n)\)</span> debits. We can just pay them all off, giving basically the same analysis as with the physicist’s method.</p>
-<p><strong>Item 2</strong>.</p>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/2b33c51b47e266b83f05ce6a7c6fd4063f5dd75f/src/Chap06/Exercise07.hs">source</a>.</p>
-<p>Note that the first invariant allows us to access the head of each stream whenever we want. The unshared cost is <span class="math inline">\(2\log n\)</span> since we make one pass over the streams to find the minimum and then one more pass to remove it. In order to be able to access the heads of all remaining streams, we should pay at most two more debits. Thus, <code>extract 1</code> has complexity <span class="math inline">\(\mathcal O (\log n)\)</span>. It follows by induction, that <code>extract k</code> has complexity <span class="math inline">\(\mathcal O (k\log n)\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS, Chapter 5</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc05.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc05.html</id>
-    <published>2015-11-25T00:00:00Z</published>
-    <updated>2015-11-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Okasaki's PFDS, Chapter 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on November 25, 2015  by Brian </br>
-     Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/deque.html">deque</a>, <a href="/tags/binomial%20heap.html">binomial heap</a>, <a href="/tags/splay%20heap.html">splay heap</a>, <a href="/tags/pairing%20heap.html">pairing heap</a>, <a href="/tags/heap.html">heap</a> </br>
-     Category: <a href="/categories/pfds.html">pfds</a> 
-    </p>
-  </div>
-</div>
-
-<p>This post contains my solutions to the exercises in chapter 5 of Okasaki’s ‘Purely Functional Data Structures’. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
-<h2 id="exercise-5.1">Exercise 5.1</h2>
-<ol type="1">
-<li>Implement deques.</li>
-<li>Prove that each deque operation takes <span class="math inline">\(\mathcal O (1)\)</span> amortised time using the potential <span class="math display">\[\Phi (f, r) = \left| \left|f\right| - \left|r\right| \right|.\]</span></li>
-</ol>
-<h2 id="solution-5.1">Solution 5.1</h2>
-<p><strong>Item 1.</strong></p>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap05/Data/BatchedQueue.hs">source</a>.</p>
-<p><strong>Item 2.</strong></p>
-<p>By symmetry, the costs of <code>cons</code>, <code>head</code>, and <code>tail</code> are (almost) identical to those of <code>snoc</code>, <code>last</code>, and <code>init</code>, respectively.</p>
-<p>Consider <code>cons</code>. There is a constant number of actual steps and the potential can change by at most 1. Thus <code>cons</code> runs in constant amortised time.</p>
-<p>Consider <code>tail</code>. Any <code>tail</code> which doesn’t empty <code>f</code> requires only one step and changes the potential by one for an amortised cost of <span class="math inline">\(\le 2\)</span>. Any <code>tail</code> which does empty <code>f</code> requires <span class="math inline">\(1 + 2m + \delta\)</span> steps, where <span class="math inline">\(m := \left\lfloor \frac{r}{2} \right\rfloor\)</span>, <span class="math inline">\(\left| r \right| = 2m + \delta\)</span>. The linearity is due to the fact that it takes <span class="math inline">\(m\)</span> steps to split <code>r</code> in half, then <span class="math inline">\(m\)</span> more steps to reverse the other half. The change in potential is given by</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \left|1 - (2m + \delta)\right| - \left|m - (2m + \delta - m)\right| 
-  &amp;= 
-  2m + 1 + \delta - \delta 
-  \\
-  &amp;= 
-  2m + 1
-.
-\end{align}
-\]</span></p>
-<p>Thus, the amortised cost is <span class="math inline">\(1 + 2m + \delta - 2m = 1\)</span>, showing that <code>tail</code> runs in constant amortised time.</p>
-<h2 id="exercise-5.2">Exercise 5.2</h2>
-<p>Prove that <code>insert</code> on binomial heaps runs in <span class="math inline">\(\mathcal O (1)\)</span> amortised time using the banker’s method.</p>
-<h2 id="solution-5.2">Solution 5.2</h2>
-<p>The credit invariant associates one credit to every binomial tree in the heap. Let <span class="math inline">\(k\)</span> be the number of calls to <code>link</code> made by a call to <code>insert</code>. A call to <code>insert</code> takes <span class="math inline">\(1 + k\)</span> actual steps. It initially adds a tree to the heap, gaining a credit, and each <code>link</code> removes a tree, spending a credit. Thus, the total amortised cost is <span class="math inline">\((1+k) + 1 - k = 2\)</span>.</p>
-<h2 id="exercise-5.3">Exercise 5.3</h2>
-<p>Prove that the amortised costs of <code>merge</code> and <code>deleteMin</code> are still <span class="math inline">\(\mathcal O (\log n)\)</span>.</p>
-<h2 id="solution-5.3">Solution 5.3</h2>
-<p>Let <span class="math inline">\(h_m\)</span>, <span class="math inline">\(h_n\)</span> be binomial heaps with potentials <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span>, respectively. We show that the amortised cost of <code>merge</code> is <span class="math inline">\(A(h_m, h_n) \le m+n\)</span>. Let <span class="math inline">\(k\)</span> be the number of calls to <code>link</code>. The actual cost is bounded by <span class="math inline">\(m + n + k\)</span>, since there can be at most <span class="math inline">\(m+n\)</span> recursive calls to <code>merge</code> and any call reaching the third conditional clause of <code>merge</code> will call <code>link</code> several times via <code>insTree</code>. We start with a potential of <span class="math inline">\(m+n\)</span>, and each call to <code>link</code> reduces this by one, for an end potential of <span class="math inline">\(m+n-k\)</span>. The change in potential is <span class="math inline">\(m + n - (m + n - k) = k\)</span>. Thus, the amortised cost of <code>merge</code> is <span class="math inline">\(m+n+k -k = m+n\)</span>.</p>
-<p>Now we show that <code>deleteMin</code> is also logarithmic. We start with a heap <span class="math inline">\(h_n\)</span>, which has potential <span class="math inline">\(n\)</span>. There is an actual cost of at most <span class="math inline">\(n\)</span> to find the minimum binary tree, say of rank <span class="math inline">\(r\)</span>. This leaves us with a heap of rank <span class="math inline">\(n-1\)</span>. Then there is an actual cost of at most <span class="math inline">\(r\)</span> to reverse the list of children, making a heap of potential <span class="math inline">\(r\)</span>. Merging these heaps then takes at most <span class="math inline">\(n + r - 1 + k\)</span> steps, where <span class="math inline">\(k\)</span> is the number of calls to <code>link</code>, which leaves us with a heap with potential <span class="math inline">\(n + r - 1 - k\)</span>. This is a total of at most <span class="math inline">\(n + r + (n + r - 1 + k)\)</span> steps. The change in potential is <span class="math inline">\(n - (n + r - 1 - k) = 1 - r + k\)</span>. Thus, the amortised cost of <code>deleteMin</code> is</p>
-<p class="mathjaxWide"><span class="math display">\[
-2n + 2r + k - 1 - (1 - r + k) = 2n + 3r - 2
-.
-\]</span></p>
-<p>Note that this is indeed logarithmic since, if a heap has a tree of rank <span class="math inline">\(r\)</span>, then it must have at least <span class="math inline">\(2^r\)</span> elements; that is, <span class="math inline">\(r = \mathcal O (\log n)\)</span>.</p>
-<h2 id="splay-heaps">Splay Heaps</h2>
-<p>A splay heap is a BST that rebalances the tree using a <code>partition</code> function when performing update operations. However, we now allow the insertion of the same element multiple times since we are implementing a heap and not a set.</p>
-<figure>
-<img src="/images/pfds-splayheap-unbalanced.pdf.png" alt="h = foldr insert empty [1..7]" /><figcaption><code>h = foldr insert empty [1..7]</code></figcaption>
-</figure>
-<figure>
-<img src="/images/pfds-splayheap-unbalanced-insert.pdf.png" alt="insert 8 h" /><figcaption><code>insert 8 h</code></figcaption>
-</figure>
-<h2 id="exercise-5.4">Exercise 5.4</h2>
-<p>Implement <code>smaller</code>.</p>
-<h2 id="solution-5.4">Solution 5.4</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/master/src/Chap05/Exercise04.hs">source</a>.</p>
-<h2 id="exercise-5.5">Exercise 5.5</h2>
-<p>Prove that <code>partition</code> is logarithmic (in the zig-zag case).</p>
-<h2 id="solution-5.5">Solution 5.5</h2>
-<p>First we will need a modification to the lemma proved in the book.</p>
-<dl>
-<dt>Lemma</dt>
-<dd><p>We have the inequality</p>
-<p class="mathjaxWide"><span class="math display">\[
-1 + \log x + \log y \le 2\log (x + y -1)
-.
-\]</span></p>
-<p>for all <span class="math inline">\(x \in \mathbb N_{\ge 2}\)</span>, <span class="math inline">\(y \in \mathbb N_{\ge 1}\)</span>.</p>
-</dd>
-</dl>
-<p>Using the basic logarithmic identities, the above inequality is equivalent to <span class="math inline">\(2xy \le (x+y-1)^2\)</span>. In other words, we must show that <span class="math inline">\(x^2 -2x + (y-1)^2 \ge 0\)</span> for <span class="math inline">\(x \ge 2\)</span>, <span class="math inline">\(y \ge 1\)</span>. The term with <span class="math inline">\(y\)</span> is non-negative. The remaining term <span class="math inline">\(x^2 -2x\)</span> is non-negative for any <span class="math inline">\(x \ge 2\)</span>.</p>
-<p>□</p>
-<figure>
-<img src="/images/pfds-ex5.5-input.pdf.png" alt="We wish to analyse partition pivot t." /><figcaption>We wish to analyse <code>partition pivot t</code>.</figcaption>
-</figure>
-<figure>
-<img src="/images/pfds-ex5.5-output.pdf.png" alt="Suppose partition pivot t outputs (t_s, t_b)." /><figcaption>Suppose <code>partition pivot t</code> outputs <span class="math inline">\((t_s, t_b)\)</span>.</figcaption>
-</figure>
-<p>Define <span class="math inline">\((p_s, p_b)\)</span> as the output of <code>partition pivot p</code>. Note that <span class="math inline">\(\#t_s + \#t_b = \#t - 1\)</span>, so that <span class="math inline">\(1 + \phi(t_s) + \phi(t_b) \le 2\phi(t)\)</span> by the lemma.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  A (t) 
-  &amp;= 
-  T (t) + \Phi (t_s) + \Phi (t_b) - \Phi (t)
-  \\
-  &amp;=
-  1 + T (p) + \Phi (t_s) + \Phi (t_b) - \Phi (t)
-  \\
-  &amp;=
-  1 + A (p) - \Phi (p_s) - \Phi (p_b) + \Phi (p) 
-  \\
-  &amp;\qquad
-            + \Phi (t_s) + \Phi (t_b) - \Phi (t)
-  \\
-  &amp;=
-  1 + A (p) - \Phi (p_s) - \Phi (p_b) + \Phi (p)
-  \\
-  &amp;\qquad
-            + \phi (t_s) + \Phi (a_1) + \Phi (p_s)
-  \\
-  &amp;\qquad
-	    + \phi (t_b) + \Phi (p_b) + \Phi (b)
-  \\
-  &amp;\qquad
-	    - \phi (t)   - \phi (s)   - \Phi (b)  - \Phi (a_1) - \Phi (p)
-  \\
-  &amp;=
-  1 + A (p) + \phi (t_s) + \phi (t_b) - \phi (t) - \phi (s)
-  \\
-  &amp;\le
-  2 + 2\phi (p) + \phi(t_s) + \phi(t_b) - \phi(t) - \phi(s)
-  \\
-  &amp;\le
-  2 + \phi(t) + \phi(s) + \phi(t_s) - \phi(t_b) - \phi(t) - \phi(s)
-  \\
-  &amp;\le
-  2 + \phi(t_s) + \phi(t_b)
-  \\
-  &amp;\le
-  1 + 2\phi(t)
-\end{align}
-\]</span></p>
-<h2 id="exercise-5.6">Exercise 5.6</h2>
-<p>Prove that <code>deleteMin</code> also runs in logarithmic time.</p>
-<h2 id="solution-5.6">Solution 5.6</h2>
-<p>We prove that <code>deleteMin</code> runs in <span class="math inline">\(\mathcal O(3\log n)\)</span> amortised time. Note that <span class="math inline">\(\#a + (\#b + \#c) \le \#s_1\)</span> so that <span class="math inline">\(1 + \phi(a) + \phi(t_2) \le 2\phi(s_1)\)</span>.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  A(s_1)
-  &amp;=
-  T(s_1) + \Phi(t_1) - \Phi(s_1)
-  \\
-  &amp;=
-  1 + T(a) + \Phi(t_1) - \Phi(s_1)
-  \\
-  &amp;=
-  1 + A(a) - \Phi(a&#39;) + \Phi(a)
-  \\
-  &amp;\qquad
-  	+ \phi(t_1) + \phi(t_2) + \Phi(a&#39;) + \Phi(b) + \Phi(c)
-  \\
-  &amp;\qquad
-  	- \phi(s_1) - \phi(s_2) - \Phi(a) -  \Phi(b) - \Phi(c)
-  \\
-  &amp;=
-  1 + A(a) + \phi(t_1) + \phi(t_2) - \phi(s_1) -\phi(s_2)
-  \\
-  &amp;\le
-  1 + \phi(a) + \phi(t_1) + \phi(t_2)
-  \\
-  &amp;\le
-  \phi(t_1) + 2\phi(s_1)
-  \\
-  &amp;\le
-  3\phi(s_1)
-\end{align}
-\]</span></p>
-<h2 id="exercise-5.7">Exercise 5.7</h2>
-<p>Write a sorting function that inserts elements into a splay tree and then performs an in order traversal of the tree dumping the elements into a list. Show that this function takes linear time in a sorted list.</p>
-<h2 id="solution-5.7">Solution 5.7</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/5cd2c0ae4641edb65ba88f4c7bf0e0a49a23063a/src/Chap05/Exercise07.hs">source</a>.</p>
-<p>Let <code>xs</code> be a list of length <span class="math inline">\(n\)</span> in decreasing order. We can measure the complexity of <code>sort xs</code> by counting the number of calls to <code>partition</code>. Every time we call <code>insert x h</code>, we know that <span class="math inline">\(x &gt; y\)</span> for all <span class="math inline">\(y\)</span> in <code>h</code>, so <code>insert x h</code> calls <code>partition</code> exactly once. The function <code>sort xs</code> makes a total of <span class="math inline">\(n\)</span> calls to <code>insert</code> and thus also <span class="math inline">\(n\)</span> calls to <code>partition</code>, showing that <code>sort</code> runs in <span class="math inline">\(\mathcal O (n)\)</span> time.</p>
-<p>The argument for lists in increasing order is completely analogous.</p>
-<h2 id="pairing-heaps">Pairing Heaps</h2>
-<p>A pairing heap is a heap-ordered multiway tree whose <code>deleteMin</code> operation merges the children in pairs.</p>
-<figure>
-<img src="/images/pfds-pairingheap-wide.pdf.png" alt="h = foldr insert empty [7, 6..1]" /><figcaption><code>h = foldr insert empty [7, 6..1]</code></figcaption>
-</figure>
-<figure>
-<img src="/images/pfds-pairingheap-wide-deletemin.pdf.png" alt="deleteMin h" /><figcaption><code>deleteMin h</code></figcaption>
-</figure>
-<h2 id="exercise-5.8">Exercise 5.8</h2>
-<ol type="1">
-<li><p>Write a function <code>toBinary</code> that converts pairing heaps to binary trees.</p></li>
-<li><p>Reimplement pairing heaps using this new representation as binary trees.</p></li>
-<li><p>Prove that <code>deleteMin</code> and <code>merge</code> still run in logarithmic amortised time in this new representation.</p></li>
-</ol>
-<h2 id="solution-5.8">Solution 5.8</h2>
-<p><strong>Item 1.</strong></p>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/897522b05776b202e622b55b03cd0438dd581798/src/Chap05/Exercise08.hs">source</a>.</p>
-<p>The conversion from a pairing heap to a binary tree is explained in the book.</p>
-<figure>
-<img src="/images/pfds_ex5-8b_invariant.pdf.png" alt="For any binary tree derived from a pairing heap, x \le y, y_a, y_b for all elements y_a, y_b in the trees a, b, respectively. The right child of the root is empty. The values in b are not related to y." /><figcaption>For any binary tree derived from a pairing heap, <span class="math inline">\(x \le y, y_a, y_b\)</span> for all elements <span class="math inline">\(y_a, y_b\)</span> in the trees <span class="math inline">\(a, b\)</span>, respectively. The right child of the root is empty. The values in <span class="math inline">\(b\)</span> are not related to <span class="math inline">\(y\)</span>.</figcaption>
-</figure>
-<p>The invariant on a pairing heap <code>T x cs</code> is that <code>x</code> is no greater than any of the elements of its children in <code>cs</code>. This translates into the binary tree invariant that a node is no greater than any of its left descendants. That is, for <code>T' x (T' y a b) c</code> we have that <span class="math inline">\(x \le y, y_a, y_b\)</span> for all elements <span class="math inline">\(y_a, y_b\)</span> in the trees <span class="math inline">\(a, b\)</span>, respectively. The value of <span class="math inline">\(x\)</span> bears no relation to the values in <span class="math inline">\(c\)</span>.</p>
-<p>We also maintain a second invariant: the right child of the root is empty.</p>
-<p><strong>Item 2.</strong></p>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/897522b05776b202e622b55b03cd0438dd581798/src/Chap05/Data/PairingHeap/Exercise08.hs">source</a>.</p>
-<p>Remember that the root of a binary tree representation of a pairing heap has no right child (it is empty). Thus we can forget about the right child without losing desired information.</p>
-<p><strong>Item 3.</strong></p>
-<p>We start with <code>merge</code>. Note that for any <span class="math inline">\(x, y \ge 2\)</span>, we have <span class="math inline">\(\log (x+y) \le \log x + \log y\)</span>. In particular, <span class="math inline">\(\#s_k \ge 2\)</span>.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  A (s_1, s_2) 
-  &amp;= 
-  T (s_1, s_2) + \Phi (t_1) - \Phi (s_1) - \Phi (s_2)
-  \\
-  &amp;=
-  1 + \Phi(t_1) - \Phi(s_1) - \Phi(s_2)
-  \\
-  &amp;=
-  1 + \phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)
-  \\
-  &amp;\le
-  2 + 2\phi(t_1)
-  \\
-  &amp;\le
-  2 + 2\log (\#s_1 + \#s_2)
-  \\
-  &amp;\le
-  2 + 2\log(\#s_1) + 2\log(\#s_2)
-  \\
-  &amp;\le
-  2 + 2\phi(s_1) + 2\phi(s_2)
-\end{align}
-\]</span></p>
-<p>Now consider <code>deleteMin</code>. I was unable to find a nice solution by myself. The following comes from <a href="https://www.cs.cmu.edu/~sleator/papers/pairing-heaps.pdf">The Pairing Heap: A New Form of Self-Adjusting Heap</a>. We reproduce their argument that the asymptotic cost of <code>deleteMin</code> is <span class="math inline">\(A(s_1) \le 2\phi(s_1) + 3\)</span>.</p>
-<p>There are at most <span class="math inline">\(2k+1\)</span> calls to <code>merge</code>, where <span class="math inline">\(k\)</span> is the number of children of the root of the pairing heap. The difficult part is calculating the potential increase, which we do in steps.</p>
-<dl>
-<dt>Lemma 1</dt>
-<dd>Let <span class="math inline">\(x, y &gt; 0\)</span> such that <span class="math inline">\(x + y \le 1\)</span>. Then <span class="math inline">\(\log x + \log y \le -2\)</span>.
-</dd>
-</dl>
-<p>Proof. This follows from the fact that <span class="math inline">\(xy \le x(1-x)\)</span>, which has a maximum of <span class="math inline">\(\frac{1}{4}\)</span> at <span class="math inline">\(x = \frac{1}{2}\)</span>.</p>
-<p>□</p>
-<dl>
-<dt>Corollary</dt>
-<dd><p>We have</p>
-<p class="mathjaxWide"><span class="math display">\[
-\log(x + y) - \log(y + z) \le 2 \log (x + y + z) - 2\log z - 2
-,
-\]</span></p>
-<p>for any <span class="math inline">\(x, y, z \ge 0\)</span>.</p>
-</dd>
-</dl>
-<p>Proof. By the lemma we have</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \log(x + y) + \log z - 2\log (x + y + z) 
-  &amp;= 
-  \log \left(\frac{x + y}{x + y + z}\right) + \log \left(\frac{z}{x + y + z}\right) 
-  \\
-  &amp;\le 
-  -2.
-\end{align}
-\]</span></p>
-<p>Now</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
- \log(x + y) - \log(y + z) 
- &amp;= 
- \log(x + y) + \log z - \log z - \log(y+z)
- \\
- &amp;\le
- 2\log (x + y + z) - 2 - \log z -\log(y+z)
- \\
- &amp;\le
- 2\log (x + y + z) - 2 - 2\log z.
-\end{align}
-\]</span></p>
-<p>□</p>
-<dl>
-<dt>Lemma</dt>
-<dd>Define <span class="math inline">\(s_2\)</span> to be the tree <code>T y b c</code> and <span class="math inline">\(s_1\)</span> to be the tree <code>T x a s2</code>.<br />
-Then applying <code>merge</code> to <span class="math inline">\(s_1\)</span> results in a potential increase of at most <span class="math inline">\(2\phi(s_1) - 2\phi(c) - 2\)</span>.
-</dd>
-</dl>
-<p>Proof. Without loss of generality, assume <span class="math inline">\(y \le x\)</span>. Define <span class="math inline">\(t_2\)</span> to be the tree <code>T x a b</code> and <span class="math inline">\(t_1\)</span> to be <code>T y t2 c</code>; that is, <span class="math inline">\(t_1\)</span> is the result of applying <code>merge</code> to <span class="math inline">\(s_1\)</span>. The potential increase is <span class="math inline">\(\Phi(t_1) - \Phi(s_1)\)</span>, by definition. This expands to <span class="math inline">\(\phi(t_1) + \phi(t_2) - \phi(s_1) - \phi(s_2)\)</span>, which is equal to <span class="math inline">\(\phi(t_2) - \phi(s_2)\)</span> since <span class="math inline">\(\phi(t_1) = \phi(s_1)\)</span>. Now</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \phi(t_2) - \phi(s_2) 
-  &amp;= 
-  \log(\#a + \#b) - \phi(\#b + \#c) 
-  \\
-  &amp;\le 
-  2\log(\#a + \#b + \#c) - 2\log (\#c) - 2 
-  \\
-  &amp;= 
-  2\phi(s_1) - 2\phi(c) - 2.
-\end{align}
-\]</span></p>
-<p>□</p>
-<dl>
-<dt>Corollary</dt>
-<dd>Define <span class="math inline">\(s_i\)</span> as the right child of <span class="math inline">\(s_{i-1}\)</span>, where <span class="math inline">\(s_1\)</span> is the root of the binary tree, <span class="math inline">\(i = 1, ..., 2k - 1\)</span>, and <span class="math inline">\(2k + \delta\)</span> is the length of the right spine of <span class="math inline">\(s_1\)</span>. Then the net increase in potential over all calls to <code>merge</code> in the downwards pass of <code>mergePairs</code> is bounded by <span class="math inline">\(2\phi(s_1) - 2(k-1)\)</span>.
-</dd>
-</dl>
-<p>Proof. Applying the previous lemma yields</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  2\phi(s_{2k-1}) + \sum_{i=1}^{k-1} \left( 2\phi(s_{2i - 1}) - 2\phi(s_{2i + 1}) - 2 \right)
-  &amp;\le
-  2\phi(s_{2k-1}) - 2(k-1) + \sum_{i=1}^{k-1} \left( 2\phi(s_{2i - 1}) - 2\phi(s_{2i + 1}) \right)
-  \\
-  &amp;\le
-  2\phi(s_1) - 2(k-1),
-\end{align}
-\]</span></p>
-<p>where the last line follows by telescoping the sum.</p>
-<p>□</p>
-<dl>
-<dt>Lemma</dt>
-<dd>The net increase in potential over all calls to merge in the upwards pass of <code>mergePairs</code> is bounded by <span class="math inline">\(\phi(s_1)\)</span>.
-</dd>
-</dl>
-<p>Proof. Let <span class="math inline">\(t\)</span> be the resulting tree after calling <code>merge</code> on two trees <span class="math inline">\(t_1, t_2\)</span>. Furthermore, let <span class="math inline">\(t_1&#39;, t_2&#39;\)</span> be the subtrees whose roots contain the keys of the trees <span class="math inline">\(t_1, t_2\)</span>, respectively. Then <span class="math inline">\(\phi(t_1) \le \phi(t_1&#39;)\)</span> and <span class="math inline">\(\phi(t_2) \ge \phi(t_2&#39;)\)</span>. Thus, the potential increase is bounded by <span class="math inline">\(\phi(t)\)</span>. Since <span class="math inline">\(\#t = \#s_1\)</span>, the potential increase is bounded by <span class="math inline">\(\phi(s_1)\)</span>.</p>
-<p>□</p>
-<p>There are at most <span class="math inline">\(2k + 1\)</span> actual steps. Removing the root causes a potential increase of <span class="math inline">\(-\phi(s_1)\)</span>. The potential increase in the downwards pass in <code>mergePairs</code> is bounded by <span class="math inline">\(2\phi(s_1) - 2(k-1)\)</span>. The potential increase in the upwards pass in <code>mergePairs</code> is bounded by <span class="math inline">\(\phi(s_1)\)</span>. Therefore, the amortised time is bounded by</p>
-<p class="mathjaxWide"><span class="math display">\[
-2k + 1 - \phi(s_1) + 2\phi(s_1) - 2(k-1) + \phi(s_1) = 3 + 2\phi(s_1)
-.
-\]</span></p>
-<h2 id="exercise-5.9">Exercise 5.9</h2>
-<p>Give examples of sequences of operations for which binomial heaps, splay heaps, and pairing heaps take much longer than indicated by their amortised bounds.</p>
-<h2 id="solution-5.9">Solution 5.9</h2>
-<p>For any operation with amortised bounds, we can set up the data structure so that the next execution of that operation is expensive, then call that operation many times.</p>
-<p><strong>Binomial Heaps</strong></p>
-<p>Binomial heaps support an <code>insert</code> operation with a constant amortised cost. The worst case cost of <code>insert</code> is <span class="math inline">\(\mathcal O (\log n)\)</span>, which occurs when inserting into a binomial heap of size <span class="math inline">\(2^m - 1\)</span>. In a persistent setting, we can call <code>insert</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(k\log n)\)</span> time instead of <span class="math inline">\(\mathcal O(k)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [<span class="dv">1</span><span class="fu">..</span>(<span class="dv">2</span><span class="fu">^</span>m <span class="fu">-</span> <span class="dv">1</span>)]
-  <span class="kw">where</span>
-    m <span class="fu">=</span> <span class="dv">7</span>
-    n <span class="fu">=</span> <span class="dv">2</span><span class="fu">^</span>m <span class="fu">-</span> <span class="dv">1</span>
-
-tooSlow <span class="fu">=</span> map (insert <span class="dv">0</span>) <span class="fu">.</span> replicate k <span class="fu">$</span> heap
-  <span class="kw">where</span>
-    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
-<p><strong>Splay Heaps</strong></p>
-<p>Splay heaps support a <code>findMin</code> operation with a logarithmic amortised cost. The worst case cost of <code>findMin</code> is linear, which occurs after inserting numbers in increasing order into the empty heap. In a persistent setting, we can call <code>findMin</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(kn)\)</span> time instead of <span class="math inline">\(\mathcal O(k\log n)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [<span class="dv">1</span><span class="fu">..</span>n]
-  <span class="kw">where</span>
-    n <span class="fu">=</span> <span class="dv">100</span>
-
-tooSlow <span class="fu">=</span> map findMin <span class="fu">.</span> replicate k <span class="fu">$</span> heap
-  <span class="kw">where</span> 
-    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
-<p><strong>Pairing Heaps</strong></p>
-<p>Pairing heaps have a <code>deleteMin</code> operation with an amortised cost of <span class="math inline">\(\mathcal O (\log n)\)</span>. The worst case cost of <code>deleteMin</code> is <span class="math inline">\(\mathcal O (n)\)</span>, which occurs after inserting numbers in decreasing order into the empty heap. In a persistent setting, we can call <code>deleteMin</code> k times on this heap, executing in <span class="math inline">\(\mathcal O(kn)\)</span> time instead of <span class="math inline">\(\mathcal O(k\log n)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">heap <span class="fu">=</span> foldr insert empty [n, (n<span class="fu">-</span><span class="dv">1</span>)<span class="fu">..</span><span class="dv">1</span>]
-  <span class="kw">where</span>
-    n <span class="fu">=</span> <span class="dv">100</span>
-
-tooSlow <span class="fu">=</span> map deleteMin <span class="fu">.</span> replicate k <span class="fu">$</span> heap
-  <span class="kw">where</span> 
-    k <span class="fu">=</span> <span class="dv">100</span></code></pre></div>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Okasaki's PFDS, Chapter 4</title>
-    <link href="http://stappit.github.io/posts/pfds/okasakiPFDSc04.html" />
-    <id>http://stappit.github.io/posts/pfds/okasakiPFDSc04.html</id>
-    <published>2015-11-08T00:00:00Z</published>
-    <updated>2015-11-08T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Okasaki's PFDS, Chapter 4</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on November  8, 2015  by Brian </br>
-     Tags: <a href="/tags/fp.html">fp</a>, <a href="/tags/haskell.html">haskell</a>, <a href="/tags/okasaki.html">okasaki</a>, <a href="/tags/lazy.html">lazy</a>, <a href="/tags/strict.html">strict</a> </br>
-     Category: <a href="/categories/pfds.html">pfds</a> 
-    </p>
-  </div>
-</div>
-
-<p>This post contains my solutions to the exercises in chapter 4 of Okasaki’s “Purely Functional Data Structures”. The latest source code can be found in <a href="https://github.com/stappit/okasaki-pfds">my GitHub repo</a>.</p>
-<h2 id="notation">Notation</h2>
-<p>Okasaki uses <code>$</code> to indicate suspensions. But beware! Haskell also has this symbol but it means something completely different, namely function application. In symbols:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span class="ot">($) ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> b
-(<span class="fu">$</span>) f a <span class="fu">=</span> f a</code></pre></div>
-<p>We can use it like any other function in haskell. For example:</p>
-<div class="sourceCode"><pre class="sourceCode haskell"><code class="sourceCode haskell">two <span class="fu">=</span> (<span class="dv">1</span> <span class="fu">+</span>) <span class="fu">$</span> <span class="dv">1</span></code></pre></div>
-<p>It has nothing to do with suspensions, evaluation, forcing, etc.</p>
-<p>It is also important to note that a ‘list’ in haskell is not what Okasaki calls a ‘list’. He would call haskell’s lists ‘streams’. We will stick with haskell’s notation, calling Okasaki’s list a ‘strict list’.</p>
-<h2 id="exercise-1">Exercise 1</h2>
-<p>Show that both definitions of <code>drop</code> are equivalent.</p>
-<h2 id="solution-1">Solution 1</h2>
-<p>The code in this solution is NOT Haskell.</p>
-<p>For convenience, we give names to the three different functions.</p>
-<pre><code>fun drop (0, s)            = s
-  | drop (n, $Nil)         = $Nil
-  | drop (n, $Cons (x, s)) = drop (n-1, s)</code></pre>
-<pre><code>fun lazy dropA (0, s)            = s
-       | dropA (n, $Nil)         = $Nil
-       | dropA (n, $Cons (x, s)) = dropA (n-1, s)</code></pre>
-<pre><code>fun lazy dropB (n, s) = drop (n, s)</code></pre>
-<p>The proof proceeds in three steps.</p>
-<dl>
-<dt>Lemma</dt>
-<dd>Let <code>s</code> be a suspension. Then <code>$force s</code> is equivalent to <code>s</code>.
-</dd>
-</dl>
-<p>Proof. Suppose <code>s</code> is <code>$e</code> for some expression <code>e</code>. Then <code>$force s</code> <span class="math inline">\(\cong\)</span> <code>$force $e</code> <span class="math inline">\(\cong\)</span> <code>$e</code> <span class="math inline">\(\cong\)</span> <code>s</code>.</p>
-<p>□</p>
-<dl>
-<dt>Lemma</dt>
-<dd><code>dropA</code> is equivalent to <code>drop</code>
-</dd>
-</dl>
-<p>Proof. We prove this by induction on <span class="math inline">\(n\)</span>.</p>
-<p>For the base step, <code>dropA (0, s)</code> = <code>$force s</code> $<code>`s</code> = <code>drop (0, s)</code>, where the middle equivalence follows by the previous lemma.</p>
-<p>Note that <code>dropA (n, $Nil)</code> = <code>$force $Nil</code> = <code>$Nil</code> = <code>drop (n, $Nil)</code> follows by the previous lemma. Now suppose <code>dropA (n, s)</code> <span class="math inline">\(\cong\)</span> <code>drop (n, s)</code> for some <span class="math inline">\(n \in \mathbb N\)</span> and any stream <code>s</code>. We can write <code>s</code> as <code>$Cons (x, s')</code>. Then <code>dropA (n+1, s)</code> = <code>dropA (n+1, $Cons (x, s'))</code> = <code>$force dropA (n, s')</code> <span class="math inline">\(\cong\)</span> <code>dropA (n, s')</code> <span class="math inline">\(\cong\)</span> <code>drop (n, s')</code> = <code>drop (n+1, s)</code>.</p>
-<p>□</p>
-<dl>
-<dt>Lemma</dt>
-<dd><code>dropA</code> is equivalent to <code>dropB</code>
-</dd>
-</dl>
-<p>Proof. Using the previous two lemmas, we obtain <code>dropB (n, s)</code> = <code>$force drop (n, s)</code> = <code>$force dropA (n, s)</code> = <code>dropA (n, s)</code> for any <span class="math inline">\(n \in \mathbb N\)</span> and any stream <code>s</code>.</p>
-<p>□</p>
-<h2 id="exercise-2">Exercise 2</h2>
-<p>Implement insertion sort on streams and show that extracting the first <span class="math inline">\(k\)</span> elements takes only <span class="math inline">\(\mathcal O (nk)\)</span> time, where <span class="math inline">\(n\)</span> is the length of the input list.</p>
-<h2 id="solution-2">Solution 2</h2>
-<p>See <a href="https://github.com/stappit/okasaki-pfds/blob/70501d73d4cf242bfd0128308fa635e7ca95ceef/src/Chap04/Exercise02.hs">source</a>. Note that lists in Haskell are what Okasaki calls streams, so we need no special annotations or data structures.</p>
-<p>Let <span class="math inline">\(T (n, k)\)</span> be the asymptotic complexity of computing <code>take k $ sort xs</code>, where <code>xs</code> is a list of length <span class="math inline">\(n\)</span>. By definition of <code>take</code>, <span class="math inline">\(T (n, 0) = \mathcal O (1)\)</span> and <span class="math inline">\(T (0, k) = T (0, 0)\)</span>.</p>
-<p>In <code>take k $ sort xs</code> the function <code>take k</code> needs to put <code>sort xs</code> into weak head normal form. Let <span class="math inline">\(S (m)\)</span> be the complexity of puting <code>sort ys</code> into weak head normal form for a list <code>ys</code> of length <span class="math inline">\(m\)</span>. Clearly <span class="math inline">\(S (0) = \mathcal O (1)\)</span>. Since <code>sort (y:ys) = ins y $ sort ys</code>, we have <span class="math inline">\(S (m) = S (m-1) + \mathcal O (1)\)</span>, since <code>ins y</code> only needs to put <code>sort ys</code> into weak head normal form. This is solved by <span class="math inline">\(S (m) = \mathcal O (m)\)</span>.</p>
-<p>Now, <code>take k $ sort xs = take k $ y : ys = y : take (k-1) ys</code>, where <code>sort xs = y : ys</code>. Thus <span class="math inline">\(T (n, k) = T (n-1, k-1) + \mathcal O (n)\)</span>. This recurrence is solved by <span class="math inline">\(T (n, k) = \mathcal O (nk)\)</span>.</p>
 
 <div id="disqus_thread"></div>
 <script>

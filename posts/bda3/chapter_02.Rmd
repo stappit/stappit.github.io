@@ -1,0 +1,377 @@
+---
+title: "BDA3 Chapter 2"
+author: "Brian Callander"
+date: "2018-09-01"
+tags: solutions, bayes, bda, gelman, stan, beta, binomial, negative binomial, predictive distribution
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: yes
+---
+
+Here are my solutions to chapter 2 of [Gelman's](https://andrewgelman.com/) *Bayesian Data Analysis* (BDA), 3rd edition. There are [solutions](http://www.stat.columbia.edu/~gelman/book/solutions.pdf) to some of the exercises on the [book's webpage](http://www.stat.columbia.edu/~gelman/book/).
+
+<!--more-->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = TRUE,
+  error = TRUE,
+  cache = TRUE
+)
+
+library(tidyverse)
+library(rstan)
+library(tidybayes)
+library(kableExtra)
+
+theme_set(theme_bw())
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+```
+
+<div style="display:none">
+  $\DeclareMathOperator{\dbinomial}{binomial}
+   \DeclareMathOperator{\dbern}{Bernoulli}
+   \DeclareMathOperator{\dbeta}{beta}$
+</div>
+
+## Exercise 1
+
+$$
+\begin{align}
+  p(\theta \mid H \le 2)
+  &\propto
+  p(H \le 2 \mid \theta) \cdot p(\theta)
+  \\
+  &=
+  \dbeta(\theta \mid 4, 4) \sum_{h = 0}^2 \dbinomial(h \mid \theta, 10)
+  \\
+  &=
+  \theta^3 (1 - \theta)^3 \sum_{h = 0}^2 \binom{10}{h} \theta^h (1 - \theta)^{10 - h}
+\end{align}
+$$
+
+```{r ex1_data}
+ex1 <- tibble(
+         theta = seq(0, 1, 0.01), 
+         prior = theta^3 * (1 - theta)^3,
+         posterior = prior * (
+           choose(10, 0) * theta^0 * (1 - theta)^10 +
+           choose(10, 1) * theta^1 * (1 - theta)^9 +
+           choose(10, 2) * theta^2 * (1 - theta)^8 
+         )
+       )
+```
+
+```{r ex1_plot, echo = FALSE}
+ex1 %>% 
+  ggplot() +
+  aes(theta, posterior) +
+  geom_area(fill = 'skyblue', colour = 'black') +
+  labs(
+    x = 'θ',
+    y = 'Unnormalised probability density',
+    title = "p(θ | H < 3)"
+  )
+
+```
+
+
+```{r ex1_stan_model_load, results='hide'}
+m1 <- rstan::stan_model('src/ex_02_01.stan')
+```
+
+```{r ex1_stan_model, echo = FALSE}
+m1
+```
+
+```{r ex1_stan_fit, results = 'hide'}
+f1 <- sampling(m1, iter = 40000, warmup = 500, chains = 1, refresh = -1)
+```
+
+```{r ex1_stan_plot, echo = FALSE}
+f1 %>% 
+  spread_draws(theta) %>% 
+  ggplot() +
+  aes(theta) +
+  geom_density(fill = 'skyblue') +
+  scale_x_continuous(limits = c(0, 1)) +
+  labs(
+    x = 'θ',
+    y = 'Probability density',
+    title = "p(θ | H < 3)"
+  )
+  
+```
+
+
+## Exercise 2
+
+We are given the following prior information.
+
+$$
+\begin{align}
+  p(C_1) &= 0.5 & p(H \mid C_1) &= \dbern(H \mid 0.6) 
+  \\
+  p(C_2) &= 0.5 & p(H \mid C_2) &= \dbern(H \mid 0.4)
+\end{align}
+$$
+
+The posterior probability of each coin given two tails is:
+
+$$
+\begin{align}
+  p(C_1 \mid TT )
+  &\propto
+  p(TT \mid C_1) \cdot p(C_1)
+  \\
+  &=
+  \left(\frac{2}{5}\right)^2 \frac{1}{2}
+  \\
+  &=
+  \frac{2}{25}
+\end{align}
+$$
+$$
+\begin{align}
+  p(C_2 \mid TT )
+  &\propto
+  p(TT \mid C_2) \cdot p(C_2)
+  \\
+  &=
+  \left(\frac{3}{5}\right)^2 \frac{1}{2}
+  \\
+  &=
+  \frac{9}{50}
+\end{align}
+$$
+
+Both of the previous probabilities are normalised by the same constant. Since $p(C_1 \mid TT) + p(C_2 \mid TT) = 1$, the normalising constant is $\frac{2}{25} + \frac{9}{50} = \frac{13}{50}$. Thus
+
+$$
+p(C_1 \mid TT) = \frac{4}{13}
+\qquad
+\text{and}
+\qquad
+p(C_2 \mid TT) = \frac{9}{13}.
+$$
+
+Let $y$ be the number of additional spins until the next head. Conditional on a coin, $y$ is [geometrically](https://en.wikipedia.org/wiki/Geometric_distribution) distributed. So the expected number of spins before the next head is:
+
+$$
+\begin{align}
+  \mathbb E(y \mid TT)
+  &=
+  \frac{4}{13}\mathbb E(y \mid C_1)
+  +
+  \frac{9}{13}\mathbb E(y \mid C_1)
+  \\
+  &=
+  \frac{4}{13}\frac{5}{3}
+  +
+  \frac{9}{13}\frac{5}{2}
+  \\
+  &=
+  \frac{20}{39}
+  +
+  \frac{45}{26}
+  \\
+  &=
+  \frac{175}{78},
+\end{align}
+$$
+
+which is `r signif(175/78)`.
+
+## Exercise 3
+
+The mean is 1000/6 = `r signif(1000/6)`, the variance is `r signif(1000 * 5 / 36)`, and the standard deviation is `r signif(sqrt(1000 * 5 / 36))`. 
+
+```{r ex3_data}
+N <- 1000
+p <- 1 / 6
+mu <- N * p
+sigma <- sqrt(N * p * (1 - p))
+
+ex3 <- tibble(
+    y = seq(0, N),
+    binomial_probability = dbinom(y, N, p),
+    normal_approx = dnorm(y, mu, sigma)
+  ) %>% 
+  gather(metric, value, -y) 
+```
+
+```{r ex3_table, echo = FALSE}
+ex3 %>% 
+  head() %>% 
+  kable() %>% kable_styling()
+```
+
+```{r ex3_plot, echo = FALSE}
+ex3 %>% 
+  ggplot() +
+  aes(y, value, colour = metric) +
+  geom_line() +
+  scale_x_continuous(limits = c(100, 250)) +
+  NULL
+
+```
+
+```{r ex3_percentiles}
+percentiles <- c(0.05, 0.25, 0.5, 0.75, 0.95)
+
+tibble(
+    percentile = scales::percent(percentiles),
+    binom = qbinom(percentiles, N, p),
+    norm = qnorm(percentiles, mu, sigma)
+) %>% kable() %>% kable_styling()
+```
+
+
+
+## Exercise 4
+
+
+```{r ex4_data}
+N <- 1000
+p6 <- c(1 / 4, 1 / 6, 1 / 12)
+
+ex4 <- expand.grid(
+    y = seq(0, N),
+    theta = p6
+  ) %>% 
+  mutate(
+    mu = N * theta,
+    sigma = sqrt(N * theta * (10 - theta)),
+    binomial = dbinom(y, N, theta),
+    normal_approx = dnorm(y, mu, sigma),
+    theta = scales::percent(signif(theta))
+  ) %>% 
+  select(-mu, -sigma) %>% 
+  gather(distribution, probability, binomial, normal_approx) %>% 
+  spread(theta, probability) %>% 
+  mutate(prior_probability = 0.25 * `8.3%` + 0.5 * `16.7%` + 0.25 * `25.0%`)
+```
+
+```{r ex4_table, echo = FALSE}
+ex4 %>% 
+  head() %>% 
+  kable() %>% kable_styling()
+```
+  
+```{r ex4_plot, echo = FALSE}
+ex4 %>% 
+  ggplot() +
+  aes(x = y, y = prior_probability, colour = distribution) +
+  geom_line()
+
+```
+
+TODO: why are the two smaller maxima not the same height?
+
+```{r ex4_percentiles}
+percentiles <- c(0.05, 0.25, 0.5, 0.75, 0.95)
+
+ex4 %>% 
+  group_by(distribution) %>% 
+  arrange(y) %>% 
+  mutate(
+    cdf = cumsum(prior_probability),
+    percentile = case_when(
+      cdf <= 0.05 ~ '05%',
+      cdf <= 0.25 ~ '25%',
+      cdf <= 0.50 ~ '50%',
+      cdf <= 0.75 ~ '75%',
+      cdf <= 0.95 ~ '95%'
+    )
+  ) %>% 
+  filter(cdf <= 0.95) %>% 
+  group_by(distribution, percentile) %>% 
+  slice(which.max(cdf)) %>% 
+  select(distribution, percentile, y) %>% 
+  spread(distribution, y) %>% 
+  arrange(percentile) %>% 
+  kable() %>% kable_styling()
+    
+```
+
+The normal approximation is best near the median but becomes gradually worse towards towards both extremes.
+
+## Exercise 5
+
+See [stackexchange](https://math.stackexchange.com/questions/122296/how-to-evaluate-this-integral-relating-to-binomial) and [wikipedia](https://en.wikipedia.org/wiki/Beta_function) for useful results for solving the integral below.
+
+$$
+\begin{align}
+  p(y = k)
+  &=
+  \int_0^1 p(y = k \mid \theta) p(\theta) d\theta
+  \\
+  &=
+  \binom{n}{k} \cdot \int_0^1 \theta^k (1 - \theta)^{n - k} d\theta
+  \\
+  &=
+  \binom{n}{k} \cdot \frac{1}{\binom{n}{k} \cdot (n + 1)}
+  \\
+  &=
+  \frac{1}{n + 1}
+\end{align}
+$$
+
+$$
+\begin{align}
+  p(\theta \mid y)
+  &\propto
+  p(y \mid \theta) \cdot p(\theta)
+  \\
+  &\propto
+  \theta^y (1 - \theta)^{n - y}\cdot \theta^{\alpha - 1} (1 - \theta)^{\beta - 1}
+  \\
+  &=
+  \theta^{y + \alpha - 1} (1 - \theta)^{n + \beta - y - 1}
+\end{align}
+$$
+
+So $p(\theta \mid y) ~ \dbeta(y + \alpha, n - y + \beta)$, which has mean $\frac{y + \alpha}{n + \alpha + \beta}$. Suppose $\frac{y}{n} \le \frac{\alpha}{\alpha + \beta}$. Then
+
+$$
+\begin{align}
+  \frac{y}{n}
+  &\le
+  \frac{y + \alpha}{n + \alpha + \beta}
+  \\
+  \Leftrightarrow
+  y(n + \alpha + \beta)
+  &\le
+  n(y + \alpha)
+  \\
+  \Leftrightarrow
+  y(\alpha + \beta)
+  &\le
+  n\alpha
+  \\
+  \Leftrightarrow
+  \frac{y}{n} 
+  &\le 
+  \frac{\alpha}{\alpha + \beta}
+\end{align}
+$$
+
+A similar argument shows that $\frac{y + \alpha}{n + \alpha + \beta} \le \frac{\alpha}{\alpha + \beta}$.
+
+If $\frac{y}{n} \ge \frac{\alpha}{\alpha + \beta}$, then the analogous argument shows that $\frac{\alpha}{\alpha + \beta} \le \frac{y + \alpha}{n + \alpha + \beta} \le \frac{y}{n}. \square$
+
+The prior variance is $\mathbb V (\theta) = \frac{\alpha \beta}{(\alpha + \beta)^2(\alpha + \beta + 1)}$. For a uniform prior this is $\frac{1}{4 \cdot 3} = \frac{1}{12}$. The posterior variance with a uniform prior is $\frac{y + 1}{n + 2} \cdot \frac{n - y + 1}{n + 2} \cdot \frac{1}{n + 3}$. For $p \in [0, 1]$, the function $p \mapsto p(1 - p)$ is maximised when $p = 0.5$. Thus for fixed $n$, the posterior variance is maximised when $y = \frac{n}{2}$. This means that the posterior variance is at most $\frac{1}{4} \cdot \frac{1}{n + 3} \le \frac{1}{4n + 12} \le \frac{1}{12}. \square$
+
+Intuitively, the posterior variance should be larger than the prior variance when the observed data is different from what would be expected from the prior distribution. (This can't happen with a uniform prior because every value is equally likely). Indeed, with prior $\theta \sim \dbeta(1, 9)$ and observed data $y = 9, n = 10$, we have $\mathbb V(\theta) = \frac{9}{1100}$ and $\mathbb V(\theta \mid y) = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{21} = \frac{1}{84}$.
+
+## Exercise 6
+
+From equation 1.6, $\mathbb E (y) = \mathbb E (\mathbb E(y \mid \theta))$. But $y \mid \theta \sim \dpois(\theta)$, so $\mathbb E (y \mid \theta) = \theta$.

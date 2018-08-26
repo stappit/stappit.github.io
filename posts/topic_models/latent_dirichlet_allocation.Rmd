@@ -1,0 +1,455 @@
+---
+title: "Latent Dirichlet Allocation"
+author: "Brian"
+date: "2018-09-01"
+tags: latent dirichlet allocation, bayes, clustering, variational inference, stan
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = NA,
+  cache = TRUE
+)
+
+library(tidyverse)
+library(ggridges)
+
+library(rstan)
+library(bayesplot)
+
+library(kableExtra)
+
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+```
+
+Suppose you have a bunch of users on your site and you want to find a meaningful way to partition them into groups. Broadly speaking, you have two choices:
+
+1. define the segments yourself based on your knowledge of your users and the purpose of the segmentation; or
+
+2. use an unsupervised clustering method on features of interest.
+
+The former can be a lot of work, relies on good knowledge of your users, and may have to be re-made as your userbase changes. However, the latter method can be of limited use because the resulting clusters are usually difficult to interpret. There are unsupervised clustering methods that also offer a solution to the interpretation problem. This post takes a first look at one such method: latent Dirichlet allocation (LDA).
+
+<!--more-->
+
+## Definition
+
+### High-level description
+
+Latent Dirichlet allocation (LDA) is usually applied in topic modelling of text documents and much of the material describing the method uses notation from that domain. The assumption is that each text document consists of multiple topics, and each topic is more or less likely to use certain words. The data we have is a count of each word in each document and we would like to infer the unobserved topics. In the context of user segmentation, we have a count of each activity for each user and we would like to infer the unobserved segments that the user could belong to.
+
+* document = user
+* text/words = activities performed by the user
+* topic = segment
+
+### Mathematical description
+
+More formally, suppose we have $M$ users and $W$ possible activities, and we would like to find $K$ segments. The $m$-th user has has a certain probability $\theta_m \in [0, 1]^K$ of beloning to each of the $K$ segments. We assume the $\theta_m$ are independent Dirichlet random variables.
+
+$$
+  \theta_m 
+  \sim 
+  \text{Dirichlet}_K (\alpha)
+  \qquad
+  m = 1, \dotsc, M
+$$
+
+The parameters of this distribution $\alpha \in [0, \infty)^{K-1}$ are typically chosen such that $\alpha < 1$.
+
+We then model the segment of the $m$-th user during the $w$-th activity, $s_{m, w} \in \{1, \dotsc, K\}$, as a categorical variable. 
+
+$$
+  s_{m, w} 
+  \sim
+  \text{Categorical}_K (\theta_m)
+  \qquad
+  w = 1, \dotsc, V
+$$
+
+Each segment $s_{m, w}$ has a certain probability $\phi_{s_{m, w}}$ of performing each activity. We assume that $\phi$ for each segment is independent Dirichlet.
+
+$$
+  \phi_k
+  \sim
+  \text{Dirichlet}_V (\beta)
+  \qquad
+  k = 1, \dotsc, K
+$$
+
+Again, the Dirichlet parameters $\beta$ are chosen like $\alpha$ to be smaller than 1.
+
+Finally, the observed activities are modelled as categorical.
+
+$$
+  a_{m, w} 
+  \sim
+  \text{Categorical}_V (\phi_{s_{m, w}})
+$$
+
+We have thus described how the unobserved states $\theta_m$ produce the observed activities $a_{m, w}$. This means we can apply our Bayes algorithm of choice to draw samples from the posterior distribution.
+
+Here's a concise description.
+
+$$
+\begin{align}
+  \theta_m 
+  &\sim 
+  \text{Dirichlet}_K (\alpha)
+  &
+  m &= 1, \dotsc, M
+  \\
+  \phi_k
+  &\sim
+  \text{Dirichlet}_V (\beta)
+  &
+  k &= 1, \dotsc, K
+  \\
+  s_{m, w} 
+  &\sim
+  \text{Categorical}_K (\theta_m)
+  &
+  w &= 1, \dotsc, V
+  \\
+  a_{m, w} 
+  &\sim
+  \text{Categorical}_V (\phi_{s_{m, w}})
+\end{align}
+$$
+
+### Model description
+
+We will use Stan to fit our model. One current limitation of Stan is that the parameters to be fit must be continuous, but the segment parameters, $s_{m, w}$, are discrete. Luckely, the manual has some excellent tutorials and examples for dealing with this.  Here's the model they suggest for LDA.
+
+```{r load_model, results='hide'}
+model <- rstan::stan_model('lda.stan')
+```
+
+```{r model}
+model
+```
+
+integrate out the s...
+
+## Example
+
+Since base R doesn't have an implementation of the Dirichlet distribution, we'll use [dkahle's](https://github.com/dkahle/dirichlet).
+
+```{r rdirichlet}
+#devtools::install_github("dkahle/dirichlet")
+library(dirichlet)
+```
+
+For convenience, we'll implement our own categorical distribution. The argument is a list of probabilities of each outcome.
+
+```{r rcat}
+rcat <- function(p) rmultinom(1, 1, p) %>% t() %>% which.max()
+rcat(c(1, 1, 1))
+```
+
+
+```{r hyperparameters}
+M <- 1000 # number of users
+K <- 4    # number of segments
+V <- 30
+
+alpha <- rep(0.1, K)
+beta <- rep(0.03, V)
+```
+
+```{r phi}
+set.seed(89320)
+
+phi <- rdirichlet(K, beta) %>% 
+  as_tibble() %>% 
+  set_names(paste0('A', sprintf('%02d', 1:V))) %>% 
+  mutate(segment = factor(paste0('S', 1:K))) %>% 
+  nest(-segment, .key = 'phi')
+
+
+phi
+```
+
+```{r}
+segments <- phi$segment
+
+activities <- phi %>% 
+  unnest(phi) %>% 
+  gather(activity, probability, -segment) %>% 
+  mutate(activity = factor(activity)) %>% 
+  distinct(activity) %>% 
+  pull(activity)
+
+activities
+```
+
+```{r}
+phi %>% 
+  unnest(phi) %>% 
+  gather(activity, probability, -segment) %>% 
+  ggplot() +
+  aes(x = segment, y = probability, fill = activity) +
+  geom_col(colour = 'black', size = 0.3) + 
+  NULL
+
+```
+
+
+```{r users}
+users <- # draw thetas
+  rdirichlet(N, alpha) %>% 
+  as_tibble() %>% 
+  set_names(paste0('S', 1:K)) %>% 
+  # add user ids for convenience
+  mutate(id = 1:N) %>% 
+  nest(-id, .key = theta) %>% 
+  # add segments
+  mutate(segment = map(theta, rcat) %>% unlist() %>% paste0('S', .) %>% factor(levels = segments)) %>% 
+  # add phi
+  inner_join(phi, by = 'segment')
+
+users
+  
+```
+
+
+```{r observations}
+df <- expand.grid(day = 1:14, id = 1:N) %>% 
+  as_tibble() %>% 
+  inner_join(users, by = 'id') %>% 
+  mutate(activity = map(phi, rcat) %>% 
+                      unlist() %>% 
+                      sprintf('%02d', .) %>% 
+                      paste0('A', .) %>% 
+                      factor(levels = activities)
+  ) 
+  
+df %>% 
+  head()
+```
+
+```{r}
+df %>% 
+  group_by(segment, activity) %>% 
+  summarise(total = n()) %>% 
+  mutate(fraction = total / sum(total)) %>% 
+  ggplot() +
+  aes(x = segment, y = fraction, fill = activity) +
+  geom_col(colour = 'black', size = 0.3) +
+  NULL
+
+```
+
+
+```{r fit}
+fit <- vb(
+  model,
+  data = list(
+           K = K,
+           V = V,
+           M = M,
+           N = nrow(df),
+           w = df$activity %>% as.integer(),
+           doc = df$id,
+           alpha = alpha,
+           beta = beta
+         ),
+  output_samples = 10000
+)
+```
+
+```{r}
+fit_phi <- fit %>% 
+  rstan::extract(pars = 'phi') %>% 
+  magrittr::extract2('phi') %>% 
+  apply(c(2, 3), mean) %>% 
+  as_tibble() %>%
+  set_names(activities) %>%
+  mutate(cluster = 1:K %>% paste0('K', .) %>% factor()) %>% 
+  select(cluster, starts_with('A')) 
+
+fit_phi
+
+```
+
+```{r}
+fit_phi %>% 
+  gather(activity, probability, -cluster) %>% 
+  mutate(activity = factor(activity, levels = activities)) %>% 
+  ggplot() +
+  aes(x = cluster, y = probability, fill = activity) +
+  geom_col(colour = 'black', size = 0.3) + 
+  NULL
+
+```
+
+```{r}
+list(
+  K1
+  K3 = S1,
+  K4 = S2
+)
+```
+
+
+## Simulated example
+
+Let's give our segmentation problem some context. Suppose you have a site where users log which sports they do, such as Strava. It seems plausible that segmenting users by the sports they do would be useful. However, although some may only log runs and others just swims, real life data is never so clean-cut as many users will take part in multiple sports.
+
+Let's suppose our site has five unequal segments. 
+
+```{r segment_probs, include = FALSE}
+segments <- c('runner', 'cyclist', 'swimmer', 'triathlete', 'other')
+
+segment_frequency_map <- list(
+    runner = 0.3,
+    cyclist = 0.25,
+    triathlete = 0.2,
+    swimmer = 0.15,
+    other = 0.1
+  ) %>% 
+  as_tibble() %>% 
+  gather(segment, frequency) %>% 
+  mutate(segment = as_factor(segment, levels = segments))
+
+segment_frequency_map
+```
+
+```{r segments}
+segment_frequency_map %>% 
+  ggplot(aes(x = segment, y = frequency, fill = segment)) +
+  geom_col()
+```
+
+We don't observe these segments and we would like to use LDA to try to recover these segments from the workouts they log. Each segment has a different probability distribution over the possible activities.
+
+```{r segment_activity_probs, include = FALSE}
+activities = c('running', 'cycling', 'swimming', 'recovery', 'yoga', 'volleyball')
+
+activity_frequency_map <- expand.grid(
+    activity = activities,
+    segment = segments
+  ) %>% 
+  mutate(
+    probability = case_when(
+      segment == 'runner' & activity == 'running' ~ 0.6,
+      segment == 'cyclist' & activity == 'cycling' ~ 0.6,
+      segment == 'swimmer' & activity == 'swimming' ~ 0.6,
+      segment == 'triathlete' ~ case_when(
+            activity == 'swimming' ~ 0.3,
+            activity == 'cycling' ~ 0.3,
+            activity == 'running' ~ 0.3
+      ),
+      activity == 'recovery' ~ 0.2
+    )
+  ) %>% 
+  group_by(segment) %>% 
+  mutate(
+    total = sum(probability, na.rm = TRUE),
+    nas = sum(is.na(probability)),
+    filler = (1 - total) / nas,
+    probability = if_else(is.na(probability), filler, probability)
+  )  %>% 
+  ungroup() %>%
+  select(
+    activity,
+    segment,
+    probability
+  ) %>%
+  spread(activity, probability) %>% 
+  nest(-segment)
+
+activity_frequency_map
+    
+```
+
+```{r segment_activity}
+activity_frequency_map %>% 
+  unnest(data) %>% 
+  gather(activity, probability, -segment) %>% 
+  ggplot() +
+  aes(x = segment, y = probability, fill = activity) +
+  geom_col(position = 'dodge')
+```
+
+
+```{r}
+N <- 10000
+
+users <- segment_frequency_map %>% 
+  sample_n(N, replace = TRUE, weight = frequency) %>% 
+  transmute(
+    id = 1:N,
+    segment,
+    days = 28
+  )
+
+users %>% 
+  head()
+    
+```
+
+```{r}
+df <- users %>% 
+  inner_join(activity_frequency_map, 'segment') %>% 
+  mutate(
+    activities = map2(days, 
+                      data, 
+                      function(size, prob) 
+                          tibble(activity = sample(activities, size, prob = prob, replace = TRUE))
+                     )
+  ) %>% 
+  unnest(activities) %>% 
+  select(-days) %>% 
+  mutate(activity = as_factor(activity, levels = activities))
+
+df %>% 
+  head()
+  
+```
+
+
+```{r}
+set.seed(198000)
+
+fit <- optimizing(
+  model,
+  data = list(
+           K = length(segments),
+           V = length(activities),
+           M = nrow(users),
+           N = nrow(df),
+           w = as.integer(df$activity),
+           doc = df$id,
+           alpha = rep(1, length(segments)),
+           beta = rep(1, length(activities))
+         )
+)
+```
+
+
+```{r}
+set.seed(198000)
+
+fit <- vb(
+  model,
+  data = list(
+           K = length(segments),
+           V = length(activities),
+           M = nrow(users),
+           N = nrow(df),
+           w = as.integer(df$activity),
+           doc = df$id,
+           alpha = rep(1, length(segments)),
+           beta = rep(1, length(activities))
+         ),
+  output_samples = 10000
+)
+```

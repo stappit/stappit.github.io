@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - Latent Dirichlet Allocation</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">Latent Dirichlet Allocation</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  1, 2018  by Brian </br>
+     Tags: <a href="../../tags/latent%20dirichlet%20allocation.html">latent dirichlet allocation</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/clustering.html">clustering</a>, <a href="../../tags/variational%20inference.html">variational inference</a>, <a href="../../tags/stan.html">stan</a> </br>
+     Category: <a href="../../categories/topic_models.html">topic_models</a> 
+    </p>
+  </div>
+</div>
+
+<p>Suppose you have a bunch of users on your site and you want to find a meaningful way to partition them into groups. Broadly speaking, you have two choices:</p>
+<ol type="1">
+<li><p>define the segments yourself based on your knowledge of your users and the purpose of the segmentation; or</p></li>
+<li><p>use an unsupervised clustering method on features of interest.</p></li>
+</ol>
+<p>The former can be a lot of work, relies on good knowledge of your users, and may have to be re-made as your userbase changes. However, the latter method can be of limited use because the resulting clusters are usually difficult to interpret. There are unsupervised clustering methods that also offer a solution to the interpretation problem. This post takes a first look at one such method: latent Dirichlet allocation (LDA).</p>
+<!--more-->
+<h2 id="definition">Definition</h2>
+<h3 id="high-level-description">High-level description</h3>
+<p>Latent Dirichlet allocation (LDA) is usually applied in topic modelling of text documents and much of the material describing the method uses notation from that domain. The assumption is that each text document consists of multiple topics, and each topic is more or less likely to use certain words. The data we have is a count of each word in each document and we would like to infer the unobserved topics. In the context of user segmentation, we have a count of each activity for each user and we would like to infer the unobserved segments that the user could belong to.</p>
+<ul>
+<li>document = user</li>
+<li>text/words = activities performed by the user</li>
+<li>topic = segment</li>
+</ul>
+<h3 id="mathematical-description">Mathematical description</h3>
+<p>More formally, suppose we have <span class="math inline">\(M\)</span> users and <span class="math inline">\(W\)</span> possible activities, and we would like to find <span class="math inline">\(K\)</span> segments. The <span class="math inline">\(m\)</span>-th user has has a certain probability <span class="math inline">\(\theta_m \in [0, 1]^K\)</span> of beloning to each of the <span class="math inline">\(K\)</span> segments. We assume the <span class="math inline">\(\theta_m\)</span> are independent Dirichlet random variables.</p>
+<p class="mathjaxWide"><span class="math display">\[
+  \theta_m 
+  \sim 
+  \text{Dirichlet}_K (\alpha)
+  \qquad
+  m = 1, \dotsc, M
+\]</span></p>
+<p>The parameters of this distribution <span class="math inline">\(\alpha \in [0, \infty)^{K-1}\)</span> are typically chosen such that <span class="math inline">\(\alpha &lt; 1\)</span>.</p>
+<p>We then model the segment of the <span class="math inline">\(m\)</span>-th user during the <span class="math inline">\(w\)</span>-th activity, <span class="math inline">\(s_{m, w} \in \{1, \dotsc, K\}\)</span>, as a categorical variable.</p>
+<p class="mathjaxWide"><span class="math display">\[
+  s_{m, w} 
+  \sim
+  \text{Categorical}_K (\theta_m)
+  \qquad
+  w = 1, \dotsc, V
+\]</span></p>
+<p>Each segment <span class="math inline">\(s_{m, w}\)</span> has a certain probability <span class="math inline">\(\phi_{s_{m, w}}\)</span> of performing each activity. We assume that <span class="math inline">\(\phi\)</span> for each segment is independent Dirichlet.</p>
+<p class="mathjaxWide"><span class="math display">\[
+  \phi_k
+  \sim
+  \text{Dirichlet}_V (\beta)
+  \qquad
+  k = 1, \dotsc, K
+\]</span></p>
+<p>Again, the Dirichlet parameters <span class="math inline">\(\beta\)</span> are chosen like <span class="math inline">\(\alpha\)</span> to be smaller than 1.</p>
+<p>Finally, the observed activities are modelled as categorical.</p>
+<p class="mathjaxWide"><span class="math display">\[
+  a_{m, w} 
+  \sim
+  \text{Categorical}_V (\phi_{s_{m, w}})
+\]</span></p>
+<p>We have thus described how the unobserved states <span class="math inline">\(\theta_m\)</span> produce the observed activities <span class="math inline">\(a_{m, w}\)</span>. This means we can apply our Bayes algorithm of choice to draw samples from the posterior distribution.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \theta_m 
+  &amp;\sim 
+  \text{Dirichlet}_K (\alpha)
+  &amp;
+  m &amp;= 1, \dotsc, M
+  \\
+  \phi_k
+  &amp;\sim
+  \text{Dirichlet}_V (\beta)
+  &amp;
+  k &amp;= 1, \dotsc, K
+  \\
+  s_{m, w} 
+  &amp;\sim
+  \text{Categorical}_K (\theta_m)
+  &amp;
+  w &amp;= 1, \dotsc, V
+  \\
+  a_{m, w} 
+  &amp;\sim
+  \text{Categorical}_V (\phi_{s_{m, w}})
+\end{align}
+\]</span></p>
+<h3 id="model-description">Model description</h3>
+<p>We will use Stan to fit our model. One current limitation of Stan is that the parameters to be fit must be continuous, but the segment parameters, <span class="math inline">\(s_{m, w}\)</span>, are discrete. Luckely, the manual has some excellent tutorials and examples for dealing with this. Here’s the model they suggest for LDA.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">'lda.stan'</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
+<pre><code>S4 class stanmodel 'lda' coded as follows:
+data {
+  int&lt;lower=2&gt; K; // num topics
+  int&lt;lower=2&gt; V; // num words
+  int&lt;lower=1&gt; M; // num docs
+  int&lt;lower=1&gt; N; // total word instances
+  int&lt;lower=1,upper=V&gt; w[N]; // word n
+  int&lt;lower=1,upper=M&gt; doc[N]; // doc ID for word n
+  vector&lt;lower=0&gt;[K] alpha; // topic prior
+  vector&lt;lower=0&gt;[V] beta; // word prior
+}
+
+parameters {
+  simplex[K] theta[M]; // topic dist for doc m
+  simplex[V] phi[K]; // word dist for topic k
+}
+
+model {
+  for (m in 1:M)
+    theta[m] ~ dirichlet(alpha); // prior
+  for (k in 1:K)
+    phi[k] ~ dirichlet(beta); // prior
+  for (n in 1:N) {
+    real gamma[K];
+    for (k in 1:K)
+      gamma[k] = log(theta[doc[n], k]) + log(phi[k, w[n]]);
+    target += log_sum_exp(gamma); // likelihood;
+  }
+} </code></pre>
+<p>integrate out the s…</p>
+<h2 id="simulated-example">Simulated example</h2>
+<p>Let’s give our segmentation problem some context. Suppose you have a site where users log which sports they do, such as Strava. It seems plausible that segmenting users by the sports they do would be useful. However, although some may only log runs and others just swims, real life data is never so clean-cut as many users will take part in multiple sports.</p>
+<p>Let’s suppose our site has five unequal segments.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">segment_frequency_map <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> segment, <span class="dt">y =</span> frequency, <span class="dt">fill =</span> segment)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_col</span>()</code></pre></div>
+<figure>
+<img src="latent_dirichlet_allocation_files/figure-markdown/segments-1.png" />
+</figure>
+<p>We don’t observe these segments and we would like to use LDA to try to recover these segments from the workouts they log. Each segment has a different probability distribution over the possible activities.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">activity_frequency_map <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(data) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">gather</span>(activity, probability, <span class="op">-</span>segment) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">x =</span> segment, <span class="dt">y =</span> probability, <span class="dt">fill =</span> activity) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_col</span>(<span class="dt">position =</span> <span class="st">'dodge'</span>)</code></pre></div>
+<figure>
+<img src="latent_dirichlet_allocation_files/figure-markdown/segment_activity-1.png" />
+</figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">10000</span>
+
+users &lt;-<span class="st"> </span>segment_frequency_map <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">sample_n</span>(N, <span class="dt">replace =</span> <span class="ot">TRUE</span>, <span class="dt">weight =</span> frequency) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">transmute</span>(
+    <span class="dt">id =</span> <span class="dv">1</span><span class="op">:</span>N,
+    segment,
+    <span class="dt">days =</span> <span class="dv">28</span>
+  )
+
+users <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">head</span>()</code></pre></div>
+<pre><code># A tibble: 6 x 3
+     id segment     days
+  &lt;int&gt; &lt;fct&gt;      &lt;dbl&gt;
+1     1 triathlete    28
+2     2 swimmer       28
+3     3 runner        28
+4     4 runner        28
+5     5 other         28
+6     6 other         28</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span>users <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">inner_join</span>(activity_frequency_map, <span class="st">'segment'</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">activities =</span> <span class="kw">map2</span>(days, 
+                      data, 
+                      <span class="cf">function</span>(size, prob) 
+                          <span class="kw">tibble</span>(<span class="dt">activity =</span> <span class="kw">sample</span>(activities, size, <span class="dt">prob =</span> prob, <span class="dt">replace =</span> <span class="ot">TRUE</span>))
+                     )
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(activities) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>days) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">activity =</span> <span class="kw">as_factor</span>(activity, <span class="dt">levels =</span> activities))</code></pre></div>
+<pre><code>Warning: Column `segment` joining factors with different levels, coercing
+to character vector</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">head</span>()</code></pre></div>
+<pre><code># A tibble: 6 x 3
+     id segment    activity
+  &lt;int&gt; &lt;chr&gt;      &lt;fct&gt;   
+1     1 triathlete running 
+2     1 triathlete swimming
+3     1 triathlete swimming
+4     1 triathlete running 
+5     1 triathlete swimming
+6     1 triathlete running</code></pre>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

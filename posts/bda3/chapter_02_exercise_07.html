@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 7</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 7</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 25, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/bda.html">bda</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/binomial.html">binomial</a>, <a href="../../tags/natural%20parameter.html">natural parameter</a>, <a href="../../tags/exponential%20family.html">exponential family</a>, <a href="../../tags/improper%20prior.html">improper prior</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 7, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>We show that a uniform prior on the natural parameter of a binomial model implies an improper prior under a different parameterisation.</p>
+<p>The binomial likelihood can be written as a member of the exponential family as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \dbinomial(y \mid \theta)
+  &amp;=
+  \binom{n}{y} \theta^y (1 - \theta)^{n - y}
+  \\
+  &amp;=
+  \binom{n}{y} \cdot (1 - \theta)^n \cdot \exp \left(y \log \left(\frac{\theta}{1 - \theta}\right)\right)
+  \\
+  &amp;=
+  f(y) \cdot g(\theta) \cdot \exp (\phi(\theta) \cdot u(y))
+  ,
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(\phi(\theta) := \log \frac{\theta}{1 - \theta}\)</span>, <span class="math inline">\(u(y) := y\)</span>, <span class="math inline">\(g(\theta) := (1 - \theta)^n\)</span>. Suppose the natural parameter <span class="math inline">\(\phi \sim \dbeta(1, 1)\)</span> is uniformly distributed. Then the distribution of <span class="math inline">\(\theta\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta) 
+  &amp;\propto
+  p(\phi) \cdot \vert \invlogit^\prime (\phi) \vert^{-1}
+  \\
+  &amp;=
+  \left \vert \frac{1}{1 + \exp(-\phi)}^\prime \right\vert^{-1}
+  \\
+  &amp;=
+  \left \vert \frac{1}{\left(1 + \exp(-\phi)\right)^2} \cdot \exp(-\phi) \right\vert^{-1}
+  \\
+  &amp;=
+  \frac{1 + 2 \exp(-\phi) + \exp(-2\phi)}{\exp(-\phi)}
+  \\
+  &amp;=
+  \exp(\phi) + 2 + \exp(-\phi)
+  \\
+  &amp;=
+  \frac{\theta}{1 - \theta} + 2 + \frac{1 - \theta}{\theta}
+  \\
+  &amp;=
+  \frac{\theta^2 + 2\theta(1 - \theta) + (1 - \theta)^2}{\theta(1 - \theta)}
+  \\
+  &amp;=
+  \frac{1}{\theta(1 - \theta)}
+  \\
+  &amp;=
+  \theta^{-1}(1 - \theta)^{-1}
+  \qquad \square
+\end{align}
+\]</span></p>
+<p>This is an improper distribution on <span class="math inline">\(\theta\)</span> because</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \int_0^1 \frac{1}{\theta(1 - \theta)}
+  &amp;\ge
+  \int_0^1 \frac{1}{\theta}
+  \\
+  &amp;=
+  \log\theta \vert_0^1
+  \\
+  &amp;=
+  \infty.
+\end{align}
+\]</span></p>
+<p>When <span class="math inline">\(y = 0\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = 0) \propto (1 - \theta)^{n - 1}\theta^{-1}\)</span>. When <span class="math inline">\(y = n\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = n) \propto \theta^{n-1}(1 - \theta)^{-1}\)</span>. These two cases are equivalent by the change of variable <span class="math inline">\(\theta \mapsto 1 - \theta\)</span>.</p>
+<p>We show that the distribution is improper for <span class="math inline">\(y = 0\)</span> by induction. The case <span class="math inline">\(n = 0\)</span> is shown above (for the prior). Assume the distribution is improper for any integer <span class="math inline">\(k &lt; n\)</span>. Then</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\int_0^1 \theta^{- 1}(1 - \theta)^{n - 1} d\theta
+&amp;=
+\int_0^1 \theta^{- 1}(1 - \theta)^{n - 2} \cdot (1 - \theta)d\theta
+\\
+&amp;=
+\left[(1 - \theta)^{n-2}(1 - \frac{\theta}{2}) \right]_0^1
++
+\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta}
++
+(n-2)(1 - \theta)^{n-3}
+-
+\frac{(1 - \theta)^{n-2}}{2}
+-
+(n - 2)\theta\frac{(1 - \theta)^{n-3}}{2}
+d\theta
+\\
+&amp;=
+c
++
+\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta} d\theta,
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(c &lt; \infty\)</span>. By the induction hypothesis, the integral on the last line is <span class="math inline">\(\infty\)</span>. Therefore, the distribution is also improper for <span class="math inline">\(n\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

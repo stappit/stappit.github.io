@@ -1,7 +1,7 @@
 ---
 always_allow_html: True
 author: Brian Callander
-date: '2018-08-25'
+date: '2018-08-26'
 output:
   md_document:
     preserve_yaml: True
@@ -110,7 +110,7 @@ $\theta \mapsto 1 - \theta$.
 
 We show that the distribution is improper for $y = 0$ by induction. The
 case $n = 0$ is shown above (for the prior). Assume the distribution is
-improper for any integer $k < n$. Then
+improper for any integer $k < n$. Then using integration by parts yields
 
 $$
 \begin{align}

@@ -108,14 +108,25 @@ figcaption {
     text-align: center;
 }
 
-h1, h2 {
+h1 {
     color: #B22222;
-    padding-bottom: 7px;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 0.3em;
+}
+
+h2 {
+    color: #B22222;
+    padding-bottom: 0.3em;
+    margin-bottom: 0.5em;
+    margin-top: 0.7em;
     border-bottom: 1px solid #e5e5e5;
 }
 
 h3, h4, h5, h6 {
     color: #B22222;
+    margin-bottom: 0.3;
+    margin-top: 0.3;
+    padding-bottom: 0.1em;
 }
 
 .post-item h5, .post-item h6 {

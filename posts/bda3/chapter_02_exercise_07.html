@@ -50,7 +50,7 @@
 <div class="card post-meta border-0">
   <div class="card-body post-meta">
     <p class="card-text text-muted text-left">
-    Posted on August 25, 2018  by Brian </br>
+    Posted on August 26, 2018  by Brian </br>
      Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/bda.html">bda</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/binomial.html">binomial</a>, <a href="../../tags/natural%20parameter.html">natural parameter</a>, <a href="../../tags/exponential%20family.html">exponential family</a>, <a href="../../tags/improper%20prior.html">improper prior</a> </br>
      Category: <a href="../../categories/bda3.html">bda3</a> 
     </p>
@@ -126,7 +126,7 @@
 \end{align}
 \]</span></p>
 <p>When <span class="math inline">\(y = 0\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = 0) \propto (1 - \theta)^{n - 1}\theta^{-1}\)</span>. When <span class="math inline">\(y = n\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = n) \propto \theta^{n-1}(1 - \theta)^{-1}\)</span>. These two cases are equivalent by the change of variable <span class="math inline">\(\theta \mapsto 1 - \theta\)</span>.</p>
-<p>We show that the distribution is improper for <span class="math inline">\(y = 0\)</span> by induction. The case <span class="math inline">\(n = 0\)</span> is shown above (for the prior). Assume the distribution is improper for any integer <span class="math inline">\(k &lt; n\)</span>. Then</p>
+<p>We show that the distribution is improper for <span class="math inline">\(y = 0\)</span> by induction. The case <span class="math inline">\(n = 0\)</span> is shown above (for the prior). Assume the distribution is improper for any integer <span class="math inline">\(k &lt; n\)</span>. Then using integration by parts yields</p>
 <p class="mathjaxWide"><span class="math display">\[
 \begin{align}
 \int_0^1 \theta^{- 1}(1 - \theta)^{n - 1} d\theta

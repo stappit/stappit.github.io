@@ -8,8 +8,142 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-08-27T00:00:00Z</updated>
+    <updated>2018-08-29T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 9</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html</id>
+    <published>2018-08-29T00:00:00Z</published>
+    <updated>2018-08-29T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 9</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on August 29, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/prior%20sensitivity.html">prior sensitivity</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 9, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>The data show 650 people in support of the death penalty and 350 against. We explore the effect of different priors on the posterior.</p>
+<p>First let’s find the prior with a mean of 0.6 and standard deviation 0.3. The mean of the <span class="math inline">\(\dbeta(\alpha, \beta)\)</span> distribution is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{3}{5}
+=
+\frac{\alpha}{\alpha + \beta}
+\]</span></p>
+<p>which implies that <span class="math inline">\(\alpha = 1.5 \beta\)</span>. The variance is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \frac{9}{100}
+  &amp;=
+  \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta  + 1)}
+  \\
+  &amp;=
+  \frac{3}{2} \frac{\beta^2}{\frac{25}{4}\beta^2 \frac{5\beta + 2}{2}}
+  \\
+  &amp;=
+  \frac{3}{2}\frac{4}{25}\frac{2}{5\beta + 2}
+  \\
+  &amp;=
+  \frac{12}{25(5\beta + 2)}
+  \\
+  &amp;\Leftrightarrow
+  \\
+  5\beta + 2
+  &amp;=
+  \frac{12}{25}\frac{100}{9}
+  \\
+  &amp;=
+  4,
+\end{align}
+\]</span></p>
+<p>which implies that <span class="math inline">\(\beta = \frac{2}{5}\)</span>. Thus <span class="math inline">\(\alpha = \frac{3}{5}\)</span>. Since both parameters are below 1, we see maxima near 0 and 1.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">α &lt;-<span class="st"> </span><span class="dv">3</span> <span class="op">/</span><span class="st"> </span><span class="dv">5</span>
+β &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">5</span>
+
+<span class="kw">tibble</span>(<span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>), <span class="dt">y =</span> <span class="kw">dbeta</span>(x, α, β)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(x, y) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;x&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;beta(x | α, β)&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Beta prior with mean 0.3 and standard deviation 0.6&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;α = {α}, β = {β}&#39;</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_09_files/figure-markdown/prior-1.png" />
+</figure>
+<p>The beta distribution is self-conjugate so the posterior is <span class="math inline">\(\dbeta(0.6 + 650, 0.4 + 350)\)</span>.</p>
+<p>Let’s plot the posterior with priors of different strength. We can increase the strength of the prior whilst keeping the mean constant by multiplying <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> by the same constant c. We will use <span class="math inline">\(c \in \{ 1, 10, 100, 1000\}\)</span>. In the plot below, we have restricted the x-axis to focus on the differences in the shape of the posteriors.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">support &lt;-<span class="st"> </span><span class="dv">650</span>
+against &lt;-<span class="st"> </span><span class="dv">350</span>
+
+<span class="kw">expand.grid</span>(<span class="dt">magnitude =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">3</span>, <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">c =</span> <span class="dv">10</span><span class="op">^</span>magnitude,
+    <span class="dt">a_prior =</span> α <span class="op">*</span><span class="st"> </span>c,
+    <span class="dt">b_prior =</span> β <span class="op">*</span><span class="st"> </span>c,
+    <span class="dt">y =</span> <span class="kw">dbeta</span>(x, support <span class="op">+</span><span class="st"> </span>a_prior, against <span class="op">+</span><span class="st"> </span>b_prior),
+    <span class="dt">prior_magnitude =</span> <span class="kw">factor</span>(<span class="kw">as.character</span>(<span class="dv">10</span><span class="op">^</span>magnitude))
+  ) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(x, y, <span class="dt">colour =</span> prior_magnitude) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="fl">0.55</span>, <span class="fl">0.75</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;x&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;beta(x | support + a, against + b)&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Beta posterior with different priors&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="kw">paste</span>(
+      <span class="st">&#39;a = {α} * 10^magnitude, b = {β} * 10^magnitude&#39;</span>,
+      <span class="st">&#39;support = 650, against = 350&#39;</span>,
+      <span class="dt">sep =</span> <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>
+    )),
+    <span class="dt">colour =</span> <span class="st">&#39;Magnitude of the prior&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_09_files/figure-markdown/posterior-1.png" />
+</figure>
+<p>Magnitudes 1 and 10 give very similar results close to the maximum likelihood estimate of 65%. The higher magnitudes pull the mean towards the prior mean of 60%.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 8</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_08.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_08.html</id>
@@ -1297,369 +1431,6 @@ T^D L(\lambda)
 .
 \]</span></p>
 <p>However, likelihoods are equivalent up to a multiplicative constant. Since <span class="math inline">\(T^D\)</span> is constant we can treat our likelihood, <span class="math inline">\(L\)</span>, as Poisson.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>How to deal with right-censored observations</title>
-    <link href="http://stappit.github.io/posts/survival_models/censoring.html" />
-    <id>http://stappit.github.io/posts/survival_models/censoring.html</id>
-    <published>2018-08-04T00:00:00Z</published>
-    <updated>2018-08-04T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">How to deal with right-censored observations</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August  4, 2018  by Brian </br>
-     Tags: <a href="/tags/censoring.html">censoring</a>, <a href="/tags/stan.html">stan</a>, <a href="/tags/likelihood.html">likelihood</a>, <a href="/tags/survival.html">survival</a>, <a href="/tags/mle.html">mle</a>, <a href="/tags/poisson.html">poisson</a> </br>
-     Category: <a href="/categories/survival_models.html">survival_models</a> 
-    </p>
-  </div>
-</div>
-
-<p>I’ve recently been interested in understanding survival models, which model the time to an event of interest (<code>tte</code>) but where we are not always able to wait until that event occurs. This happens, for example, when modelling the time until a customer <a href="https://en.wikipedia.org/wiki/Churn_rate">churns</a>: some of your customers may have cancelled their subscriptions but many hopefully haven’t. Those that haven’t are said to be <code>censored</code> because we haven’t observed them cancel their subscription yet.</p>
-<!--more-->
-<p>As a first step in that direction, we’ll take a look at modelling censoring when the <code>tte</code> has a Poisson distribution (minor modifications can be made to extend to other distributions). We’ll use <a href="http://mc-stan.org/">Stan</a> to implement our model since Bayesian notation very nicely reflects our statistical understanding. Don’t worry if you aren’t familiar with Stan or Bayesian inference - it should be possible to follow along regardless.</p>
-<p>You can download the <a href="./censoring.Rmd">R markdown</a> and the <a href="./censored_poisson.stan">stan model</a> to try it out.</p>
-<h2 id="some-theory">Some theory</h2>
-<h3 id="the-problem">The Problem</h3>
-<p>Let’s generate some data. We will assume that the time to event (<code>tte</code>) is poisson distributed with mean <span class="math inline">\(\mu = 10\)</span>. However, we will also assume that we don’t get to observe the event of interest in every case, i.e. some cases are censored. What we measure is the time to observation (<code>tto</code>).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">10000</span>
-mu &lt;-<span class="st"> </span><span class="dv">10</span>
-
-df &lt;-<span class="st"> </span><span class="kw">tibble</span>(
-  <span class="dt">id =</span> <span class="dv">1</span><span class="op">:</span>N,
-  <span class="dt">tte =</span> <span class="kw">rpois</span>(N, mu),
-  <span class="dt">tto =</span> <span class="kw">pmin</span>(<span class="kw">rpois</span>(N, <span class="dv">12</span>), tte),
-  <span class="dt">censored =</span> tto <span class="op">&lt;</span><span class="st"> </span>tte
-)
-
-df <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">head</span>() <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-id
-</th>
-<th style="text-align:right;">
-tte
-</th>
-<th style="text-align:right;">
-tto
-</th>
-<th style="text-align:left;">
-censored
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-11
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:left;">
-FALSE
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:left;">
-TRUE
-</td>
-</tr>
-</tbody>
-</table>
-<figure>
-<img src="censoring_files/figure-markdown/censoring_count-1.png" />
-</figure>
-<p>Note that we observe <code>tto</code> but not <code>tte</code>. How might we estimate <span class="math inline">\(\mu\)</span>? One way is to take the mean.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(tte, tto) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">summarise_all</span>(mean) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-tte
-</th>
-<th style="text-align:right;">
-tto
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-9.9916
-</td>
-<td style="text-align:right;">
-8.9525
-</td>
-</tr>
-</tbody>
-</table>
-<p>This estimate is fairly good for <code>tte</code> but is too low for <code>tto</code>. This was to be expected because we know that <code>tto</code> is smaller than <code>tte</code> for censored observations.</p>
-<p>It’s not possible to just filter out the censored values as this also gives biased estimates. In fact, it makes our estimate worse in this case.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>censored) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(tte, tto) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">summarise_all</span>(mean) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-tte
-</th>
-<th style="text-align:right;">
-tto
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-8.916655
-</td>
-<td style="text-align:right;">
-8.916655
-</td>
-</tr>
-</tbody>
-</table>
-<h3 id="a-more-sophisticated-way-to-be-wrong">A more sophisticated way to be wrong</h3>
-<p>So how can we estimate μ using just <code>tto</code>? The first step is to reinterperet the mean as the estimator that maximises a <a href="https://khakieconomics.github.io/2018/07/14/What-is-a-likelihood-anyway.html">likelihood</a> (the maximum likelihood estimator, or MLE). The likelihood is defined as the probability of the data given the estimate. Under the true model, this probability is <span class="math inline">\(f(tte_i \mid \mu) = \text{Poisson}(tte_i \mid \mu)\)</span> for the <span class="math inline">\(i\)</span>th case, giving the likelihood of the whole dataset as:</p>
-<p class="mathjaxWide"><span class="math display">\[
-L(\mu) := \prod_{i = 1}^N f(tte_i | \mu)
-.
-\]</span></p>
-<p>The mean maximises this likelihood, which is why the mean of <code>tte</code> is close to the true value.</p>
-<p>To further illustrate this point, note that this is the estimate we get when regressing <code>tte</code> on a constant.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">glm</span>(
-    <span class="dt">formula =</span> tte <span class="op">~</span><span class="st"> </span><span class="dv">1</span>,
-    <span class="dt">family =</span> <span class="kw">poisson</span>(<span class="dt">link =</span> <span class="st">&#39;log&#39;</span>),
-    <span class="dt">data =</span> .
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">tidy</span>() <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">pull</span>(estimate) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">exp</span>()</code></pre></div>
-<pre><code>[1] 9.9916</code></pre>
-<p>However, we don’t observe <code>tte</code>; we observe <code>tto</code>. Simply replacing <code>tte</code> with <code>tto</code> and maximising</p>
-<p class="mathjaxWide"><span class="math display">\[
-L(\mu) := \prod_{i = 1}^N f(tto_i \mid \mu)
-\]</span></p>
-<p>gives us the mean of <code>tto</code>, which is a bad estimate because this ‘likelihood’ does not take censoring into account.</p>
-<h3 id="the-correct-likelihood">The correct likelihood</h3>
-<p>So what likelihood can we use? Note that in uncensored cases, <span class="math inline">\(f(tto_i \mid \mu) = f(tte_i \mid \mu)\)</span>, just like above.</p>
-<p>In the censored cases, all we know is that <code>tte</code> must be larger than what was observed. This means that we need to sum over the probabilities of all possibilities: <span class="math inline">\(S(tto_i \mid \mu) := \sum_{t &gt; tto_i} f(t \mid \mu)\)</span>. The full likelihood is then</p>
-<p class="mathjaxWide"><span class="math display">\[
-L(\mu) 
-:= 
-\prod_{i = 1}^N \delta_i f(tto_i \mid \mu)
-\times
-\prod_{i = 1}^N (1 - \delta_i) S(tto_i \mid \mu)
-,
-\]</span></p>
-<p>where <span class="math inline">\(\delta_i\)</span> is 1 if the event was observed and 0 if censored. Although we’ll stick to the Poisson model in this post, we can use these ideas to create a likelihood for many different choices of distribution by using the appropriate probability/survival functions <span class="math inline">\(f\)</span>, <span class="math inline">\(S\)</span>.</p>
-<h2 id="implementation">Implementation</h2>
-<p>We will fit this model using Stan because it is relatively easy to write a Bayesian model once we have understood the data generating process. This will require us to define prior distributions (on <span class="math inline">\(\mu\)</span>) just like with any Bayesian method. Since we are mostly interested in understanding the likelihood here, we will not give much consideration to the prior. However, if applying this to a real problem, it would be a good idea to give this more thought in a <a href="https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html">principled Bayesian workflow</a>.</p>
-<h3 id="terminology">Terminology</h3>
-<p>Stan makes the following abbreviations:</p>
-<dl>
-<dt><code>pmf</code></dt>
-<dd>probability mass function, <span class="math inline">\(f(tto_i \mid \mu) = \text{Poisson}(tto_i \mid \mu)\)</span>
-</dd>
-<dt><code>lpmf</code></dt>
-<dd>log(<code>pmf</code>)
-</dd>
-<dt><code>ccdf</code></dt>
-<dd>survival function, a.k.a. complementary cumulative distribution function, <span class="math inline">\(S(tto_i | \mu) := \sum_{t &gt; tto_i} \text{Poisson}(t | \mu)\)</span>
-</dd>
-<dt><code>lccdf</code></dt>
-<dd>log(<code>ccdf</code>)
-</dd>
-<dt><code>target</code></dt>
-<dd>log(posterior probability density) = log(likelihood x prior).
-</dd>
-</dl>
-<p>Stan uses the log-scale for its calculations, so we will need the log-likelihood:</p>
-<p class="mathjaxWide"><span class="math display">\[
-\log L(\mu) 
-:= 
-\sum_{i = 1}^N \delta_i \log f(tto_i \mid \mu)
-+
-\sum_{i = 1}^N (1 - \delta_i) \log S(tto_i \mid \mu)
-.
-\]</span></p>
-<h3 id="the-model">The model</h3>
-<p>In <a href="./censored_poisson.stan">our model</a>, we add the <code>lccdf</code> if the observation is censored and <code>lpmf</code> if not censored. Let’s load our model and take a look.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span><span class="kw">stan_model</span>(<span class="st">&#39;censored_poisson.stan&#39;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
-<pre><code>S4 class stanmodel &#39;censored_poisson&#39; coded as follows:
-data {
-  // the input data
-  int&lt;lower = 1&gt; n;                      // number of observations
-  int&lt;lower = 0&gt; tto[n];                 // tto is a list of ints
-  int&lt;lower = 0, upper = 1&gt; censored[n]; // list of 0s and 1s
-  
-  // parameters for the prior
-  real&lt;lower = 0&gt; shape;
-  real&lt;lower = 0&gt; rate;
-}
-
-parameters {
-  // the parameters used in our model
-  real&lt;lower = 0&gt; mu; 
-}
-
-model {
-  // posterior = prior * likelihood
-  
-  // prior
-  mu ~ gamma(shape, rate);
-  
-  // likelihood
-  for (i in 1:n) {
-    if (censored[i]) {
-      target += poisson_lccdf(tto[i] | mu);  
-    } else {
-      target += poisson_lpmf(tto[i] | mu);
-    }
-  }
-  
-} </code></pre>
-<p>The language used in the Stan model is slightly different from R-notation but hopefully intuitive enough to convince yourself that it’s the same model we described above.</p>
-<p>Now we can sample from the posterior of our model.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">sampling</span>(
-    <span class="dt">data =</span> <span class="kw">compose_data</span>(df, <span class="dt">shape =</span> <span class="dv">2</span>, <span class="dt">rate =</span> <span class="fl">0.05</span>),
-    <span class="dt">iter =</span> <span class="dv">2000</span>,
-    <span class="dt">warmup =</span> <span class="dv">500</span>
-  ) 
-
-fit</code></pre></div>
-<pre><code>Inference for Stan model: censored_poisson.
-4 chains, each with iter=2000; warmup=500; thin=1; 
-post-warmup draws per chain=1500, total post-warmup draws=6000.
-
-          mean se_mean   sd      2.5%       25%       50%       75%
-mu        9.98    0.00 0.03      9.92      9.96      9.98     10.01
-lp__ -19613.55    0.01 0.69 -19615.54 -19613.71 -19613.29 -19613.09
-         97.5% n_eff Rhat
-mu       10.05  2002    1
-lp__ -19613.04  2924    1
-
-Samples were drawn using NUTS(diag_e) at Sat Aug  4 15:49:36 2018.
-For each parameter, n_eff is a crude measure of effective sample size,
-and Rhat is the potential scale reduction factor on split chains (at 
-convergence, Rhat=1).</code></pre>
-<p>Stan has an amazing array of diagnostics to check the quality of the fitted model. Since our model is fairly simple and all checks are in order, I won’t describe them here.</p>
-<p>The point estimate for <code>mu</code> is 9.98 and the true value is contained within the 95% credible interval [9.92, 10.05]. We can also plot all the samples from our posterior.</p>
-<figure>
-<img src="censoring_files/figure-markdown/estimate_histogram-1.png" />
-</figure>
-<h2 id="conclusion">Conclusion</h2>
-<p>We have seen how to change the likelihood to take censored observations into account. Moreover, the same process works for most distributions, so you can swap out the Poisson for Weibull/gamma/lognormal or whatever you want. Using the Bayesian modelling language, Stan, makes it super easy to test your statistical intuitions by turning them into a workable model, so I’ll definitely be exploring Stan more in the future.</p>
 
 <div id="disqus_thread"></div>
 <script>

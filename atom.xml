@@ -8,8 +8,246 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-08-29T00:00:00Z</updated>
+    <updated>2018-09-01T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 10</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_10.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_10.html</id>
+    <published>2018-09-01T00:00:00Z</published>
+    <updated>2018-09-01T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 10</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  1, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 10, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<h2 id="the-posterior-density">The posterior density</h2>
+<p>There an N cars labelled 1 to N and we observe a random car labelled 203. With a geometric prior with mean 100, the unnormalised posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(N \mid y = 203)
+\propto
+p(y = 203 \mid N) \cdot p (N)
+= 
+\left.
+  \begin{cases}
+    \frac{1}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1} 
+    &amp; 
+    \text{for } 203 \le N 
+    \\
+    0
+    &amp;
+    \text{otherwise}
+  \end{cases}
+\right\}
+\]</span></p>
+<p>We find the normalising constant in two steps. First set <span class="math inline">\(x := \frac{99}{100}\)</span> and use the <a href="https://en.wikipedia.org/wiki/Taylor_series#Natural_logarithm">Taylor series</a> of <span class="math inline">\(\log(1 - x)\)</span> to show</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \sum_1^\infty \frac{1}{N} \cdot \frac{1}{100}\cdot \left( \frac{99}{100} \right)^{N - 1}
+  &amp;=
+  \frac{1}{100} \left( 1 + \frac{x}{2} + \frac{x^2}{3} + \dotsc + \frac{x^k}{k + 1} + \dotsc \right)
+  \\
+  &amp;=
+  \frac{1}{100} \frac{1}{x} \left(  x + \frac{x^2}{2} + \frac{x^3}{3} + \dotsc + \frac{x^k}{k} + \dotsc   \right)
+  \\
+  &amp;=
+  -\frac{1}{100} \frac{1}{x} \log (1 - x)
+  \\
+  &amp;=
+  \frac{\log 100}{99} 
+  .
+\end{align}
+\]</span></p>
+<p>The normalising constant <span class="math inline">\(c\)</span> is then</p>
+<p class="mathjaxWide"><span class="math display">\[
+  c
+  =
+  \frac{\log 100}{99} 
+  -
+  \sum_1^{202} \frac{1}{N} \cdot \frac{1}{100}\cdot \left( \frac{99}{100} \right)^{N - 1}
+\]</span></p>
+<p>which we approximate with the following computation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># value of the Nth term in the sum</span>
+term &lt;-<span class="st"> </span><span class="cf">function</span>(N) 
+  (<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>N) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>) <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span>(N <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) 
+
+<span class="co"># left hand side</span>
+c0 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="dv">100</span>) <span class="op">/</span><span class="st"> </span><span class="dv">99</span>
+
+<span class="co"># right hand side (the sum)</span>
+c1 &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">202</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(term) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">reduce</span>(sum)
+  
+c &lt;-<span class="st"> </span>c0 <span class="op">-</span><span class="st"> </span>c1
+
+c</code></pre></div>
+<pre><code>[1] 0.0004705084</code></pre>
+<h2 id="the-posterior-moments">The posterior moments</h2>
+<p>The posterior mean is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb E(N \mid y = 203)
+  &amp;=
+  \frac{1}{c}\sum_{203}^\infty \frac{N}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1}
+  \\
+  &amp;=
+  \frac{1}{100c} \left( x^{202} + x^{203} + \dotsc \right), \qquad x := \frac{99}{100}
+  \\
+  &amp;=
+  \frac{1}{100c} \left( \frac{1}{1 - x} - (1 + x + x^2 + \dotsc + x^{201}) \right)
+  \\
+  &amp;=
+  \frac{1}{100c} \left( \frac{1}{1 - x} - \frac{1 - x^{202}}{1 - x} \right)
+  \\
+  &amp;=
+  \frac{1}{100c} \frac{x^{202}}{1 - x}
+  \\
+  &amp;=
+  \frac{1}{c}\left( \frac{99}{100} \right)^{202}
+\end{align}
+,
+\]</span></p>
+<p>which is approximately</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>c) <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span><span class="dv">202</span>
+mu</code></pre></div>
+<pre><code>[1] 279.0885</code></pre>
+<p>This is larger than the prior mean of 100.</p>
+<p>The second moment is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb E(N^2 \mid y = 203)
+  &amp;=
+  \frac{1}{c}\sum_{203}^\infty \frac{N^2}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1}
+  \\
+  &amp;=
+  \frac{1}{100c} \left( 203x^{202} + 204x^{203} + \dotsc \right), \qquad x := \frac{99}{100}
+  \\
+  &amp;=
+  \frac{1}{100c} \left( \frac{1}{(1 - x)^2} - \left(1 + 2x + 3x^2 + \dotsc + 202 x^{201} \right) \right)
+  \\
+  &amp;=
+  \frac{1}{100c} \left( 100^2 - \left(1 + 2x + 3x^2 + \dotsc + 202 x^{201} \right) \right)
+  \\
+  &amp;=
+  \frac{100}{c}  - \frac{1 + 2x + 3x^2 + \dotsc + 202 x^{201} }{100c}
+\end{align}
+,
+\]</span></p>
+<p>which we approximate with the following code.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">EN2_left &lt;-<span class="st"> </span><span class="dv">100</span> <span class="op">/</span><span class="st"> </span>c
+
+EN2_right &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">201</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(<span class="cf">function</span>(N) N <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span>(N <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">reduce</span>(sum) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(<span class="dv">100</span> <span class="op">*</span><span class="st"> </span>c)
+
+EN2 &lt;-<span class="st"> </span>EN2_left <span class="op">-</span><span class="st"> </span>EN2_right
+
+EN2</code></pre></div>
+<pre><code>[1] 84854.18</code></pre>
+<p>It follows that the posterior variance and standard deviation is approximately</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v &lt;-<span class="st"> </span>EN2 <span class="op">-</span><span class="st"> </span>mu<span class="op">^</span><span class="dv">2</span>
+sigma &lt;-<span class="st"> </span><span class="kw">sqrt</span>(v)
+<span class="kw">c</span>(v, sigma)</code></pre></div>
+<pre><code>[1] 6963.78665   83.44931</code></pre>
+<p>These are smaller than the prior variance and standard deviation, respectively:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v_prior &lt;-<span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>) <span class="op">/</span><span class="st"> </span>(<span class="fl">0.01</span><span class="op">^</span><span class="dv">2</span>)
+sigma_prior &lt;-<span class="st"> </span><span class="kw">sqrt</span>(v_prior)
+<span class="kw">c</span>(v_prior, sigma_prior)</code></pre></div>
+<pre><code>[1] 9900.00000   99.49874</code></pre>
+<h2 id="a-non-informative-prior">A non-informative prior</h2>
+<p>There is no proper uniform density over the positive integers. A uniform prior also leaves us with an improper posterior.</p>
+<p>Jeffrey’s prior is <span class="math inline">\(p(N) \propto \frac{1}{N}\)</span>, which is also improper. However, it yields the following (unnormalised) posterior</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(N \mid y = 203)
+\propto
+\left.
+  \begin{cases}
+    \frac{1}{N^2} 
+    &amp; 
+    \text{for } 203 \le N 
+    \\
+    0
+    &amp;
+    \text{otherwise}
+  \end{cases}
+\right\}
+\]</span></p>
+<p>which is proper.</p>
+<p>Using the <a href="https://en.wikipedia.org/wiki/Basel_problem">Basel problem</a> we can calculate the normalising constant</p>
+<p class="mathjaxWide"><span class="math display">\[
+c
+=
+\sum_1^\infty \frac{1}{N^2}
+-
+\sum_1^{202} \frac{1}{N^2}
+=
+\frac{\pi^2}{6}
+-
+\sum_1^{202} \frac{1}{N^2}
+\]</span></p>
+<p>which is approximately</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">c_left &lt;-<span class="st"> </span>pi<span class="op">^</span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">6</span>
+
+c_right &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">202</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(<span class="cf">function</span>(N) <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>N<span class="op">^</span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">reduce</span>(sum)
+
+c &lt;-<span class="st"> </span>c_left <span class="op">-</span><span class="st"> </span>c_right
+
+c</code></pre></div>
+<pre><code>[1] 0.004938262</code></pre>
+<p>The posterior mean is not well-defined since</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E(N \mid y = 203)
+=
+\frac{1}{c}\sum_{203}^\infty \frac{1}{N} 
+=
+\infty
+.
+\]</span></p>
+<p>The posterior variance and standard deviation are also not well-defined.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 9</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html</id>
@@ -1283,154 +1521,6 @@ model {
 <figure>
 <img src="chapter_02_exercise_01_files/figure-markdown/ex1_stan_plot-1.png" />
 </figure>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>Understanding the hazard function</title>
-    <link href="http://stappit.github.io/posts/survival_models/hazard.html" />
-    <id>http://stappit.github.io/posts/survival_models/hazard.html</id>
-    <published>2018-08-05T00:00:00Z</published>
-    <updated>2018-08-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">Understanding the hazard function</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August  5, 2018  by Brian </br>
-     Tags: <a href="/tags/hazard.html">hazard</a>, <a href="/tags/censoring.html">censoring</a>, <a href="/tags/survival.html">survival</a>, <a href="/tags/exponential.html">exponential</a>, <a href="/tags/poisson.html">poisson</a> </br>
-     Category: <a href="/categories/survival_models.html">survival_models</a> 
-    </p>
-  </div>
-</div>
-
-<p>Suppose you have fit a distribution to your censored survival times as in the <a href="./censoring.html">previous post</a> and now want to quantify the intuition of an event being imminent. For example, being able to characterise precisely when your customers are about to churn can help identify problem areas to improve on. This notion is called the <em>hazard</em>. We’ll take a look at some of its main properties and how it related to survival analysis.</p>
-<!--more-->
-<h2 id="definition">Definition</h2>
-<p>Start with a small <span class="math inline">\(\delta\)</span>-interval around t and and consider the average probability density of an event ocurring in that interval given that it occurs after t: <span class="math inline">\(\frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}\)</span>, where <span class="math inline">\(\mathbb P\)</span> is the probability function. To get rid of the arbitrary choice of <span class="math inline">\(\delta\)</span>, we take the limit as <span class="math inline">\(\delta\)</span> goes to zero.</p>
-<p class="mathjaxWide"><span class="math display">\[
-h(t)
-:=
-\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
-.
-\]</span></p>
-<p>This is well-defined whenever the CDF is differentiable. Although it is defined in terms of probabilities, we will show below that the hazard is not itself a probability density function.</p>
-<h2 id="identities">Identities</h2>
-<p>There are a number of useful properties of the hazard function that make it convenient to work with in survival analysis.</p>
-<h3 id="equivalent-definition">Equivalent definition</h3>
-<p>The above definition helps us understand the intuition behind the hazard function but there’s an equivalent formulation that can be easier to work with. Using</p>
-<ul>
-<li>the definition of conditional probabilities,</li>
-<li>the definition of a derivative, and</li>
-<li>that <span class="math inline">\(F&#39;(t) = f(t)\)</span> where <span class="math inline">\(F\)</span> is the CDF and <span class="math inline">\(f\)</span> the probability function,</li>
-</ul>
-<p>we can show that</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  h(t)
-  &amp;=
-  \lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta \mid t \le T)}{\delta}
-  \\
-  &amp;=\lim_{\delta \rightarrow 0} \frac{\mathbb P(t \le T &lt; t + \delta)}{\mathbb P(t \le T)\delta}
-  \\
-  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{S(t)\delta}
-  \\
-  &amp;=\lim_{\delta \rightarrow 0} \frac{F(t + \delta) - F(t)}{\delta} \frac{1}{S(t)}
-  \\
-  &amp;= F&#39;(t) \frac{1}{S(t)}
-  \\
-  &amp;= \frac{f(t)}{S(t)}.
-\end{align}
-\]</span></p>
-<p>We will show below how to use this to simplify the likelihood in the case of censored observations for measuring time to an event of interest.</p>
-<h3 id="relation-with-the-survival-function">Relation with the survival function</h3>
-<p>Using the identity above, we can rewrite the hazard as a derivative of the survival function:</p>
-<p class="mathjaxWide"><span class="math display">\[
-h(t)
-=
-\frac{f(t)}{S(t)}
-=
--\frac{d}{dt} \log S(t)
-.
-\]</span></p>
-<p>It then follows from the <a href="https://en.wikipedia.org/wiki/Fundamental_theorem_of_calculus">first fundamental theorem of calculus</a> that</p>
-<p class="mathjaxWide"><span class="math display">\[
-S(t) = e^{-\int_0^t h(s) ds}.
-\]</span></p>
-<p>In other words, the hazard function completely determines the survival function (and therefore also the mass/density function).</p>
-<p>Since the integral of the hazard appears in the above equation, we can give it a definition for easier reference. We define the <em>cumulative hazard</em> as</p>
-<p class="mathjaxWide"><span class="math display">\[
-H(t) 
-:=
-\int_0^t h(s) ds
-.
-\]</span></p>
-<p>Since <span class="math inline">\(\lim_{t \rightarrow \infty} S(t) = 0\)</span>, it follows that <span class="math inline">\(\lim_{t \rightarrow \infty} H(t) = -\lim \log S(t) = \infty\)</span>. In particular, this means that the hazard function is NOT a probability density function!</p>
-<h3 id="example">Example</h3>
-<p>The exponential distribution has constant hazard. To see this, suppose <span class="math inline">\(h(t) = \lambda\)</span>. Then <span class="math inline">\(S(t) = \exp(-\int_0^t \lambda ds) = \exp(-\lambda t)\)</span> so that <span class="math inline">\(f(t) = -S&#39;(t) = \lambda \exp(-\lambda t)\)</span>, which is the probability function for the <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponential distribution</a>.</p>
-<h2 id="hazard-in-censored-survival-analysis">Hazard in censored survival analysis</h2>
-<p>In <a href="./censoring.html">the previous post</a>, we motivated the following likelihood in the case of censored survival times:</p>
-<p class="mathjaxWide"><span class="math display">\[
-L(\theta) 
-:= 
-\prod_{i = 1}^N \delta_i f(t_i \mid \theta)
-\times
-\prod_{i = 1}^N (1 - \delta_i) S(t_i \mid \theta)
-\]</span></p>
-<p>where <span class="math inline">\(\delta_i\)</span> is 1 if the event is observed and 0 if it is censored, and <span class="math inline">\(\theta\)</span> is the vector of parameters of the distribution of survival times. Since <span class="math inline">\(f(t) = h(t) S(t)\)</span>, we can rewrite this as</p>
-<p class="mathjaxWide"><span class="math display">\[
-L(\theta) 
-:= 
-\prod_{i = 1}^N h(t_i \mid \theta)^{\delta_i}S(t_i \mid \theta).
-\]</span></p>
-<h3 id="example-1">Example</h3>
-<p>Assuming that survival times follow an exponential distribution, the hazard <span class="math inline">\(h(t) = \lambda\)</span> is constant, and the likelihood is</p>
-<p class="mathjaxWide"><span class="math display">\[
-  L(\lambda)
-  = 
-  \prod_{i = 1}^N \lambda^{\delta_i} e^{-\lambda t_i}
-  =
-  \lambda^D e^{-\lambda T}
-\]</span></p>
-<p>where <span class="math inline">\(D := \sum_1^N \delta_i\)</span> is the total number of events observed and <span class="math inline">\(T := \sum_1^N t_i\)</span> is the total observation time. This expression has an interesting interpretation as a <a href="https://en.wikipedia.org/wiki/Poisson_distribution">Poisson</a> likelihood. To see this, first note that <span class="math inline">\(T\)</span> and <span class="math inline">\(D\)</span> can be considered constant in our likelihood because they don’t depend on our only parameter <span class="math inline">\(\lambda\)</span>. We can consider <span class="math inline">\(D\)</span> as a Poisson variable with rate <span class="math inline">\(\lambda\)</span> and exposure <span class="math inline">\(T\)</span>:</p>
-<p class="mathjaxWide"><span class="math display">\[
-D \mid \lambda \sim \text{Poisson}(\lambda T),
-\]</span></p>
-<p>which gives probability of observing <span class="math inline">\(D\)</span> events as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\text{Poisson}(D \mid \lambda T)
-=
-(\lambda T)^D e^{-\lambda T}
-=
-T^D L(\lambda)
-.
-\]</span></p>
-<p>However, likelihoods are equivalent up to a multiplicative constant. Since <span class="math inline">\(T^D\)</span> is constant we can treat our likelihood, <span class="math inline">\(L\)</span>, as Poisson.</p>
 
 <div id="disqus_thread"></div>
 <script>

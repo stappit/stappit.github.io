@@ -6,7 +6,9 @@ output:
   md_document:
     preserve_yaml: True
     variant: markdown
-tags: 'bda chapter 2, solutions, bayes,'
+tags: |
+    bda chapter 2, solutions, bayes, geometric, noninformative prior,
+    jeffrey prior
 title: BDA3 Chapter 2 Exercise 10
 ---
 

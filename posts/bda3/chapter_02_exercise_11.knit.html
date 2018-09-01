@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 11</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 11</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  1, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/cauchy.html">cauchy</a>, <a href="../../tags/posterior%20predictive.html">posterior predictive</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 11, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Assume the sampling distribution is <span class="math inline">\(\dcauchy(y \mid \theta, 1)\)</span> with uniform prior <span class="math inline">\(p(\theta) \propto 1\)</span> on <span class="math inline">\([0, 100]\)</span>. Given observations <span class="math inline">\(y\)</span>, we can approximate the posterior for <span class="math inline">\(\theta\)</span> by dividing the interval <span class="math inline">\([0, 100]\)</span> into partitions of length <span class="math inline">\(\frac{1}{m}\)</span>. The unnormalised posterior for <span class="math inline">\(\theta\)</span> on this grid is then computed as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># observations</span>
+y &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">43</span>, <span class="dv">44</span>, <span class="dv">45</span>, <span class="fl">46.5</span>, <span class="fl">47.5</span>) 
+
+<span class="co"># grid granularity</span>
+m &lt;-<span class="st"> </span><span class="dv">100</span>
+
+<span class="co"># L(θ) := p(y | θ)</span>
+likelihood &lt;-<span class="st"> </span><span class="cf">function</span>(theta) 
+  y <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">map</span>(dcauchy, theta, <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">reduce</span>(prod)
+
+<span class="co"># posterior grid</span>
+posterior_unnorm &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>m)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">map</span>(theta, likelihood) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>())</code></pre></div>
+<p>We can approximate the normalising constant by summing the approximate area on each partition. Each partition has width <span class="math inline">\(\frac{1}{m}\)</span> and approximate height given by the density, so the approximate area is the multiple of the two.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># grid approx to area under curve</span>
+normalising_constant &lt;-<span class="st"> </span>posterior_unnorm <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="kw">sum</span>(density) <span class="op">/</span><span class="st"> </span>m) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>()
+
+posterior &lt;-<span class="st"> </span>posterior_unnorm <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> density <span class="op">/</span><span class="st"> </span>normalising_constant)
+
+normalising_constant</code></pre></div>
+<pre><code>[1] 3.418359e-05</code></pre>
+<figure>
+<img src="chapter_02_exercise_11_files/figure-markdown/posterior_plot-1.png" />
+</figure>
+<p>Let’s zoom in on the region <span class="math inline">\([40, 50]\)</span> where most of the density lies.</p>
+<figure>
+<img src="chapter_02_exercise_11_files/figure-markdown/posterior_plot_zoomed-1.png" />
+</figure>
+<p>Sampling from this posterior yields a histogram with a similar shape.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">posterior_draws &lt;-<span class="st"> </span>posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">1000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>, <span class="dt">weight =</span> density) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(theta)</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_11_files/figure-markdown/posterior_sample_plot-1.png" />
+</figure>
+<p>We can draw from the posterior predictive distribution by first drawing <span class="math inline">\(\tilde\theta\)</span> from the posterior of <span class="math inline">\(\theta\)</span>, then drawing <span class="math inline">\(\tilde y\)</span> from <span class="math inline">\(\dcauchy(\tilde\theta, 1)\)</span>. The tails of the posterior predictive distribution are much wider than for <span class="math inline">\(\theta\)</span> so we plot this histogram on the interval <span class="math inline">\([10, 90]\)</span> (although there are a few observations outside this interval).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">posterior_predictive &lt;-<span class="st"> </span>posterior_draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pp =</span> <span class="kw">rcauchy</span>(<span class="kw">n</span>(), theta, <span class="dv">1</span>)) </code></pre></div>
+<figure>
+<img src="chapter_02_exercise_11_files/figure-markdown/posterior_predictive_plot-1.png" />
+</figure>
+<p>A total of 21 draws lie outside of the interval <span class="math inline">\([10, 90]\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

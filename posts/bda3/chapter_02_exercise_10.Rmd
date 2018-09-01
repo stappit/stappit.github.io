@@ -2,7 +2,7 @@
 title: "BDA3 Chapter 2 Exercise 10"
 author: "Brian Callander"
 date: "2018-09-01"
-tags: bda chapter 2, solutions, bayes, 
+tags: bda chapter 2, solutions, bayes, geometric, noninformative prior, jeffrey prior
 always_allow_html: yes
 output: 
   md_document:

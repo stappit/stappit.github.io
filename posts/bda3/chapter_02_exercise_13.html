@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 13</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 13</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  2, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/poisson.html">poisson</a>, <a href="../../tags/gamma.html">gamma</a>, <a href="../../tags/jeffrey%20prior.html">jeffrey prior</a>, <a href="../../tags/posterior%20predictive.html">posterior predictive</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 13, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>We are given data on airline deaths and asked to fit various models to that data.</p>
+<h2 id="the-data">The data</h2>
+<p>We are given the data shown below. The data didn’t seem to be available anywhere so I <a href="../../data/bda3_chapter_02_exercise_13.csv">created the csv file</a> myself.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+fatal_accidents
+</th>
+<th style="text-align:right;">
+passenger_deaths
+</th>
+<th style="text-align:right;">
+death_rate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1976
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+734
+</td>
+<td style="text-align:right;">
+0.19
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1977
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+516
+</td>
+<td style="text-align:right;">
+0.12
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1978
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+754
+</td>
+<td style="text-align:right;">
+0.15
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1979
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+877
+</td>
+<td style="text-align:right;">
+0.16
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1980
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+814
+</td>
+<td style="text-align:right;">
+0.14
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1981
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+362
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1982
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+764
+</td>
+<td style="text-align:right;">
+0.13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1983
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+809
+</td>
+<td style="text-align:right;">
+0.13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1984
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+223
+</td>
+<td style="text-align:right;">
+0.03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1985
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+1066
+</td>
+<td style="text-align:right;">
+0.15
+</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s get acquainted with the data by plotting it as a timeseries.</p>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/data_plot-1..svg" />
+</figure>
+<h2 id="part-a">Part a</h2>
+<p>We model the number of fatal accidents as poisson <span class="math inline">\(y \mid \theta \sim \dpois(\theta)\)</span>, where we put a <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span> prior on the parameter. I don’t really have any strong prior knowledge about the number of annual fatal flight accidents. I’ll use the gamma approximation to Jeffrey’s prior from the <a href="./chapter_02_exercise_12.html">previous exercise</a>, even though it places probability on very extreme values. We’ll stick with this prior throughout.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">shape &lt;-<span class="st"> </span><span class="fl">0.5</span>
+rate &lt;-<span class="st"> </span>.Machine<span class="op">$</span>double.xmin</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/prior_a-1..svg" />
+</figure>
+<p>The posterior is <span class="math inline">\(\dgamma(0.5 + n\bar y, n) = \dgamma(0.5 + 238, 10)\)</span>.</p>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/posterior_a-1..svg" />
+</figure>
+<p>To obtain a 95% posterior predictive interval, we draw <span class="math inline">\(\theta\)</span> from its posterior, then draw <span class="math inline">\(y\)</span> from the corresponding Poisson distribution. With these draws, we can obtain the necessary quantiles.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n_draws &lt;-<span class="st"> </span><span class="dv">50000</span>
+
+theta_posterior_a &lt;-<span class="st"> </span><span class="kw">rgamma</span>(n_draws, 
+                            shape <span class="op">+</span><span class="st"> </span>sum_fatal_accidents, 
+                            rate <span class="op">+</span><span class="st"> </span>n_observations
+                           ) 
+y_pp_a &lt;-<span class="st"> </span><span class="kw">rpois</span>(n_draws, theta_posterior_a) 
+
+mu_a &lt;-<span class="st"> </span><span class="kw">mean</span>(y_pp_a)
+ci_a &lt;-<span class="st"> </span><span class="kw">quantile</span>(y_pp_a, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
+
+ci_a</code></pre></div>
+<pre><code> 5% 95% 
+ 16  32 </code></pre>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/pp_plot_a-1..svg" />
+</figure>
+<h2 id="part-b">Part b</h2>
+<p>In part a, we ignored how many flights there are. We can incorporate this information into our model by using <code>passenger_miles</code> as a measure of exposure. The parameter <span class="math inline">\(\theta\)</span> is now the rate of fatal accidents per year per 100 million passenger miles. Note that this rate is over an order of magnitude smaller than the death rate in the table because the number of fatal accidents is an order of magnitude smaller than the number of passenger deaths. The posterior is <span class="math inline">\(\theta \mid y \sim \dgamma(0.5 + 238, 57158.69)\)</span>.</p>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/posterior_b-1..svg" />
+</figure>
+<p>The 95% posterior predictive interval seems to be shifted upwards compared to the interval in part a.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_posterior_b &lt;-<span class="st"> </span><span class="kw">rgamma</span>(n_draws, 
+                            shape <span class="op">+</span><span class="st"> </span>sum_fatal_accidents, 
+                            rate <span class="op">+</span><span class="st"> </span>sum_passenger_miles
+                           )
+y_pp_b &lt;-<span class="st"> </span><span class="kw">rpois</span>(n_draws, theta_posterior_b <span class="op">*</span><span class="st"> </span><span class="dv">8000</span>)
+
+mu_b &lt;-<span class="st"> </span><span class="kw">mean</span>(y_pp_b)
+
+ci_b &lt;-<span class="st"> </span><span class="kw">quantile</span>(y_pp_b, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
+
+ci_b</code></pre></div>
+<pre><code> 5% 95% 
+ 24  44 </code></pre>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/pp_plot_b-1..svg" />
+</figure>
+<h2 id="part-c">Part c</h2>
+<p>Here we use the same model as in part a but for the number of passenger deaths instead of fatal accidents.</p>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/posterior_c-1..svg" />
+</figure>
+<p>Only 1 of the 10 observations in the dataset lie within the 95% posterior predictive interval.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_posterior_c &lt;-<span class="st"> </span><span class="kw">rgamma</span>(n_draws, 
+                            shape <span class="op">+</span><span class="st"> </span>sum_passenger_deaths, 
+                            rate <span class="op">+</span><span class="st"> </span>n_observations
+                           )
+y_pp_c &lt;-<span class="st"> </span><span class="kw">rpois</span>(n_draws, theta_posterior_c) 
+
+mu_c &lt;-<span class="st"> </span><span class="kw">mean</span>(y_pp_c)
+ci_c &lt;-<span class="st"> </span><span class="kw">quantile</span>(y_pp_c, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
+
+ci_c</code></pre></div>
+<pre><code> 5% 95% 
+647 738 </code></pre>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/pp_plot_c-1..svg" />
+</figure>
+<h2 id="part-d">Part d</h2>
+<p>Now we use the same model as in part b but for passenger deaths instead of fatal accidents. The posterior is <span class="math inline">\(\dgamma(0.5 + 238, 57158.69)\)</span>.</p>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/posterior_d-1..svg" />
+</figure>
+<p>None of the observed values falls into the 95% posterior predictive interval.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_posterior_d &lt;-<span class="st"> </span><span class="kw">rgamma</span>(n_draws, 
+                            shape <span class="op">+</span><span class="st"> </span>sum_passenger_deaths, 
+                            rate <span class="op">+</span><span class="st"> </span>sum_passenger_miles
+                           )
+y_pp_d &lt;-<span class="st"> </span><span class="kw">rpois</span>(n_draws, theta_posterior_d <span class="op">*</span><span class="st"> </span><span class="dv">8000</span>)
+
+mu_d &lt;-<span class="st"> </span><span class="kw">mean</span>(y_pp_d)
+
+ci_d &lt;-<span class="st"> </span><span class="kw">quantile</span>(y_pp_d, <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>))
+
+ci_d</code></pre></div>
+<pre><code>  5%  95% 
+ 914 1023 </code></pre>
+<figure>
+<img src="chapter_02_exercise_13_files/figure-markdown/pp_plot_d-1..svg" />
+</figure>
+<h2 id="part-e">Part e</h2>
+<p>There are a number of issues to consider that are not mentioned in the question or suggested by the data. The number of fatal accidents depends on the number of miles flown by airplanes: if there are more flights, there will likely be more accidents. However, the number of flights isn’t directly accounted for in the number of passenger miles since the number of passengers per flight can vary from year to year. In any case, the number of passenger deaths per year is not independent because passengers on the same flight will have more similar survival chances.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

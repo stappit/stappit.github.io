@@ -1,7 +1,7 @@
 ---
 always_allow_html: True
 author: Brian Callander
-date: '2018-09-01'
+date: '2018-09-02'
 output:
   md_document:
     preserve_yaml: True
@@ -243,7 +243,7 @@ ci_a
 ```
 
      5% 95% 
-     16  33 
+     16  32 
 
 ![](chapter_02_exercise_13_files/figure-markdown/pp_plot_a-1..svg)
 

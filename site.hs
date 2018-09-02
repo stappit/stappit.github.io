@@ -21,6 +21,10 @@ main = hakyll $ do
         route   idRoute
         compile copyFileCompiler
 
+    match "data/*" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match (fromList ["about.markdown", "contact.markdown", "404.md"]) $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
@@ -81,6 +85,10 @@ main = hakyll $ do
         route   idRoute
         compile copyFileCompiler
 
+    match "posts/**.svg" $ version "raw" $ do
+        route   idRoute
+        compile copyFileCompiler
+
     match "posts/**.png" $ version "raw" $ do
         route   idRoute
         compile copyFileCompiler
@@ -111,7 +119,7 @@ main = hakyll $ do
             posts <- fmap (take 5) . recentFirst =<< loadAll (postsGlob .&&. hasNoVersion)
             let indexCtx = mconcat
                     [ constField "title" "Home"
-		    , listField "posts" (teaserField "teaser" "teaser" <> postCtx) (return posts) 
+                    , listField "posts" (teaserField "teaser" "teaser" <> postCtx) (return posts) 
                     , defaultContext
                     ]
 

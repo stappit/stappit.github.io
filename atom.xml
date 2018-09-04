@@ -8,8 +8,139 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-03T00:00:00Z</updated>
+    <updated>2018-09-04T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 15</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html</id>
+    <published>2018-09-04T00:00:00Z</published>
+    <updated>2018-09-04T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 15</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  4, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/mean.html">mean</a>, <a href="/tags/variance.html">variance</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 15, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Suppose <span class="math inline">\(Z \sim \dbeta(\alpha, \beta)\)</span>. Then for <span class="math inline">\(m, n \in \mathbb N\)</span> we have</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \mathbb E \left[ Z^m (1 - Z)^n \right]
+  &amp;=
+  \frac{1}{B(\alpha, \beta)} \int_0^1 z^m (1 - z)^n z^{\alpha - 1} (1 - z)^{\beta - 1} dz
+  \\
+  &amp;=
+  \frac{1}{B(\alpha, \beta)} \int_0^1 z^{m + \alpha - 1} (1 - z)^{n + \beta - 1} dz
+  \\
+  &amp;=
+  \frac{1}{B(\alpha, \beta)} \frac{\Gamma (m + \alpha) \Gamma( n + \beta )}{\Gamma (m + n + \alpha + \beta)}
+  \\
+  &amp;=
+  \frac{(\alpha + \beta -1)!}{(\alpha - 1)! (\beta - 1)!} \frac{(m + \alpha - 1)! (n + \beta - 1)!}{(m + n + \alpha + \beta - 1)!}
+  ,
+\end{align}
+\]</span></p>
+<p>where <span class="math inline">\(B\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">beta function</a> and <span class="math inline">\(\Gamma\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">gamma function</a>.</p>
+<p>I’m not sure how the above integral is so useful for this exercise since calculating the mean and variance only require <span class="math inline">\(n = 0\)</span> and <span class="math inline">\(m = 1, 2\)</span>.</p>
+<p>The mean of <span class="math inline">\(Z\)</span> is the above expectation when <span class="math inline">\(m = 1\)</span> and <span class="math inline">\(n = 0\)</span>, giving</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E (Z)
+=
+\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
+\frac{\alpha! (\beta - 1)!}{(\alpha + \beta)!}
+=
+\frac{\alpha}{\alpha + \beta}
+.
+\]</span></p>
+<p>The second moment is given by <span class="math inline">\(m = 2\)</span> and <span class="math inline">\(n = 0\)</span>, which is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E(Z^2)
+=
+\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
+\frac{(\alpha +1)! (\beta - 1)!}{(\alpha + \beta + 1)!}
+=
+\frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
+.
+\]</span></p>
+<p>It follows that the variance is</p>
+<span class="math display">\[\begin{align}
+  \mathbb E (Z^2) - \mathbb E (Z)^2
+  &amp;=
+  \frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
+  -
+  \frac{\alpha^2}{(\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{(\alpha + 1) \alpha (\alpha + \beta)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  -
+  \frac{\alpha^2(\alpha + \beta + 1)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha^2 (\alpha + \beta) + \alpha (\alpha + \beta)
+    -
+    \alpha^2(\alpha + \beta) - \alpha^2
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha (\alpha + \beta)
+    -
+    \alpha^2
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha \beta
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  .
+\end{align}\]</span>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 14</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html</id>
@@ -54,7 +185,6 @@
 \end{align}
 \]</span></p>
 <p>Now we can combine the fractions in the exponent, expand the brackets, collect the terms as <span class="math inline">\(\theta\)</span>-coefficients, rewrite the coefficients in terms of <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\tau_1\)</span>, then complete the square in terms of <span class="math inline">\(\theta\)</span>:</p>
-$$
 <span class="math display">\[\begin{align}
   \frac{(y - \theta)^2}{\sigma^2}
   +
@@ -80,7 +210,6 @@ $$
   \frac{(\theta - \mu_1)^2}{\tau_1^2} 
   .
 \end{align}\]</span>
-<p>$$</p>
 <h2 id="induction-step">Induction step</h2>
 <p>The induction hypothesis is that the variance and mean are given by</p>
 <p class="mathjaxWide"><span class="math display">\[
@@ -1333,115 +1462,6 @@ c
   \qquad \square
 \end{align}
 \]</span></p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 5</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_05.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_05.html</id>
-    <published>2018-08-24T00:00:00Z</published>
-    <updated>2018-08-24T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August 24, 2018  by Brian </br>
-     Tags: <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/beta-binomial.html">beta-binomial</a>, <a href="/tags/variance.html">variance</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 5, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Let’s derive the prior predictive distribution of a beta-binomial model with a uniform prior. See <a href="https://math.stackexchange.com/questions/122296/how-to-evaluate-this-integral-relating-to-binomial">stackexchange</a> and <a href="https://en.wikipedia.org/wiki/Beta_function">wikipedia</a> for useful results for solving the integral below.</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  p(y = k)
-  &amp;=
-  \int_0^1 p(y = k \mid \theta) p(\theta) d\theta
-  \\
-  &amp;=
-  \binom{n}{k} \cdot \int_0^1 \theta^k (1 - \theta)^{n - k} d\theta
-  \\
-  &amp;=
-  \binom{n}{k} \cdot \frac{1}{\binom{n}{k} \cdot (n + 1)}
-  \\
-  &amp;=
-  \frac{1}{n + 1}
-\end{align}
-\]</span></p>
-<p>Now let’s show that the posterior mean of <span class="math inline">\(\theta\)</span> lies between the prior mean and observed frequency. The posterior is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  p(\theta \mid y)
-  &amp;\propto
-  p(y \mid \theta) \cdot p(\theta)
-  \\
-  &amp;\propto
-  \theta^y (1 - \theta)^{n - y}\cdot \theta^{\alpha - 1} (1 - \theta)^{\beta - 1}
-  \\
-  &amp;=
-  \theta^{y + \alpha - 1} (1 - \theta)^{n + \beta - y - 1}.
-\end{align}
-\]</span></p>
-<p>So <span class="math inline">\(p(\theta \mid y) \sim \dbeta(y + \alpha, n - y + \beta)\)</span>, which has mean <span class="math inline">\(\frac{y + \alpha}{n + \alpha + \beta}\)</span>. Suppose <span class="math inline">\(\frac{y}{n} \le \frac{\alpha}{\alpha + \beta}\)</span>. Then</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \frac{y}{n}
-  &amp;\le
-  \frac{y + \alpha}{n + \alpha + \beta}
-  \\
-  \Leftrightarrow
-  y(n + \alpha + \beta)
-  &amp;\le
-  n(y + \alpha)
-  \\
-  \Leftrightarrow
-  y(\alpha + \beta)
-  &amp;\le
-  n\alpha
-  \\
-  \Leftrightarrow
-  \frac{y}{n} 
-  &amp;\le 
-  \frac{\alpha}{\alpha + \beta}
-\end{align}
-\]</span></p>
-<p>A similar argument shows that <span class="math inline">\(\frac{y + \alpha}{n + \alpha + \beta} \le \frac{\alpha}{\alpha + \beta}\)</span>.</p>
-<p>If <span class="math inline">\(\frac{y}{n} \ge \frac{\alpha}{\alpha + \beta}\)</span>, then the analogous argument shows that <span class="math inline">\(\frac{\alpha}{\alpha + \beta} \le \frac{y + \alpha}{n + \alpha + \beta} \le \frac{y}{n}. \square\)</span></p>
-<p>The prior variance is <span class="math inline">\(\mathbb V (\theta) = \frac{\alpha \beta}{(\alpha + \beta)^2(\alpha + \beta + 1)}\)</span>. For a uniform prior this is <span class="math inline">\(\frac{1}{4 \cdot 3} = \frac{1}{12}\)</span>. The posterior variance with a uniform prior is <span class="math inline">\(\frac{y + 1}{n + 2} \cdot \frac{n - y + 1}{n + 2} \cdot \frac{1}{n + 3}\)</span>. For <span class="math inline">\(p \in [0, 1]\)</span>, the function <span class="math inline">\(p \mapsto p(1 - p)\)</span> is maximised when <span class="math inline">\(p = 0.5\)</span>. Thus for fixed <span class="math inline">\(n\)</span>, the posterior variance is maximised when <span class="math inline">\(y = \frac{n}{2}\)</span>. This means that the posterior variance is at most <span class="math inline">\(\frac{1}{4} \cdot \frac{1}{n + 3} \le \frac{1}{4n + 12} \le \frac{1}{12}. \square\)</span></p>
-<p>Intuitively, the posterior variance should be larger than the prior variance when the observed data is different from what would be expected from the prior distribution. (This can’t happen with a uniform prior because every value is equally likely). Indeed, with prior <span class="math inline">\(\theta \sim \dbeta(1, 9)\)</span> and observed data <span class="math inline">\(y = 9, n = 10\)</span>, we have <span class="math inline">\(\mathbb V(\theta) = \frac{9}{1100}\)</span> and <span class="math inline">\(\mathbb V(\theta \mid y) = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{21} = \frac{1}{84}\)</span>.</p>
 
 <div id="disqus_thread"></div>
 <script>

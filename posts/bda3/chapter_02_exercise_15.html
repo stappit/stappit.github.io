@@ -15,7 +15,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
-    <title>Brian - BDA3 Chapter 2 Exercise 14</title>
+    <title>Brian - BDA3 Chapter 2 Exercise 15</title>
   </head>
 
   <body>
@@ -45,148 +45,103 @@
     <section>
       <article>
         <div id="content" class="container">
-          <h1 class="post-title">BDA3 Chapter 2 Exercise 14</h1>
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 15</h1>
 
 <div class="card post-meta border-0">
   <div class="card-body post-meta">
     <p class="card-text text-muted text-left">
-    Posted on September  3, 2018  by Brian </br>
-     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/normal.html">normal</a>, <a href="../../tags/conjugate%20prior.html">conjugate prior</a> </br>
+    Posted on September  4, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/beta.html">beta</a>, <a href="../../tags/mean.html">mean</a>, <a href="../../tags/variance.html">variance</a> </br>
      Category: <a href="../../categories/bda3.html">bda3</a> 
     </p>
   </div>
 </div>
 
-<p>Here’s my solution to exercise 14, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<p>Here’s my solution to exercise 15, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
 <!--more-->
 <div style="display:none">
 <p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
 </div>
-<p>Suppose we have a normal prior <span class="math inline">\(\theta \sim \dnorm (\mu_0, \frac{1}{\tau_0})\)</span> and a normal sampling distribution <span class="math inline">\(y \mid \theta \sim \dnorm(\theta, \sigma)\)</span>, where the variance is known. We will show by induction that the posterior is <span class="math inline">\(\theta \mid y_1, \dotsc, y_{n} \sim \dnorm(\mu_{n}, \frac{1}{\tau_{n}})\)</span> where</p>
-<p class="mathjaxWide"><span class="math display">\[
-  \frac{1}{\tau_{n}^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
-\]</span></p>
-<p>for <span class="math inline">\(n = 1, \dotsc, \infty\)</span>.</p>
-<h2 id="base-case">Base case</h2>
-<p>The case <span class="math inline">\(n = 1\)</span> can be reexpressed as</p>
+<p>Suppose <span class="math inline">\(Z \sim \dbeta(\alpha, \beta)\)</span>. Then for <span class="math inline">\(m, n \in \mathbb N\)</span> we have</p>
 <p class="mathjaxWide"><span class="math display">\[
 \begin{align}
-  \frac{1}{\tau_1^2} = \frac{\sigma^2 + \tau_0^2}{\sigma^2\tau_0^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_1 = \frac{\sigma_0^2\mu_0 + \tau_0^2y}{\sigma^2 + \tau_0^2}
-  .
-\end{align}
-\]</span></p>
-<p>Now we can combine the fractions in the exponent, expand the brackets, collect the terms as <span class="math inline">\(\theta\)</span>-coefficients, rewrite the coefficients in terms of <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\tau_1\)</span>, then complete the square in terms of <span class="math inline">\(\theta\)</span>:</p>
-<span class="math display">\[\begin{align}
-  \frac{(y - \theta)^2}{\sigma^2}
-  +
-  \frac{(\theta - \mu_0)^2}{\tau_0^2}
-  
+  \mathbb E \left[ Z^m (1 - Z)^n \right]
   &amp;=
-  \frac{(y^2 + \theta^2 - 2\theta y) \tau_0^2 + (\theta^2 + \mu_0^2 - 2 \theta \mu_0) \sigma^2}{\sigma^2 \tau_0^2}
-  
+  \frac{1}{B(\alpha, \beta)} \int_0^1 z^m (1 - z)^n z^{\alpha - 1} (1 - z)^{\beta - 1} dz
   \\
   &amp;=
-  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta (\sigma^2\mu_0 + \tau_0^2y) + (y^2\tau_0^2 + \mu_0^2\sigma^2)}{\sigma^2\tau_0^2}
+  \frac{1}{B(\alpha, \beta)} \int_0^1 z^{m + \alpha - 1} (1 - z)^{n + \beta - 1} dz
   \\
   &amp;=
-  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta \mu_1 (\sigma^2 + \tau_0^2) + \mu_1 (\sigma^2 + \tau_0^2) }{\sigma^2\tau_0^2}
+  \frac{1}{B(\alpha, \beta)} \frac{\Gamma (m + \alpha) \Gamma( n + \beta )}{\Gamma (m + n + \alpha + \beta)}
   \\
   &amp;=
-  \theta^2\frac{1}{\tau_1^2} -2\theta \mu_1 \frac{1}{\tau_1^2} + \mu_1 \frac{1}{\tau_1^2}
-  \\
-  &amp;=
-  \frac{\theta^2 -2 \mu_1 \theta + \mu_1^2}{\tau_1^2} 
-  \\
-  &amp;=
-  \frac{(\theta - \mu_1)^2}{\tau_1^2} 
-  .
-\end{align}\]</span>
-<h2 id="induction-step">Induction step</h2>
-<p>The induction hypothesis is that the variance and mean are given by</p>
-<p class="mathjaxWide"><span class="math display">\[
-  \frac{1}{\tau_n^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
-\]</span></p>
-<p>for some <span class="math inline">\(n \ge 1\)</span>.</p>
-<p>Starting with the variance, the base step can be reexpressed as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{\tau_{n+1}^2} 
-=
-\frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
-.
-\]</span></p>
-<p>Now apply the induction hypothesis to get</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{\tau_{n+1}^2} 
-=
-\frac{1}{\tau_0^2} + \frac{n}{\sigma^2} + \frac{1}{\sigma^2}
-=
-\frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-.
-\]</span></p>
-<p>For the mean we apply the same strategy. The base step can be reexpressed as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mu_{n+1}
-=
-\frac{
-  \frac{1}{\tau_n^2}\mu_n + \frac{1}{\sigma^2}y_{n+1}
-}{
-  \frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
-}
-.
-\]</span></p>
-<p>Applying the induction hypothesis then gives</p>
-<span class="math display">\[\begin{align}
-  \mu_{n+1}
-  &amp;=
-  \frac{
-    \frac{1}{\tau_n^2} \left( \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}} \right) + \frac{1}{\sigma^2}y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}}
-  
-  \\
-  &amp;=
-  \frac{
-    \frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n + \frac{1}{\sigma^2}y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-  }
-  
-  \\
-  &amp;=
-  \frac{
-    \frac{1}{\tau_0^2}\mu_0 + \frac{n+1}{\sigma^2}\bar y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-  }
+  \frac{(\alpha + \beta -1)!}{(\alpha - 1)! (\beta - 1)!} \frac{(m + \alpha - 1)! (n + \beta - 1)!}{(m + n + \alpha + \beta - 1)!}
   ,
-\end{align}\]</span>
-<p>since</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-(n + 1) \bar y_{n + 1}
-&amp;:=
-\sum_1^{n+1} y_i
-\\
-&amp;=
-y_{n+1} + \sum_1^n y_i
-\\
-&amp;=
-y_{n+1} + n\bar y_n
-.
 \end{align}
 \]</span></p>
+<p>where <span class="math inline">\(B\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">beta function</a> and <span class="math inline">\(\Gamma\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">gamma function</a>.</p>
+<p>I’m not sure how the above integral is so useful for this exercise since calculating the mean and variance only require <span class="math inline">\(n = 0\)</span> and <span class="math inline">\(m = 1, 2\)</span>.</p>
+<p>The mean of <span class="math inline">\(Z\)</span> is the above expectation when <span class="math inline">\(m = 1\)</span> and <span class="math inline">\(n = 0\)</span>, giving</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E (Z)
+=
+\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
+\frac{\alpha! (\beta - 1)!}{(\alpha + \beta)!}
+=
+\frac{\alpha}{\alpha + \beta}
+.
+\]</span></p>
+<p>The second moment is given by <span class="math inline">\(m = 2\)</span> and <span class="math inline">\(n = 0\)</span>, which is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb E(Z^2)
+=
+\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
+\frac{(\alpha +1)! (\beta - 1)!}{(\alpha + \beta + 1)!}
+=
+\frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
+.
+\]</span></p>
+<p>It follows that the variance is</p>
+<span class="math display">\[\begin{align}
+  \mathbb E (Z^2) - \mathbb E (Z)^2
+  &amp;=
+  \frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
+  -
+  \frac{\alpha^2}{(\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{(\alpha + 1) \alpha (\alpha + \beta)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  -
+  \frac{\alpha^2(\alpha + \beta + 1)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha^2 (\alpha + \beta) + \alpha (\alpha + \beta)
+    -
+    \alpha^2(\alpha + \beta) - \alpha^2
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha (\alpha + \beta)
+    -
+    \alpha^2
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  \\
+  &amp;=
+  
+  \frac{
+    \alpha \beta
+  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
+  .
+\end{align}\]</span>
 
 <div id="disqus_thread"></div>
 <script>

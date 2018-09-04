@@ -8,8 +8,186 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-02T00:00:00Z</updated>
+    <updated>2018-09-03T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 14</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html</id>
+    <published>2018-09-03T00:00:00Z</published>
+    <updated>2018-09-03T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 14</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  3, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/conjugate%20prior.html">conjugate prior</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 14, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Suppose we have a normal prior <span class="math inline">\(\theta \sim \dnorm (\mu_0, \frac{1}{\tau_0})\)</span> and a normal sampling distribution <span class="math inline">\(y \mid \theta \sim \dnorm(\theta, \sigma)\)</span>, where the variance is known. We will show by induction that the posterior is <span class="math inline">\(\theta \mid y_1, \dotsc, y_{n} \sim \dnorm(\mu_{n}, \frac{1}{\tau_{n}})\)</span> where</p>
+<p class="mathjaxWide"><span class="math display">\[
+  \frac{1}{\tau_{n}^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
+  \quad
+  \text{and}
+  \quad
+  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
+\]</span></p>
+<p>for <span class="math inline">\(n = 1, \dotsc, \infty\)</span>.</p>
+<h2 id="base-case">Base case</h2>
+<p>The case <span class="math inline">\(n = 1\)</span> can be reexpressed as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \frac{1}{\tau_1^2} = \frac{\sigma^2 + \tau_0^2}{\sigma^2\tau_0^2}
+  \quad
+  \text{and}
+  \quad
+  \mu_1 = \frac{\sigma_0^2\mu_0 + \tau_0^2y}{\sigma^2 + \tau_0^2}
+  .
+\end{align}
+\]</span></p>
+<p>Now we can combine the fractions in the exponent, expand the brackets, collect the terms as <span class="math inline">\(\theta\)</span>-coefficients, rewrite the coefficients in terms of <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\tau_1\)</span>, then complete the square in terms of <span class="math inline">\(\theta\)</span>:</p>
+$$
+<span class="math display">\[\begin{align}
+  \frac{(y - \theta)^2}{\sigma^2}
+  +
+  \frac{(\theta - \mu_0)^2}{\tau_0^2}
+  
+  &amp;=
+  \frac{(y^2 + \theta^2 - 2\theta y) \tau_0^2 + (\theta^2 + \mu_0^2 - 2 \theta \mu_0) \sigma^2}{\sigma^2 \tau_0^2}
+  
+  \\
+  &amp;=
+  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta (\sigma^2\mu_0 + \tau_0^2y) + (y^2\tau_0^2 + \mu_0^2\sigma^2)}{\sigma^2\tau_0^2}
+  \\
+  &amp;=
+  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta \mu_1 (\sigma^2 + \tau_0^2) + \mu_1 (\sigma^2 + \tau_0^2) }{\sigma^2\tau_0^2}
+  \\
+  &amp;=
+  \theta^2\frac{1}{\tau_1^2} -2\theta \mu_1 \frac{1}{\tau_1^2} + \mu_1 \frac{1}{\tau_1^2}
+  \\
+  &amp;=
+  \frac{\theta^2 -2 \mu_1 \theta + \mu_1^2}{\tau_1^2} 
+  \\
+  &amp;=
+  \frac{(\theta - \mu_1)^2}{\tau_1^2} 
+  .
+\end{align}\]</span>
+<p>$$</p>
+<h2 id="induction-step">Induction step</h2>
+<p>The induction hypothesis is that the variance and mean are given by</p>
+<p class="mathjaxWide"><span class="math display">\[
+  \frac{1}{\tau_n^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
+  \quad
+  \text{and}
+  \quad
+  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
+\]</span></p>
+<p>for some <span class="math inline">\(n \ge 1\)</span>.</p>
+<p>Starting with the variance, the base step can be reexpressed as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{1}{\tau_{n+1}^2} 
+=
+\frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
+.
+\]</span></p>
+<p>Now apply the induction hypothesis to get</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{1}{\tau_{n+1}^2} 
+=
+\frac{1}{\tau_0^2} + \frac{n}{\sigma^2} + \frac{1}{\sigma^2}
+=
+\frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
+.
+\]</span></p>
+<p>For the mean we apply the same strategy. The base step can be reexpressed as</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mu_{n+1}
+=
+\frac{
+  \frac{1}{\tau_n^2}\mu_n + \frac{1}{\sigma^2}y_{n+1}
+}{
+  \frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
+}
+.
+\]</span></p>
+<p>Applying the induction hypothesis then gives</p>
+<span class="math display">\[\begin{align}
+  \mu_{n+1}
+  &amp;=
+  \frac{
+    \frac{1}{\tau_n^2} \left( \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}} \right) + \frac{1}{\sigma^2}y_{n+1}
+  }{
+    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}}
+  
+  \\
+  &amp;=
+  \frac{
+    \frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n + \frac{1}{\sigma^2}y_{n+1}
+  }{
+    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
+  }
+  
+  \\
+  &amp;=
+  \frac{
+    \frac{1}{\tau_0^2}\mu_0 + \frac{n+1}{\sigma^2}\bar y_{n+1}
+  }{
+    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
+  }
+  ,
+\end{align}\]</span>
+<p>since</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+(n + 1) \bar y_{n + 1}
+&amp;:=
+\sum_1^{n+1} y_i
+\\
+&amp;=
+y_{n+1} + \sum_1^n y_i
+\\
+&amp;=
+y_{n+1} + n\bar y_n
+.
+\end{align}
+\]</span></p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 13</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_13.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_13.html</id>
@@ -1264,320 +1442,6 @@ c
 <p>If <span class="math inline">\(\frac{y}{n} \ge \frac{\alpha}{\alpha + \beta}\)</span>, then the analogous argument shows that <span class="math inline">\(\frac{\alpha}{\alpha + \beta} \le \frac{y + \alpha}{n + \alpha + \beta} \le \frac{y}{n}. \square\)</span></p>
 <p>The prior variance is <span class="math inline">\(\mathbb V (\theta) = \frac{\alpha \beta}{(\alpha + \beta)^2(\alpha + \beta + 1)}\)</span>. For a uniform prior this is <span class="math inline">\(\frac{1}{4 \cdot 3} = \frac{1}{12}\)</span>. The posterior variance with a uniform prior is <span class="math inline">\(\frac{y + 1}{n + 2} \cdot \frac{n - y + 1}{n + 2} \cdot \frac{1}{n + 3}\)</span>. For <span class="math inline">\(p \in [0, 1]\)</span>, the function <span class="math inline">\(p \mapsto p(1 - p)\)</span> is maximised when <span class="math inline">\(p = 0.5\)</span>. Thus for fixed <span class="math inline">\(n\)</span>, the posterior variance is maximised when <span class="math inline">\(y = \frac{n}{2}\)</span>. This means that the posterior variance is at most <span class="math inline">\(\frac{1}{4} \cdot \frac{1}{n + 3} \le \frac{1}{4n + 12} \le \frac{1}{12}. \square\)</span></p>
 <p>Intuitively, the posterior variance should be larger than the prior variance when the observed data is different from what would be expected from the prior distribution. (This can’t happen with a uniform prior because every value is equally likely). Indeed, with prior <span class="math inline">\(\theta \sim \dbeta(1, 9)\)</span> and observed data <span class="math inline">\(y = 9, n = 10\)</span>, we have <span class="math inline">\(\mathbb V(\theta) = \frac{9}{1100}\)</span> and <span class="math inline">\(\mathbb V(\theta \mid y) = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{21} = \frac{1}{84}\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 4</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_04.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_04.html</id>
-    <published>2018-08-23T00:00:00Z</published>
-    <updated>2018-08-23T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 4</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August 23, 2018  by Brian </br>
-     Tags: <a href="/tags/binomial.html">binomial</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/normal%20approximation.html">normal approximation</a>, <a href="/tags/multi-modal.html">multi-modal</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 4, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Consider 1000 rolls of an unfair die, where the probability of a 6 is either 1/4, 1/6, or 1/12. Let’s draw the distribution and the normal approximation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">1000</span>
-p6 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">4</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">6</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">12</span>)
-
-ex4 &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
-    <span class="dt">y =</span> <span class="kw">seq</span>(<span class="dv">0</span>, N),
-    <span class="dt">theta =</span> p6
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">mu =</span> N <span class="op">*</span><span class="st"> </span>theta,
-    <span class="dt">sigma =</span> <span class="kw">sqrt</span>(N <span class="op">*</span><span class="st"> </span>theta <span class="op">*</span><span class="st"> </span>(<span class="dv">10</span> <span class="op">-</span><span class="st"> </span>theta)),
-    <span class="dt">binomial =</span> <span class="kw">dbinom</span>(y, N, theta),
-    <span class="dt">normal_approx =</span> <span class="kw">dnorm</span>(y, mu, sigma),
-    <span class="dt">theta =</span> scales<span class="op">::</span><span class="kw">percent</span>(<span class="kw">signif</span>(theta))
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>mu, <span class="op">-</span>sigma) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">gather</span>(distribution, probability, binomial, normal_approx) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">spread</span>(theta, probability) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior_probability =</span> <span class="fl">0.25</span> <span class="op">*</span><span class="st"> `</span><span class="dt">8.3%</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> `</span><span class="dt">16.7%</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.25</span> <span class="op">*</span><span class="st"> `</span><span class="dt">25.0%</span><span class="st">`</span>)</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:right;">
-y
-</th>
-<th style="text-align:left;">
-distribution
-</th>
-<th style="text-align:right;">
-16.7%
-</th>
-<th style="text-align:right;">
-25.0%
-</th>
-<th style="text-align:right;">
-8.3%
-</th>
-<th style="text-align:right;">
-prior_probability
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:left;">
-binomial
-</td>
-<td style="text-align:right;">
-0.0e+00
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.00e+00
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:left;">
-normal_approx
-</td>
-<td style="text-align:right;">
-2.1e-06
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0002078
-</td>
-<td style="text-align:right;">
-5.30e-05
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-binomial
-</td>
-<td style="text-align:right;">
-0.0e+00
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.00e+00
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-normal_approx
-</td>
-<td style="text-align:right;">
-2.3e-06
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0002297
-</td>
-<td style="text-align:right;">
-5.86e-05
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-binomial
-</td>
-<td style="text-align:right;">
-0.0e+00
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0000000
-</td>
-<td style="text-align:right;">
-0.00e+00
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:left;">
-normal_approx
-</td>
-<td style="text-align:right;">
-2.5e-06
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0.0002536
-</td>
-<td style="text-align:right;">
-6.47e-05
-</td>
-</tr>
-</tbody>
-</table>
-<figure>
-<img src="chapter_02_exercise_04_files/figure-markdown/ex4_plot-1.png" />
-</figure>
-<p>The normal approximation underestimates the maxima and overestimates the values between the maxima. From the percentiles in the table below, we see that the normal approximation is best near the median but becomes gradually worse towards towards both extremes.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">percentiles &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)
-
-ex4 <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">group_by</span>(distribution) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">arrange</span>(y) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">cdf =</span> <span class="kw">cumsum</span>(prior_probability),
-    <span class="dt">percentile =</span> <span class="kw">case_when</span>(
-      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.05</span> <span class="op">~</span><span class="st"> &#39;05%&#39;</span>,
-      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.25</span> <span class="op">~</span><span class="st"> &#39;25%&#39;</span>,
-      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.50</span> <span class="op">~</span><span class="st"> &#39;50%&#39;</span>,
-      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.75</span> <span class="op">~</span><span class="st"> &#39;75%&#39;</span>,
-      cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.95</span> <span class="op">~</span><span class="st"> &#39;95%&#39;</span>
-    )
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(cdf <span class="op">&lt;=</span><span class="st"> </span><span class="fl">0.95</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">group_by</span>(distribution, percentile) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">slice</span>(<span class="kw">which.max</span>(cdf)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(distribution, percentile, y) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">spread</span>(distribution, y) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">arrange</span>(percentile) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">kable</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>()</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-percentile
-</th>
-<th style="text-align:right;">
-binomial
-</th>
-<th style="text-align:right;">
-normal_approx
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-05%
-</td>
-<td style="text-align:right;">
-75
-</td>
-<td style="text-align:right;">
-58
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-25%
-</td>
-<td style="text-align:right;">
-119
-</td>
-<td style="text-align:right;">
-110
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-50%
-</td>
-<td style="text-align:right;">
-166
-</td>
-<td style="text-align:right;">
-164
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-75%
-</td>
-<td style="text-align:right;">
-206
-</td>
-<td style="text-align:right;">
-214
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-95%
-</td>
-<td style="text-align:right;">
-260
-</td>
-<td style="text-align:right;">
-291
-</td>
-</tr>
-</tbody>
-</table>
 
 <div id="disqus_thread"></div>
 <script>

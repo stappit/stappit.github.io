@@ -50,7 +50,6 @@ $$
 
 Now we can combine the fractions in the exponent, expand the brackets, collect the terms as $\theta$-coefficients, rewrite the coefficients in terms of $\mu_1$ and $\tau_1$, then complete the square in terms of $\theta$:
 
-$$
 \begin{align}
   \frac{(y - \theta)^2}{\sigma^2}
   +
@@ -76,7 +75,6 @@ $$
   \frac{(\theta - \mu_1)^2}{\tau_1^2} 
   .
 \end{align}
-$$
 
 ## Induction step
 

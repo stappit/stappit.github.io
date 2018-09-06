@@ -8,8 +8,118 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-04T00:00:00Z</updated>
+    <updated>2018-09-06T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 16</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html</id>
+    <published>2018-09-06T00:00:00Z</published>
+    <updated>2018-09-06T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 16</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  6, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta-binomial.html">beta-binomial</a>, <a href="/tags/marginal.html">marginal</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 16, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>Suppose <span class="math inline">\(y \mid \theta \sim \dbinomial(n, \theta)\)</span> and <span class="math inline">\(\theta \sim \dbeta(\alpha, \beta)\)</span>. Then</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(y)
+  &amp;=
+  \int_0^1 p(y \mid \theta) p(\theta) d\theta
+  \\
+  &amp;=
+  \int_0^1 \binom{n}{y} \theta^y (1 - \theta)^{n - y} \theta^{\alpha - 1} (1 - \theta)^{\beta - 1} d\theta
+  \\
+  &amp;=
+  \binom{n}{y} \frac{\Gamma (y + \alpha) \Gamma (n - y + \beta)}{\Gamma (n + \alpha + \beta)}
+.
+\end{align}
+\]</span></p>
+<p>If this density is constant in <span class="math inline">\(y\)</span> for any <span class="math inline">\(n\)</span>, then</p>
+<p class="mathjaxWide"><span class="math display">\[
+\binom{n}{y} \Gamma (y + \alpha) \Gamma (n - y + \beta) 
+\]</span></p>
+<p>is also constant in <span class="math inline">\(y\)</span> for any <span class="math inline">\(n\)</span>. In particular, for <span class="math inline">\(n = 1\)</span>, we can evaulate this at <span class="math inline">\(y = 0\)</span> and <span class="math inline">\(y = n\)</span> to give</p>
+<p class="mathjaxWide"><span class="math display">\[
+\Gamma (\alpha) \Gamma (1 + \beta) 
+=
+\Gamma (\beta) \Gamma (1 + \alpha) 
+.
+\]</span></p>
+<p><a href="https://en.wikipedia.org/wiki/Gamma_function">Since</a> <span class="math inline">\(\Gamma (1 + \alpha) = \alpha \Gamma(\alpha)\)</span>, it follows that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\beta \Gamma (\alpha) \Gamma (\beta)
+=
+\alpha \Gamma (\alpha) \Gamma (\beta)
+.
+\]</span></p>
+<p>Using the fact that the gamma function is always positive on the reals, we can conclude <span class="math inline">\(\alpha = \beta\)</span>.</p>
+<p>Now, for <span class="math inline">\(n = 2\)</span>, we can evaluate at <span class="math inline">\(y = 0\)</span> and <span class="math inline">\(y = 1\)</span> to get</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\Gamma(\alpha) \Gamma(\alpha + 2)
+&amp;=
+2 \Gamma(\alpha + 1)^2
+\\
+\Leftrightarrow
+(\alpha + 1) \alpha \Gamma (\alpha)^2
+&amp;=
+2 \alpha^2 \Gamma (\alpha)^2
+\\
+\Leftrightarrow
+\alpha + 1 
+&amp;= 
+2\alpha
+\\
+\Leftrightarrow
+\alpha 
+&amp;=
+1
+\end{align}
+,
+\]</span></p>
+<p>where we have again used the facts that <span class="math inline">\(\Gamma(\alpha + 1) = \alpha \Gamma(\alpha)\)</span> and that the gamma function is positive on the reals. Therefore, <span class="math inline">\(\alpha = \beta = 1\)</span>. In other words, if the beta-binomial distribution is uniform, then <span class="math inline">\(\alpha = \beta = 1\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 15</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html</id>
@@ -1394,74 +1504,6 @@ c
 \end{align}
 \]</span></p>
 <p>where <span class="math inline">\(c &lt; \infty\)</span>. By the induction hypothesis, the integral on the last line is <span class="math inline">\(\infty\)</span>. Therefore, the distribution is also improper for <span class="math inline">\(n\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 6</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_06.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_06.html</id>
-    <published>2018-08-25T00:00:00Z</published>
-    <updated>2018-08-25T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 6</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August 25, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/poisson.html">poisson</a>, <a href="/tags/gamma.html">gamma</a>, <a href="/tags/negative%20binomial.html">negative binomial</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 6, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Considering the negative binomial variable <span class="math inline">\(y\)</span> as a gamma-Poisson variable, we derive expressions for the mean and variance.</p>
-<p>From equation 1.6, <span class="math inline">\(\mathbb E (y) = \mathbb E (\mathbb E(y \mid \theta))\)</span>. Since <span class="math inline">\(y \mid \theta \sim \dpois(10n\theta)\)</span>, it follows that <span class="math inline">\(\mathbb E (y \mid \theta) = 10n\theta\)</span>. The rate <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span> so <span class="math inline">\(\mathbb E(\theta) = \frac{\alpha}{\beta}\)</span>. Thus, <span class="math inline">\(\mathbb E(y) = 10n\mathbb E(\theta) = 10n \frac{\alpha}{\beta}\)</span>.</p>
-<p>We also have <span class="math inline">\(\mathbb V(\theta) = \frac{\alpha}{\beta^2}\)</span> since <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>, and <span class="math inline">\(\mathbb V(y \mid \theta) = 10n\theta\)</span> since <span class="math inline">\(y \mid \theta \sim \dpois(10n\theta)\)</span>. Thus,</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb V (y) 
-  &amp;= 
-  \mathbb E(\mathbb V(y \mid \theta)) + \mathbb V (\mathbb E (y \mid \theta)) 
-  \\
-  &amp;=
-  \mathbb E(10n\theta) + \mathbb V (10n\theta)
-  \\
-  &amp;=
-  10n\frac{\alpha}{\beta} + (10n)^2\frac{\alpha}{\beta^2}
-  \qquad \square
-\end{align}
-\]</span></p>
 
 <div id="disqus_thread"></div>
 <script>

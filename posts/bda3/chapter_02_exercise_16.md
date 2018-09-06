@@ -91,5 +91,5 @@ $$
 ,
 $$
 
-where we have again used the facts that $\Gamma(\alpha + 1) = \alpha \Gamma(\alpha)$ and that the gamma function is positive on the reals. Therefore, $\alpha = \beta = 1$. In other words, if the beta-binomial distribution is uniform, then $\alpha = \beta = 1$.
+where we have used the facts that $\alpha > 0$, $\Gamma(\alpha + 1) = \alpha \Gamma(\alpha)$, and that the gamma function is positive on the reals. Therefore, $\alpha = \beta = 1$. In other words, if the beta-binomial distribution is uniform, then $\alpha = \beta = 1$.
 

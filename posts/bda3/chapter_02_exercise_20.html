@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 20</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 20</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  8, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/exponential.html">exponential</a>, <a href="../../tags/gamma.html">gamma</a>, <a href="../../tags/truncated%0Aobservations.html">truncated
+observations</a>, <a href="../../tags/posterior%20variance.html">posterior variance</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 20, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose <span class="math inline">\(y \mid \theta \sim \dexponential(\theta)\)</span> with prior <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>. If we observe that <span class="math inline">\(y \ge 100\)</span>, then the posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y \ge 100)
+  &amp;\propto
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \int_{y = 100}^\infty \theta e^{-\theta y} dy
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \left[ (-1) e^{-\theta y}  \right]_{100}^\infty
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  e^{-100\theta}
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-(\beta + 100) \theta}
+  ,
+\end{align}
+\]</span></p>
+<p>which is a <span class="math inline">\(\dgamma(\alpha, \beta + 100)\)</span> distribution. The posterior mean is <span class="math inline">\(\frac{\alpha}{\beta + 100}\)</span> and the posterior variance is <span class="math inline">\(\frac{\alpha}{(\beta + 100)^2}\)</span>.</p>
+<p>If instead we had observed <span class="math inline">\(y = 100\)</span>, the posterior would have been</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y = 100)
+  &amp;\propto
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \theta e^{-\theta 100} 
+  \\
+  &amp;=
+  \theta^{\alpha} e^{-(\beta + 100) \theta}
+  ,
+\end{align}
+\]</span></p>
+<p>which is a <span class="math inline">\(\dgamma(\alpha + 1, \beta + 100)\)</span> distribution. The posterior mean here is <span class="math inline">\(\frac{\alpha + 1}{\beta + 100}\)</span> and the posterior variance is <span class="math inline">\(\frac{\alpha + 1}{(\beta + 100)^2}\)</span>.</p>
+<p>Both of these estimates are greater than in the case of observing <span class="math inline">\(y \ge 100\)</span>. This is surprising because knowing that <span class="math inline">\(y = 100\)</span> is more informative than just knowing <span class="math inline">\(y \ge 100\)</span>. The reason there is actually less variance when <span class="math inline">\(y \ge 100\)</span> is that we get to average over all possibilities of <span class="math inline">\(y \ge 100\)</span>, and the case <span class="math inline">\(y = 100\)</span> has the greatest variance of all these possibilities.</p>
+<p>We can illustrate this idea more formally using identity (2.8). In the context of this exercise, the identity can be written</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb V \left(\theta \mid y \ge 100 \right)
+\ge
+\mathbb E \left( \mathbb V \left(\theta \mid y \right) \mid y \ge 100 \right)
+,
+\]</span></p>
+<p>where all the probabilities are now conditional on <span class="math inline">\(y \ge 100\)</span>. The left hand side is the posterior variance given <span class="math inline">\(y \ge 100\)</span>, which we calculated above to be <span class="math inline">\(\frac{\alpha}{(\beta + 100)^2}\)</span>. The quantity <span class="math inline">\(\mathbb E ( \mathbb V (\theta \mid y = 100) \mid y \ge 100)\)</span> is just <span class="math inline">\(\frac{\alpha + 1}{(\beta + 100)^2}\)</span> as shown above, which is greater than the LHS. However, this quantity is fundamentally different to what the right hand side of the identity expresses. The RHS actually evaluates to</p>
+<p class="mathjaxWide"><span class="math display">\[
+\int_{100}^\infty \frac{\alpha}{(\beta + \tilde y)^2} p(\tilde y \mid y \ge 100) d\tilde y.
+\]</span></p>
+<p>That is, it averages over all possible realisations of the variance given <span class="math inline">\(y \ge 100\)</span>. The inequality only guarantees that the posterior variance is <em>on average</em> smaller than the prior variance, so we can’t just plug in one value of interest.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

@@ -10,6 +10,107 @@
     </author>
     <updated>2018-09-08T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 20</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_20.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_20.html</id>
+    <published>2018-09-08T00:00:00Z</published>
+    <updated>2018-09-08T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 20</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  8, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/exponential.html">exponential</a>, <a href="/tags/gamma.html">gamma</a>, <a href="/tags/truncated%0Aobservations.html">truncated
+observations</a>, <a href="/tags/posterior%20variance.html">posterior variance</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 20, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose <span class="math inline">\(y \mid \theta \sim \dexponential(\theta)\)</span> with prior <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>. If we observe that <span class="math inline">\(y \ge 100\)</span>, then the posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y \ge 100)
+  &amp;\propto
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \int_{y = 100}^\infty \theta e^{-\theta y} dy
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \left[ (-1) e^{-\theta y}  \right]_{100}^\infty
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  e^{-100\theta}
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-(\beta + 100) \theta}
+  ,
+\end{align}
+\]</span></p>
+<p>which is a <span class="math inline">\(\dgamma(\alpha, \beta + 100)\)</span> distribution. The posterior mean is <span class="math inline">\(\frac{\alpha}{\beta + 100}\)</span> and the posterior variance is <span class="math inline">\(\frac{\alpha}{(\beta + 100)^2}\)</span>.</p>
+<p>If instead we had observed <span class="math inline">\(y = 100\)</span>, the posterior would have been</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y = 100)
+  &amp;\propto
+  \theta^{\alpha - 1} e^{-\beta \theta}
+  \theta e^{-\theta 100} 
+  \\
+  &amp;=
+  \theta^{\alpha} e^{-(\beta + 100) \theta}
+  ,
+\end{align}
+\]</span></p>
+<p>which is a <span class="math inline">\(\dgamma(\alpha + 1, \beta + 100)\)</span> distribution. The posterior mean here is <span class="math inline">\(\frac{\alpha + 1}{\beta + 100}\)</span> and the posterior variance is <span class="math inline">\(\frac{\alpha + 1}{(\beta + 100)^2}\)</span>.</p>
+<p>Both of these estimates are greater than in the case of observing <span class="math inline">\(y \ge 100\)</span>. This is surprising because knowing that <span class="math inline">\(y = 100\)</span> is more informative than just knowing <span class="math inline">\(y \ge 100\)</span>. The reason there is actually less variance when <span class="math inline">\(y \ge 100\)</span> is that we get to average over all possibilities of <span class="math inline">\(y \ge 100\)</span>, and the case <span class="math inline">\(y = 100\)</span> has the greatest variance of all these possibilities.</p>
+<p>We can illustrate this idea more formally using identity (2.8). In the context of this exercise, the identity can be written</p>
+<p class="mathjaxWide"><span class="math display">\[
+\mathbb V \left(\theta \mid y \ge 100 \right)
+\ge
+\mathbb E \left( \mathbb V \left(\theta \mid y \right) \mid y \ge 100 \right)
+,
+\]</span></p>
+<p>where all the probabilities are now conditional on <span class="math inline">\(y \ge 100\)</span>. The left hand side is the posterior variance given <span class="math inline">\(y \ge 100\)</span>, which we calculated above to be <span class="math inline">\(\frac{\alpha}{(\beta + 100)^2}\)</span>. The quantity <span class="math inline">\(\mathbb E ( \mathbb V (\theta \mid y = 100) \mid y \ge 100)\)</span> is just <span class="math inline">\(\frac{\alpha + 1}{(\beta + 100)^2}\)</span> as shown above, which is greater than the LHS. However, this quantity is fundamentally different to what the right hand side of the identity expresses. The RHS actually evaluates to</p>
+<p class="mathjaxWide"><span class="math display">\[
+\int_{100}^\infty \frac{\alpha}{(\beta + \tilde y)^2} p(\tilde y \mid y \ge 100) d\tilde y.
+\]</span></p>
+<p>That is, it averages over all possible realisations of the variance given <span class="math inline">\(y \ge 100\)</span>. The inequality only guarantees that the posterior variance is <em>on average</em> smaller than the prior variance, so we can’t just plug in one value of interest.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 19</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_19.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_19.html</id>
@@ -1163,244 +1264,6 @@ normalising_constant</code></pre></div>
 <figure>
 <img src="chapter_02_exercise_11_files/figure-markdown/posterior_predictive_plot-1.png" />
 </figure>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 10</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_10.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_10.html</id>
-    <published>2018-09-01T00:00:00Z</published>
-    <updated>2018-09-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 10</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  1, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/geometric.html">geometric</a>, <a href="/tags/noninformative%20prior.html">noninformative prior</a>, <a href="/tags/jeffrey%20prior.html">jeffrey prior</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 10, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<h2 id="the-posterior-density">The posterior density</h2>
-<p>There an N cars labelled 1 to N and we observe a random car labelled 203. With a geometric prior with mean 100, the unnormalised posterior is</p>
-<p class="mathjaxWide"><span class="math display">\[
-p(N \mid y = 203)
-\propto
-p(y = 203 \mid N) \cdot p (N)
-= 
-\left.
-  \begin{cases}
-    \frac{1}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1} 
-    &amp; 
-    \text{for } 203 \le N 
-    \\
-    0
-    &amp;
-    \text{otherwise}
-  \end{cases}
-\right\}
-\]</span></p>
-<p>We find the normalising constant in two steps. First set <span class="math inline">\(x := \frac{99}{100}\)</span> and use the <a href="https://en.wikipedia.org/wiki/Taylor_series#Natural_logarithm">Taylor series</a> of <span class="math inline">\(\log(1 - x)\)</span> to show</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \sum_1^\infty \frac{1}{N} \cdot \frac{1}{100}\cdot \left( \frac{99}{100} \right)^{N - 1}
-  &amp;=
-  \frac{1}{100} \left( 1 + \frac{x}{2} + \frac{x^2}{3} + \dotsc + \frac{x^k}{k + 1} + \dotsc \right)
-  \\
-  &amp;=
-  \frac{1}{100} \frac{1}{x} \left(  x + \frac{x^2}{2} + \frac{x^3}{3} + \dotsc + \frac{x^k}{k} + \dotsc   \right)
-  \\
-  &amp;=
-  -\frac{1}{100} \frac{1}{x} \log (1 - x)
-  \\
-  &amp;=
-  \frac{\log 100}{99} 
-  .
-\end{align}
-\]</span></p>
-<p>The normalising constant <span class="math inline">\(c\)</span> is then</p>
-<p class="mathjaxWide"><span class="math display">\[
-  c
-  =
-  \frac{\log 100}{99} 
-  -
-  \sum_1^{202} \frac{1}{N} \cdot \frac{1}{100}\cdot \left( \frac{99}{100} \right)^{N - 1}
-\]</span></p>
-<p>which we approximate with the following computation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># value of the Nth term in the sum</span>
-term &lt;-<span class="st"> </span><span class="cf">function</span>(N) 
-  (<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>N) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>) <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span>(N <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) 
-
-<span class="co"># left hand side</span>
-c0 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="dv">100</span>) <span class="op">/</span><span class="st"> </span><span class="dv">99</span>
-
-<span class="co"># right hand side (the sum)</span>
-c1 &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">202</span> <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">map</span>(term) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">reduce</span>(sum)
-  
-c &lt;-<span class="st"> </span>c0 <span class="op">-</span><span class="st"> </span>c1
-
-c</code></pre></div>
-<pre><code>[1] 0.0004705084</code></pre>
-<h2 id="the-posterior-moments">The posterior moments</h2>
-<p>The posterior mean is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb E(N \mid y = 203)
-  &amp;=
-  \frac{1}{c}\sum_{203}^\infty \frac{N}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1}
-  \\
-  &amp;=
-  \frac{1}{100c} \left( x^{202} + x^{203} + \dotsc \right), \qquad x := \frac{99}{100}
-  \\
-  &amp;=
-  \frac{1}{100c} \left( \frac{1}{1 - x} - (1 + x + x^2 + \dotsc + x^{201}) \right)
-  \\
-  &amp;=
-  \frac{1}{100c} \left( \frac{1}{1 - x} - \frac{1 - x^{202}}{1 - x} \right)
-  \\
-  &amp;=
-  \frac{1}{100c} \frac{x^{202}}{1 - x}
-  \\
-  &amp;=
-  \frac{1}{c}\left( \frac{99}{100} \right)^{202}
-\end{align}
-,
-\]</span></p>
-<p>which is approximately</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>c) <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span><span class="dv">202</span>
-mu</code></pre></div>
-<pre><code>[1] 279.0885</code></pre>
-<p>This is larger than the prior mean of 100.</p>
-<p>The second moment is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb E(N^2 \mid y = 203)
-  &amp;=
-  \frac{1}{c}\sum_{203}^\infty \frac{N^2}{N} \cdot \frac{1}{100} \cdot \left( \frac{99}{100} \right)^{N - 1}
-  \\
-  &amp;=
-  \frac{1}{100c} \left( 203x^{202} + 204x^{203} + \dotsc \right), \qquad x := \frac{99}{100}
-  \\
-  &amp;=
-  \frac{1}{100c} \left( \frac{1}{(1 - x)^2} - \left(1 + 2x + 3x^2 + \dotsc + 202 x^{201} \right) \right)
-  \\
-  &amp;=
-  \frac{1}{100c} \left( 100^2 - \left(1 + 2x + 3x^2 + \dotsc + 202 x^{201} \right) \right)
-  \\
-  &amp;=
-  \frac{100}{c}  - \frac{1 + 2x + 3x^2 + \dotsc + 202 x^{201} }{100c}
-\end{align}
-,
-\]</span></p>
-<p>which we approximate with the following code.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">EN2_left &lt;-<span class="st"> </span><span class="dv">100</span> <span class="op">/</span><span class="st"> </span>c
-
-EN2_right &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">201</span> <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">map</span>(<span class="cf">function</span>(N) N <span class="op">*</span><span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>)<span class="op">^</span>(N <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">reduce</span>(sum) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  `</span><span class="dt">/</span><span class="st">`</span>(<span class="dv">100</span> <span class="op">*</span><span class="st"> </span>c)
-
-EN2 &lt;-<span class="st"> </span>EN2_left <span class="op">-</span><span class="st"> </span>EN2_right
-
-EN2</code></pre></div>
-<pre><code>[1] 84854.18</code></pre>
-<p>It follows that the posterior variance and standard deviation is approximately</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v &lt;-<span class="st"> </span>EN2 <span class="op">-</span><span class="st"> </span>mu<span class="op">^</span><span class="dv">2</span>
-sigma &lt;-<span class="st"> </span><span class="kw">sqrt</span>(v)
-<span class="kw">c</span>(v, sigma)</code></pre></div>
-<pre><code>[1] 6963.78665   83.44931</code></pre>
-<p>These are smaller than the prior variance and standard deviation, respectively:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">v_prior &lt;-<span class="st"> </span>(<span class="dv">99</span> <span class="op">/</span><span class="st"> </span><span class="dv">100</span>) <span class="op">/</span><span class="st"> </span>(<span class="fl">0.01</span><span class="op">^</span><span class="dv">2</span>)
-sigma_prior &lt;-<span class="st"> </span><span class="kw">sqrt</span>(v_prior)
-<span class="kw">c</span>(v_prior, sigma_prior)</code></pre></div>
-<pre><code>[1] 9900.00000   99.49874</code></pre>
-<h2 id="a-non-informative-prior">A non-informative prior</h2>
-<p>There is no proper uniform density over the positive integers. A uniform prior also leaves us with an improper posterior.</p>
-<p>Jeffrey’s prior is <span class="math inline">\(p(N) \propto \frac{1}{N}\)</span>, which is also improper. However, it yields the following (unnormalised) posterior</p>
-<p class="mathjaxWide"><span class="math display">\[
-p(N \mid y = 203)
-\propto
-\left.
-  \begin{cases}
-    \frac{1}{N^2} 
-    &amp; 
-    \text{for } 203 \le N 
-    \\
-    0
-    &amp;
-    \text{otherwise}
-  \end{cases}
-\right\}
-\]</span></p>
-<p>which is proper.</p>
-<p>Using the <a href="https://en.wikipedia.org/wiki/Basel_problem">Basel problem</a> we can calculate the normalising constant</p>
-<p class="mathjaxWide"><span class="math display">\[
-c
-=
-\sum_1^\infty \frac{1}{N^2}
--
-\sum_1^{202} \frac{1}{N^2}
-=
-\frac{\pi^2}{6}
--
-\sum_1^{202} \frac{1}{N^2}
-\]</span></p>
-<p>which is approximately</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">c_left &lt;-<span class="st"> </span>pi<span class="op">^</span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">6</span>
-
-c_right &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">202</span> <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">map</span>(<span class="cf">function</span>(N) <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>N<span class="op">^</span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">reduce</span>(sum)
-
-c &lt;-<span class="st"> </span>c_left <span class="op">-</span><span class="st"> </span>c_right
-
-c</code></pre></div>
-<pre><code>[1] 0.004938262</code></pre>
-<p>The posterior mean is not well-defined since</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mathbb E(N \mid y = 203)
-=
-\frac{1}{c}\sum_{203}^\infty \frac{1}{N} 
-=
-\infty
-.
-\]</span></p>
-<p>The posterior variance and standard deviation are also not well-defined.</p>
 
 <div id="disqus_thread"></div>
 <script>

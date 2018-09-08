@@ -8,8 +8,104 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-06T00:00:00Z</updated>
+    <updated>2018-09-08T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 17</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_17.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_17.html</id>
+    <published>2018-09-08T00:00:00Z</published>
+    <updated>2018-09-08T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 17</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  8, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/chi2.html">chi2</a>, <a href="/tags/highest%20posterior%20interval.html">highest posterior interval</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 17, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
+</div>
+<p>We’ll show that highest posterior invervals are not invariant under parameter transformations.</p>
+<p>Suppose <span class="math inline">\(\frac{nv}{\sigma^2} \mid \sigma^2 \sim \chi_n^2\)</span> with (improper) prior <span class="math inline">\(\sigma \propto \sigma^{-1}\)</span>. From equation (2.19), page 52, the prior density for <span class="math inline">\(\sigma^2\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(\sigma^2) 
+=
+p(\sigma) (2\sigma)^{-1}
+\propto
+\frac{1}{\sigma^2}
+.
+\]</span></p>
+<p>Thus the posteriors are</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\sigma^2 \mid y) 
+  &amp;=
+  \left( \frac{1}{\sigma} \right)^n e^{\frac{-nv}{2 \sigma^2}}
+  \\
+  p(\sigma \mid y) 
+  &amp;=
+  \left( \frac{1}{\sigma} \right)^{n - 1} e^{\frac{-nv}{2 \sigma^2}}
+  ,
+\end{align}
+\]</span></p>
+<p>where we have dropped any multiplicative constants that don’t depend on <span class="math inline">\(\sigma\)</span>.</p>
+<p>Since the posteriors are continuous everywhere, we can assume that the highest posterior regions are collections of closed intervals. Let <span class="math inline">\(a, b\)</span> be two boundary points on the highest posterior density region of <span class="math inline">\(p(\sigma^2 \mid y)\)</span>. Using continuity and the defining property of highest posterior regions, the density at <span class="math inline">\(a\)</span> is equal to the density at <span class="math inline">\(b\)</span>, i.e.</p>
+<p class="mathjaxWide"><span class="math display">\[
+\left( \frac{1}{a} \right)^n e^{\frac{-nv}{2 a^2}}
+=
+\left( \frac{1}{b} \right)^n e^{\frac{-nv}{2 b^2}}
+.
+\]</span></p>
+<p>Assume for contradiction that the highest posterior region for <span class="math inline">\(p(\sigma \mid y)\)</span> is the square root of the region for <span class="math inline">\(p(\sigma^2 \mid y)\)</span>. Then by continuity, <span class="math inline">\(\sqrt{a}, \sqrt{b}\)</span> are endpoints on the highest posterior region for <span class="math inline">\(p(\sigma \mid y)\)</span>. Thus</p>
+<p class="mathjaxWide"><span class="math display">\[
+\left( \frac{1}{a} \right)^{n - 1} e^{\frac{-nv}{2 a^2}}
+=
+\left( \frac{1}{b} \right)^{n - 1} e^{\frac{-nv}{2 b^2}}
+.
+\]</span></p>
+<p>The two equalities above are equivalent to <span class="math inline">\(\frac{1}{a} = \frac{1}{b}\)</span>, which implies</p>
+<p class="mathjaxWide"><span class="math display">\[
+a = b
+\qquad
+↯
+\]</span></p>
+<p>This is true of any two boundary points, so the highest posterior region is a point. This contradicts the fact that the highest posterior region contains 95% probability mass. Therefore, the highest posterior regions are not invariant under reparameterisation.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 16</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html</id>
@@ -1363,147 +1459,6 @@ y_posterior_interval &lt;-<span class="st"> </span><span class="kw">qnorm</span>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta_posterior_interval &lt;-<span class="st"> </span><span class="kw">qnorm</span>(percentiles, <span class="kw">mu</span>(<span class="dv">100</span>), <span class="kw">sigma</span>(<span class="dv">100</span>))
 y_posterior_interval &lt;-<span class="st"> </span><span class="kw">qnorm</span>(percentiles, <span class="kw">mu</span>(<span class="dv">100</span>), <span class="kw">sigma</span>(<span class="dv">100</span>) <span class="op">+</span><span class="st"> </span><span class="dv">20</span>)</code></pre></div>
 <p>With a sample of size of 100, we get θ ϵ [146.8, 153.4] and <span class="math inline">\(\tilde y\)</span> ϵ [113.9, 186.3].</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 7</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_07.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_07.html</id>
-    <published>2018-08-26T00:00:00Z</published>
-    <updated>2018-08-26T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 7</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August 26, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/bda.html">bda</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/binomial.html">binomial</a>, <a href="/tags/natural%20parameter.html">natural parameter</a>, <a href="/tags/exponential%20family.html">exponential family</a>, <a href="/tags/improper%20prior.html">improper prior</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 7, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>We show that a uniform prior on the natural parameter of a binomial model implies an improper prior under a different parameterisation.</p>
-<p>The binomial likelihood can be written as a member of the exponential family as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \dbinomial(y \mid \theta)
-  &amp;=
-  \binom{n}{y} \theta^y (1 - \theta)^{n - y}
-  \\
-  &amp;=
-  \binom{n}{y} \cdot (1 - \theta)^n \cdot \exp \left(y \log \left(\frac{\theta}{1 - \theta}\right)\right)
-  \\
-  &amp;=
-  f(y) \cdot g(\theta) \cdot \exp (\phi(\theta) \cdot u(y))
-  ,
-\end{align}
-\]</span></p>
-<p>where <span class="math inline">\(\phi(\theta) := \log \frac{\theta}{1 - \theta}\)</span>, <span class="math inline">\(u(y) := y\)</span>, <span class="math inline">\(g(\theta) := (1 - \theta)^n\)</span>. Suppose the natural parameter <span class="math inline">\(\phi \sim \dbeta(1, 1)\)</span> is uniformly distributed. Then the distribution of <span class="math inline">\(\theta\)</span> is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  p(\theta) 
-  &amp;\propto
-  p(\phi) \cdot \vert \invlogit^\prime (\phi) \vert^{-1}
-  \\
-  &amp;=
-  \left \vert \frac{1}{1 + \exp(-\phi)}^\prime \right\vert^{-1}
-  \\
-  &amp;=
-  \left \vert \frac{1}{\left(1 + \exp(-\phi)\right)^2} \cdot \exp(-\phi) \right\vert^{-1}
-  \\
-  &amp;=
-  \frac{1 + 2 \exp(-\phi) + \exp(-2\phi)}{\exp(-\phi)}
-  \\
-  &amp;=
-  \exp(\phi) + 2 + \exp(-\phi)
-  \\
-  &amp;=
-  \frac{\theta}{1 - \theta} + 2 + \frac{1 - \theta}{\theta}
-  \\
-  &amp;=
-  \frac{\theta^2 + 2\theta(1 - \theta) + (1 - \theta)^2}{\theta(1 - \theta)}
-  \\
-  &amp;=
-  \frac{1}{\theta(1 - \theta)}
-  \\
-  &amp;=
-  \theta^{-1}(1 - \theta)^{-1}
-  \qquad \square
-\end{align}
-\]</span></p>
-<p>This is an improper distribution on <span class="math inline">\(\theta\)</span> because</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \int_0^1 \frac{1}{\theta(1 - \theta)}
-  &amp;\ge
-  \int_0^1 \frac{1}{\theta}
-  \\
-  &amp;=
-  \log\theta \vert_0^1
-  \\
-  &amp;=
-  \infty.
-\end{align}
-\]</span></p>
-<p>When <span class="math inline">\(y = 0\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = 0) \propto (1 - \theta)^{n - 1}\theta^{-1}\)</span>. When <span class="math inline">\(y = n\)</span>, then the posterior distribution is <span class="math inline">\(p(\theta \mid y = n) \propto \theta^{n-1}(1 - \theta)^{-1}\)</span>. These two cases are equivalent by the change of variable <span class="math inline">\(\theta \mapsto 1 - \theta\)</span>.</p>
-<p>We show that the distribution is improper for <span class="math inline">\(y = 0\)</span> by induction. The case <span class="math inline">\(n = 0\)</span> is shown above (for the prior). Assume the distribution is improper for any integer <span class="math inline">\(k &lt; n\)</span>. Then using integration by parts yields</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-\int_0^1 \theta^{- 1}(1 - \theta)^{n - 1} d\theta
-&amp;=
-\int_0^1 \theta^{- 1}(1 - \theta)^{n - 2} \cdot (1 - \theta)d\theta
-\\
-&amp;=
-\left[(1 - \theta)^{n-2}(1 - \frac{\theta}{2}) \right]_0^1
-+
-\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta}
-+
-(n-2)(1 - \theta)^{n-3}
--
-\frac{(1 - \theta)^{n-2}}{2}
--
-(n - 2)\theta\frac{(1 - \theta)^{n-3}}{2}
-d\theta
-\\
-&amp;=
-c
-+
-\int_0^1 \frac{(1 - \theta)^{n - 2}}{\theta} d\theta,
-\end{align}
-\]</span></p>
-<p>where <span class="math inline">\(c &lt; \infty\)</span>. By the induction hypothesis, the integral on the last line is <span class="math inline">\(\infty\)</span>. Therefore, the distribution is also improper for <span class="math inline">\(n\)</span>.</p>
 
 <div id="disqus_thread"></div>
 <script>

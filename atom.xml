@@ -10,6 +10,92 @@
     </author>
     <updated>2018-09-08T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 19</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_19.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_19.html</id>
+    <published>2018-09-08T00:00:00Z</published>
+    <updated>2018-09-08T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 19</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  8, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/gamma.html">gamma</a>, <a href="/tags/exponential.html">exponential</a>, <a href="/tags/conjugate%20prior.html">conjugate prior</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 19, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Let’s show that the gamma distribution is conjugate to the exponential distribution. That is, we suppose <span class="math inline">\(y \mid \theta \sim \dexponential(\theta)\)</span> with prior <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>, and show that the posterior is also gamma distributed.</p>
+<p>The posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\theta \mid y)
+  &amp;\propto
+  \theta^n e^{-\theta \sum_1^n y_i} \cdot \theta^{\alpha - 1} e^{-\beta \theta}
+  \\
+  &amp;=
+  \theta^{n + \alpha - 1} e^{-\theta \left(\beta + \sum_1^n y_i \right)}
+\end{align}
+\]</span></p>
+<p>which implies <span class="math inline">\(\theta \mid y \sim \dgamma(\alpha + n, \beta + \sum_1^n y_i)\)</span>.</p>
+<p>Suppose now that we wish to do inference on <span class="math inline">\(\phi := \theta^{-1}\)</span>. We will show that <span class="math inline">\(\phi\)</span> has an inverse gamma distribution if <span class="math inline">\(\theta\)</span> has a gamma distribution. Indeed,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\phi)
+  &amp;\propto
+  p(\theta) \left\vert {\frac{d\phi}{d\theta}} \right\vert^{-1}
+  \\
+  &amp;=
+  \theta^{\alpha - 1} e^{-\beta \theta} \cdot\theta^2
+  \\
+  &amp;=
+  \phi^{-\alpha - 1} e^{-\frac{\beta}{\phi}}
+  ,
+\end{align}
+\]</span></p>
+<p>which corresponds to an <span class="math inline">\(\dinvgamma(\alpha, \beta)\)</span> distribution.</p>
+<p>Suppose that the lifetime of a light bulb can be modelled as an exponential distribution with rate <span class="math inline">\(\theta\)</span>. Let’s compare inferences using the two different parameterisations above. For <span class="math inline">\(\theta \sim \dgamma(\alpha, \beta)\)</span>, the prior variance is <span class="math inline">\(\frac{\alpha}{\beta^2}\)</span> and the mean is <span class="math inline">\(\frac{\alpha}{\beta}\)</span>, so the prior coefficient of variation is <span class="math inline">\(\alpha^{-\frac{1}{2}}\)</span>. We are given that the prior coefficient of variation is 0.5, so <span class="math inline">\(\alpha = 4\)</span>. The posterior coefficient of variation is <span class="math inline">\((4 + n)^{-\frac{1}{2}}\)</span>. If we wish this to be at most 0.1, then we would need to test at least <span class="math inline">\(n = 96\)</span> light bulbs.</p>
+<p>For <span class="math inline">\(\phi \sim \dinvgamma(\alpha, \beta)\)</span>, the prior variance is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{\beta^2}{(\alpha - 1)^2 (\alpha - 2)}
+\]</span></p>
+<p>and the mean is <span class="math inline">\(\frac{\beta}{\alpha - 1}\)</span>, so the prior coefficient of variation is <span class="math inline">\((\alpha - 2)^{-\frac{1}{2}}\)</span>. With a prior coefficient of variation is 0.5, we have <span class="math inline">\(\alpha = 6\)</span>. The posterior coefficient of variation is <span class="math inline">\((6 + n)^{-\frac{1}{2}}\)</span>. If we wish this to be at most 0.1, then we would need to test at least <span class="math inline">\(n = 94\)</span> light bulbs.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 18</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_18.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_18.html</id>
@@ -1315,140 +1401,6 @@ c</code></pre></div>
 .
 \]</span></p>
 <p>The posterior variance and standard deviation are also not well-defined.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 9</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_09.html</id>
-    <published>2018-08-29T00:00:00Z</published>
-    <updated>2018-08-29T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 9</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on August 29, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/prior%20sensitivity.html">prior sensitivity</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 9, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>The data show 650 people in support of the death penalty and 350 against. We explore the effect of different priors on the posterior.</p>
-<p>First let’s find the prior with a mean of 0.6 and standard deviation 0.3. The mean of the <span class="math inline">\(\dbeta(\alpha, \beta)\)</span> distribution is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{3}{5}
-=
-\frac{\alpha}{\alpha + \beta}
-\]</span></p>
-<p>which implies that <span class="math inline">\(\alpha = 1.5 \beta\)</span>. The variance is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \frac{9}{100}
-  &amp;=
-  \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta  + 1)}
-  \\
-  &amp;=
-  \frac{3}{2} \frac{\beta^2}{\frac{25}{4}\beta^2 \frac{5\beta + 2}{2}}
-  \\
-  &amp;=
-  \frac{3}{2}\frac{4}{25}\frac{2}{5\beta + 2}
-  \\
-  &amp;=
-  \frac{12}{25(5\beta + 2)}
-  \\
-  &amp;\Leftrightarrow
-  \\
-  5\beta + 2
-  &amp;=
-  \frac{12}{25}\frac{100}{9}
-  \\
-  &amp;=
-  4,
-\end{align}
-\]</span></p>
-<p>which implies that <span class="math inline">\(\beta = \frac{2}{5}\)</span>. Thus <span class="math inline">\(\alpha = \frac{3}{5}\)</span>. Since both parameters are below 1, we see maxima near 0 and 1.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">α &lt;-<span class="st"> </span><span class="dv">3</span> <span class="op">/</span><span class="st"> </span><span class="dv">5</span>
-β &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">/</span><span class="st"> </span><span class="dv">5</span>
-
-<span class="kw">tibble</span>(<span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>), <span class="dt">y =</span> <span class="kw">dbeta</span>(x, α, β)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw">aes</span>(x, y) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>) <span class="op">+</span>
-<span class="st">  </span><span class="kw">labs</span>(
-    <span class="dt">x =</span> <span class="st">&#39;x&#39;</span>,
-    <span class="dt">y =</span> <span class="st">&#39;beta(x | α, β)&#39;</span>,
-    <span class="dt">title =</span> <span class="st">&#39;Beta prior with mean 0.3 and standard deviation 0.6&#39;</span>,
-    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;α = {α}, β = {β}&#39;</span>)
-  )</code></pre></div>
-<figure>
-<img src="chapter_02_exercise_09_files/figure-markdown/prior-1.png" />
-</figure>
-<p>The beta distribution is self-conjugate so the posterior is <span class="math inline">\(\dbeta(0.6 + 650, 0.4 + 350)\)</span>.</p>
-<p>Let’s plot the posterior with priors of different strength. We can increase the strength of the prior whilst keeping the mean constant by multiplying <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> by the same constant c. We will use <span class="math inline">\(c \in \{ 1, 10, 100, 1000\}\)</span>. In the plot below, we have restricted the x-axis to focus on the differences in the shape of the posteriors.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">support &lt;-<span class="st"> </span><span class="dv">650</span>
-against &lt;-<span class="st"> </span><span class="dv">350</span>
-
-<span class="kw">expand.grid</span>(<span class="dt">magnitude =</span> <span class="dv">0</span><span class="op">:</span><span class="dv">3</span>, <span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">c =</span> <span class="dv">10</span><span class="op">^</span>magnitude,
-    <span class="dt">a_prior =</span> α <span class="op">*</span><span class="st"> </span>c,
-    <span class="dt">b_prior =</span> β <span class="op">*</span><span class="st"> </span>c,
-    <span class="dt">y =</span> <span class="kw">dbeta</span>(x, support <span class="op">+</span><span class="st"> </span>a_prior, against <span class="op">+</span><span class="st"> </span>b_prior),
-    <span class="dt">prior_magnitude =</span> <span class="kw">factor</span>(<span class="kw">as.character</span>(<span class="dv">10</span><span class="op">^</span>magnitude))
-  ) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw">aes</span>(x, y, <span class="dt">colour =</span> prior_magnitude) <span class="op">+</span>
-<span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span>
-<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="fl">0.55</span>, <span class="fl">0.75</span>)) <span class="op">+</span>
-<span class="st">  </span><span class="kw">labs</span>(
-    <span class="dt">x =</span> <span class="st">&#39;x&#39;</span>,
-    <span class="dt">y =</span> <span class="st">&#39;beta(x | support + a, against + b)&#39;</span>,
-    <span class="dt">title =</span> <span class="st">&#39;Beta posterior with different priors&#39;</span>,
-    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="kw">paste</span>(
-      <span class="st">&#39;a = {α} * 10^magnitude, b = {β} * 10^magnitude&#39;</span>,
-      <span class="st">&#39;support = 650, against = 350&#39;</span>,
-      <span class="dt">sep =</span> <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>
-    )),
-    <span class="dt">colour =</span> <span class="st">&#39;Magnitude of the prior&#39;</span>
-  )</code></pre></div>
-<figure>
-<img src="chapter_02_exercise_09_files/figure-markdown/posterior-1.png" />
-</figure>
-<p>Magnitudes 1 and 10 give very similar results close to the maximum likelihood estimate of 65%. The higher magnitudes pull the mean towards the prior mean of 60%.</p>
 
 <div id="disqus_thread"></div>
 <script>

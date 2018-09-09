@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 22</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 22</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  9, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/basketball.html">basketball</a>, <a href="../../tags/prior%20choice.html">prior choice</a>, <a href="../../tags/weakly%0Ainformative%20prior.html">weakly
+informative prior</a>, <a href="../../tags/noninformative%20prior.html">noninformative prior</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 22, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose you have a random sample of 100 college students in a basketball study. Each student takes 100 free-throws to establish a baseline success probability, <span class="math inline">\(\phi_0\)</span>. The students then take 50 practice free-throws per day for a month. After this month is up, each takes 100 shots for a final measurement of success probability, <span class="math inline">\(\phi_1\)</span>. We wish to estimate the increase in success probability, <span class="math inline">\(\theta := \phi_1 - \phi_0\)</span>.</p>
+<p>We could use the uniform distribution on the range of theoretically possible values <span class="math inline">\([-1, 1]\)</span> as a ‘non-informative’ prior, i.e. every level of increase is equally likely.</p>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/noninformative_prior-1..svg" />
+</figure>
+<p>To construct an informative prior, I had to do a bit of background reading as I have next to zero basketball knowledge. After some google-fu, it seems the <a href="https://www.basketball-reference.com/leaders/ft_pct_career.html">best of the best</a> have a free-throw success rate of around 80-90%, and the <a href="https://abcnews.go.com/Sports/free-throws-easy-consequences-failing/story?id=40769445">worst of the best</a> around 50-60%. This latter estimate probably lies on the upper extreme for random college students. From watching some <a href="https://www.youtube.com/watch?v=LFF6_5hyokU">free throw videos</a>, I would guess that I would have a success rate of about 10% (baseline).</p>
+<p>Let’s model the baseline average as beta distributed around a mean of 10% and upper extreme below 40%.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu0 &lt;-<span class="st"> </span><span class="fl">0.10</span>
+n0 &lt;-<span class="st"> </span><span class="dv">15</span>
+
+alpha0 &lt;-<span class="st"> </span>mu0 <span class="op">*</span><span class="st"> </span>n0
+beta0 &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>mu0) <span class="op">*</span><span class="st"> </span>n0
+
+<span class="kw">tibble</span>(
+    <span class="dt">p =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(p, alpha0, beta0)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(p, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Average baseline success probability'</span>,
+    <span class="dt">y =</span> <span class="st">'Density'</span>,
+    <span class="dt">title =</span> <span class="st">'Baseline success probability simulation'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Beta({alpha0}, {beta0})'</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/baseline_simulation-1..svg" />
+</figure>
+<p>With this assumption, there is a 0.286% chance of an average above 40%.</p>
+<p>For the final estimate, the improvement could be quite significant given that random students are likely untrained (the better you get, the harder it is to improve). An average 15%% improvement seems plausible to me.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu1 &lt;-<span class="st"> </span>mu0 <span class="op">+</span><span class="st"> </span><span class="fl">0.15</span>
+n1 &lt;-<span class="st"> </span><span class="dv">20</span>
+
+alpha1 &lt;-<span class="st"> </span>mu1 <span class="op">*</span><span class="st"> </span>n1
+beta1 &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>mu1) <span class="op">*</span><span class="st"> </span>n1
+
+<span class="kw">tibble</span>(
+    <span class="dt">p =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(p, alpha1, beta1)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(p, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Average final success probability'</span>,
+    <span class="dt">y =</span> <span class="st">'Density'</span>,
+    <span class="dt">title =</span> <span class="st">'Final success probability simulation'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Beta({alpha1}, {beta1})'</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/final_simulation-1..svg" />
+</figure>
+<p>With the above assumptions, the distribution of the average increase is shown below. The bulk of the mass is above 0, which makes sense as most should improve through practice. There is also some chance of a decrease, with -25%% being fairly extreme.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">increase &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+    <span class="dt">phi0 =</span> <span class="kw">rbeta</span>(<span class="dv">10000</span>, alpha0, beta0),
+    <span class="dt">phi1 =</span> <span class="kw">rbeta</span>(<span class="dv">10000</span>, alpha1, beta1),
+    <span class="dt">theta =</span> phi1 <span class="op">-</span><span class="st"> </span>phi0
+  ) 
+
+increase <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(theta) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">'dark orange'</span>, <span class="dt">linetype =</span> <span class="st">'dashed'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.2</span>), <span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Average increase in success probability (percentage points)'</span>,
+    <span class="dt">y =</span> <span class="st">'Count'</span>,
+    <span class="dt">title =</span> <span class="st">'Average increase in success probability simulation'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Beta({alpha1}, {beta1}) - Beta({alpha0}, {beta0})'</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/increase_simulation-1..svg" />
+</figure>
+<p>We could approximate this as a beta distribution on <span class="math inline">\([-1, 1]\)</span> to ensure the prior is bounded. In this case, we can probably get away with using a normal distribution since the probability of exceeding the bounds is negligible.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span>mu1 <span class="op">-</span><span class="st"> </span>mu0
+sigma &lt;-<span class="st"> </span><span class="kw">sd</span>(increase<span class="op">$</span>theta)
+
+<span class="kw">tibble</span>(
+    <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dnorm</span>(theta, mu, sigma)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(theta, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">'dark orange'</span>, <span class="dt">linetype =</span> <span class="st">'dashed'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.25</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Average increase in success probability (percentage points)'</span>,
+    <span class="dt">y =</span> <span class="st">'Density'</span>,
+    <span class="dt">title =</span> <span class="st">'Strongly informative prior'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Normal(μ = {signif(mu, digits = 2)}, σ = {signif(sigma, digits = 2)})'</span>)
+  ) <span class="op">+</span>
+<span class="st">  </span><span class="ot">NULL</span></code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/informative_prior-1..svg" />
+</figure>
+<p>The probability that this normal distribution exceeds 1 is 0.000000000104%. A subjective prior for the average increase in success probability would thus be a <span class="math inline">\(\dnorm(0.15, 0.12)\)</span> prior.</p>
+<p>Finally, let’s construct a weakly informative prior. We’ll again use the beta distribution scaled to the interval <span class="math inline">\([-1, 1]\)</span>, with a mean of 0 so that an increase can be entirely attributed to the data and not to the prior. Since the best of the pros have a success probability around 90%, we’d expect the increase of 100 random students to be below this value.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">alpha &lt;-<span class="st"> </span><span class="dv">5</span>
+beta &lt;-<span class="st"> </span><span class="dv">5</span>
+
+<span class="kw">tibble</span>(
+    <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(<span class="fl">0.5</span> <span class="op">+</span><span class="st"> </span>theta <span class="op">/</span><span class="st"> </span><span class="dv">2</span>, alpha, beta)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(theta, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">'dark orange'</span>, <span class="dt">linetype =</span> <span class="st">'dashed'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.25</span>), <span class="dt">labels =</span> percent) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Average increase in success probability (percentage points)'</span>,
+    <span class="dt">y =</span> <span class="st">'Density'</span>,
+    <span class="dt">title =</span> <span class="st">'Weakly informative prior'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Beta({alpha}, {beta})'</span>)
+  ) <span class="op">+</span>
+<span class="st">  </span><span class="ot">NULL</span></code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/weakly_informative_prior-1..svg" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

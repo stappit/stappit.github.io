@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 2 Exercise 21</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 2 Exercise 21</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  9, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/poisson.html">poisson</a>, <a href="../../tags/gamma.html">gamma</a>, <a href="../../tags/exposure.html">exposure</a>, <a href="../../tags/election.html">election</a>, <a href="../../tags/usa.html">usa</a>, <a href="../../tags/obama.html">obama</a>, <a href="../../tags/pew%20research%20center.html">pew research center</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 21, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>I wasn’t able to find any of the data for this question on the book’s website (as indicated in the book). However, the data are available on the <a href="http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/">Pew Research Center website</a>. I am unsure if the Pew version is the same as the version intended in the book.</p>
+<h2 id="data-inspection">Data inspection</h2>
+<h3 id="loading">Loading</h3>
+<p>Unzipping the download into my local <code>data</code> directory gives three files of interest:</p>
+<ul>
+<li><p><code>ElectWkd08c.sav</code></p>
+<p>The dataset in SPSS format.</p></li>
+<li><p><code>ElecWknd08.que.doc</code></p>
+<p>A description of the survey questions and their column names in the dataset.</p></li>
+<li><p><code>readme.txt</code></p>
+<p>A description of the columns in the dataset derived from the survey questions.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+
+df0 &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="dt">file =</span> <span class="st">'data/ElectWkd08c.sav'</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>()
+
+df0 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">nrow</span>()</code></pre></div>
+<pre><code>[1] 3402</code></pre>
+<p>There are many columns.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">colnames</span>()</code></pre></div>
+<pre><code>  [1] &quot;psraid&quot;    &quot;attempt&quot;   &quot;fcall&quot;     &quot;refusal&quot;   &quot;int_date&quot; 
+  [6] &quot;area&quot;      &quot;scregion&quot;  &quot;sfips&quot;     &quot;sstate&quot;    &quot;cdist&quot;    
+ [11] &quot;msa&quot;       &quot;usr&quot;       &quot;usr1&quot;      &quot;sampzip&quot;   &quot;pdsgen&quot;   
+ [16] &quot;pdsrace&quot;   &quot;zfips&quot;     &quot;zstate&quot;    &quot;zcregion&quot;  &quot;zdensity3&quot;
+ [21] &quot;sdensity3&quot; &quot;file&quot;      &quot;sample&quot;    &quot;sex&quot;       &quot;qs1&quot;      
+ [26] &quot;thought&quot;   &quot;q1&quot;        &quot;voter&quot;     &quot;regist&quot;    &quot;regicert&quot; 
+ [31] &quot;planreg&quot;   &quot;precinct&quot;  &quot;q2&quot;        &quot;oftvote&quot;   &quot;where&quot;    
+ [36] &quot;horse&quot;     &quot;q3&quot;        &quot;q3_1&quot;      &quot;q3_2&quot;      &quot;q3_3&quot;     
+ [41] &quot;q3a&quot;       &quot;q3a_1&quot;     &quot;q3a_2&quot;     &quot;q3a_3&quot;     &quot;q3summ&quot;   
+ [46] &quot;q3summ2&quot;   &quot;q3tot&quot;     &quot;q3atot&quot;    &quot;q3horse&quot;   &quot;q3b&quot;      
+ [51] &quot;q3bfilt&quot;   &quot;q5&quot;        &quot;q6&quot;        &quot;swing&quot;     &quot;plan1&quot;    
+ [56] &quot;plan2&quot;     &quot;plan3&quot;     &quot;q7&quot;        &quot;q8&quot;        &quot;q9&quot;       
+ [61] &quot;q10a&quot;      &quot;q10b&quot;      &quot;q10c&quot;      &quot;q10d&quot;      &quot;q10e&quot;     
+ [66] &quot;q10f&quot;      &quot;q10g&quot;      &quot;q10de&quot;     &quot;q11&quot;       &quot;q12&quot;      
+ [71] &quot;q13&quot;       &quot;q14&quot;       &quot;q15&quot;       &quot;q15_1&quot;     &quot;q15_2&quot;    
+ [76] &quot;q15_3&quot;     &quot;Q15tot&quot;    &quot;q16&quot;       &quot;q16a&quot;      &quot;q17&quot;      
+ [81] &quot;age&quot;       &quot;recage&quot;    &quot;educ&quot;      &quot;receduc&quot;   &quot;hisp1&quot;    
+ [86] &quot;race_1&quot;    &quot;race_2&quot;    &quot;race_3&quot;    &quot;race_4&quot;    &quot;racecmb&quot;  
+ [91] &quot;racethn&quot;   &quot;marital&quot;   &quot;parent&quot;    &quot;relig&quot;     &quot;religos&quot;  
+ [96] &quot;chr&quot;       &quot;born&quot;      &quot;attend&quot;    &quot;income&quot;    &quot;party&quot;    
+[101] &quot;partyln&quot;   &quot;ideo&quot;      &quot;class&quot;     &quot;employ&quot;    &quot;pvote04a&quot; 
+[106] &quot;pvote04b&quot;  &quot;primary&quot;   &quot;first1&quot;    &quot;first2&quot;    &quot;scale10&quot;  
+[111] &quot;labor&quot;     &quot;ql1&quot;       &quot;ql2&quot;       &quot;qc1&quot;       &quot;qc2&quot;      
+[116] &quot;zipcode&quot;   &quot;money10&quot;   &quot;website&quot;   &quot;isex&quot;      &quot;ihisp1&quot;   
+[121] &quot;irace_1&quot;   &quot;irace_2&quot;   &quot;irace_3&quot;   &quot;irace_4&quot;   &quot;iraceth&quot;  
+[126] &quot;iracecmb&quot;  &quot;regfinal&quot;  &quot;ballot&quot;    &quot;mccain&quot;    &quot;obama&quot;    
+[131] &quot;sameday&quot;   &quot;battle&quot;    &quot;phoneuse&quot;  &quot;filter_$&quot;  &quot;lvs&quot;      
+[136] &quot;lvswt67&quot;   &quot;llweight&quot;  &quot;coweight&quot;  &quot;wt_weth&quot;   &quot;wt_thfr&quot;  
+[141] &quot;wt_frsa&quot;   &quot;wt_wefr&quot;   &quot;weight&quot;    &quot;unlvwt67&quot; </code></pre>
+<h3 id="state">State</h3>
+<p>For each state, we want to know how many label themselves as <code>Very liberal</code> and how many report supporting Obama. The state is given by the <code>sstate</code> column and doesn’t include Hawaii or Alaska.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(sstate) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="kw">reorder</span>(sstate, n), n) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'State'</span>,
+    <span class="dt">y =</span> <span class="st">'Respondents'</span>,
+    <span class="dt">title =</span> <span class="st">'Responses by state'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'There are {df0 %&gt;% distinct(sstate) %&gt;% nrow()} states in the dataset'</span>),
+    <span class="dt">caption =</span> <span class="st">'Source: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/state_count-1..svg" />
+</figure>
+<h3 id="ideology">Ideology</h3>
+<p>Consulting the documentation, we see that liberality is given by the <code>ideo</code> column.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(ideo) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Ideology'</span>,
+    <span class="dt">y =</span> <span class="st">'Respondents'</span>,
+    <span class="dt">title =</span> <span class="st">'Responses by ideology'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'There are {df0 %&gt;% distinct(ideo) %&gt;% nrow()} ideologies in the dataset'</span>),
+    <span class="dt">caption =</span> <span class="st">'Source: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/ideo_count-1..svg" />
+</figure>
+<h3 id="obama-voters">Obama voters</h3>
+<p>The data indicating vote is not so obvious. There is</p>
+<ul>
+<li>current voting preference in question 3, of which there are different versions for different states;</li>
+<li>there are various columns derived from the survey responses to question 3, such as <code>q3horse</code>;</li>
+<li>there is question 6 which asks for voting intention in November; and</li>
+<li>there is a column called <code>obama</code> for which I couldn’t find any documentation.</li>
+</ul>
+<p>Despite the lack of documentation, I’ll run with <code>obama</code> since the responses seem to align better with the purpose of the exercise.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(obama) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Vote'</span>,
+    <span class="dt">y =</span> <span class="st">'Respondents'</span>,
+    <span class="dt">title =</span> <span class="st">'Responses by vote'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'There are {df0 %&gt;% distinct(obama) %&gt;% nrow()} voting intentions in the dataset'</span>),
+    <span class="dt">caption =</span> <span class="st">'Source data: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/vote_count-1..svg" />
+</figure>
+<h3 id="data-augmentation">Data augmentation</h3>
+<p>In order to display two-letter abbreviations of the states, we use the data provided by the <code>state</code> package and join it to the Pew dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mapping &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+  <span class="dt">name =</span> <span class="kw">as_factor</span>(state.name, <span class="dt">levels =</span> <span class="kw">levels</span>(df<span class="op">$</span>sstate)), 
+  <span class="dt">abbreviation =</span> state.abb
+)
+
+df &lt;-<span class="st"> </span>df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">left_join</span>(mapping, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">'sstate'</span> =<span class="st"> 'name'</span>))</code></pre></div>
+<p>Here’s a sample from the mapping table.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:left;">
+abbreviation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alabama
+</td>
+<td style="text-align:left;">
+AL
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alaska
+</td>
+<td style="text-align:left;">
+AK
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arizona
+</td>
+<td style="text-align:left;">
+AZ
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arkansas
+</td>
+<td style="text-align:left;">
+AR
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+California
+</td>
+<td style="text-align:left;">
+CA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colorado
+</td>
+<td style="text-align:left;">
+CO
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ideology-vs.obama-voter">Ideology vs. Obama voter</h2>
+<h3 id="raw-proportions">Raw proportions</h3>
+<p>Let’s take a look at how the proportion of liberals relates to the proportion of Obama voters. There seems to be a positive relation, although the data are fairly noisy. Plotting the full range of values on the y-axis makes the noise more prominent. We only show the resticted range in order to show the individual state names.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(sstate) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(
+    <span class="dt">respondents =</span> <span class="kw">n</span>(),
+    <span class="dt">liberals =</span> <span class="kw">sum</span>(ideo <span class="op">==</span><span class="st"> 'Very liberal'</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
+    <span class="dt">liberal_proportion =</span> liberals <span class="op">/</span><span class="st"> </span>respondents,
+    <span class="dt">obama_voters =</span> <span class="kw">sum</span>(obama <span class="op">==</span><span class="st"> 'Obama voter'</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
+    <span class="dt">obama_vote_share =</span> obama_voters <span class="op">/</span><span class="st"> </span>respondents  
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">left_join</span>(mapping, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">'sstate'</span> =<span class="st"> 'name'</span>))
+
+qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> liberal_proportion, <span class="dt">x =</span> obama_vote_share) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">'Observed proportion of liberals'</span>,
+    <span class="dt">x =</span> <span class="st">'Obama vote share'</span>,
+    <span class="dt">title =</span> <span class="st">'Obama vote share vs liberal proportion for each state'</span>,
+    <span class="dt">subtitle =</span> <span class="st">'The y-axis is truncated so that the labels are readable'</span>,
+    <span class="dt">caption =</span> <span class="st">'Source data: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/state_liberal_vs_obama-1..svg" />
+</figure>
+<h3 id="posterior-inference">Posterior inference</h3>
+<p>We’ll base our prior on the data (for convenience) and don’t take survey non-response issues into account. The pooled mean proportion of liberals will be our prior mean.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span><span class="kw">sum</span>(df<span class="op">$</span>ideo <span class="op">==</span><span class="st"> 'Very liberal'</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(df)
+<span class="kw">percent</span>(mu)</code></pre></div>
+<pre><code>[1] &quot;3.5%&quot;</code></pre>
+<p>After trying various possibilities for the standard deviation <code>sigma</code>, the value below results in a prior that puts most of the density between 0% and 18%.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sigma &lt;-<span class="st"> </span><span class="fl">0.04</span>
+
+shape &lt;-<span class="st"> </span>(mu <span class="op">/</span><span class="st"> </span>sigma)<span class="op">^</span><span class="dv">2</span>
+rate &lt;-<span class="st"> </span>shape <span class="op">/</span><span class="st"> </span>mu
+
+<span class="kw">tibble</span>(
+    <span class="dt">prop =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.0005</span>),
+    <span class="dt">density =</span> <span class="kw">dgamma</span>(prop, shape, rate)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(prop, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.3</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Proportion of liberals'</span>,
+    <span class="dt">y =</span> <span class="st">'Density'</span>,
+    <span class="dt">title =</span> <span class="kw">str_glue</span>(<span class="kw">paste</span>(
+      <span class="st">'Gamma(shape = {signif(shape, digits = 2)}, rate = {signif(rate, digits = 2)})'</span>,
+      <span class="dt">sep =</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>
+    ))
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/prior-1..svg" />
+</figure>
+<p>Let’s add the posterior means to our dataset and plot the them against proportion of Obama voters. In order to be visually comparable to the plot of observed data, we keep the limits of the axes the same.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior &lt;-<span class="st"> </span>qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">posterior_shape =</span> shape <span class="op">+</span><span class="st"> </span>liberals,
+    <span class="dt">posterior_rate =</span> rate <span class="op">+</span><span class="st"> </span>respondents,
+    <span class="dt">posterior_mean =</span> posterior_shape <span class="op">/</span><span class="st"> </span>posterior_rate
+  )
+
+qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> posterior_mean, <span class="dt">x =</span> obama_vote_share) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">'Posterior mean of proportion of liberals'</span>,
+    <span class="dt">x =</span> <span class="st">'Obama vote share'</span>,
+    <span class="dt">title =</span> <span class="st">'Obama vote share vs estimate of liberal proportion'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/posterior-1..svg" />
+</figure>
+<p>The posterior 95% credible intervals are shown below. Arizona and Louisianna seem to have a smaller proportional of liberals compared to the country average. Only Oregon’s credible interval is entirely above the country average.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">ci =</span> <span class="kw">map2</span>(
+      posterior_shape, 
+      posterior_rate, 
+      <span class="cf">function</span>(s, r) 
+        <span class="kw">tibble</span>(
+          <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">'lower'</span>, <span class="st">'upper'</span>),
+          <span class="dt">value =</span> <span class="kw">qgamma</span>(<span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>), s, r)
+        ) 
+    )
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(ci) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(type, value) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> mu, <span class="dt">linetype =</span> <span class="st">'dotted'</span>, <span class="dt">colour =</span> <span class="st">'orange'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="kw">reorder</span>(sstate, posterior_mean), posterior_mean) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_pointrange</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">fatten =</span> <span class="fl">0.1</span>, <span class="dt">size =</span> <span class="fl">0.4</span>)  <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">'Posterior value'</span>,
+    <span class="dt">x =</span> <span class="st">'State'</span>,
+    <span class="dt">title =</span> <span class="st">'95% credible intervals for the proportion of liberals per state'</span>,
+    <span class="dt">subtitle =</span> <span class="st">'The pooled observed mean value is shown in orange'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/ci-1..svg" />
+</figure>
+<p>All of the states in which no liberals were observed had smaller sample sizes (below 50). The largest proportions were also observed in the states with sample sizes below 50. This plot looks fairly similar to the analogous plot for the cancer rate example, albeit with fewer data points.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(respondents, liberal_proportion) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Number of respondents'</span>,
+    <span class="dt">y =</span> <span class="st">'Observed proportion of liberals'</span>,
+    <span class="dt">title =</span> <span class="st">'Observed proportion of liberals per state'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/observed_prop_vs_num_respondents-1..svg" />
+</figure>
+<p>The posterior estimates result in much less extreme values for the states with few respondents.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(respondents, posterior_mean) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'Number of respondents'</span>,
+    <span class="dt">y =</span> <span class="st">'Posterior mean of proportion of liberals'</span>,
+    <span class="dt">title =</span> <span class="st">'Posterior proportion of liberals by state'</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/posterior_prop_vs_num_respondents-1..svg" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

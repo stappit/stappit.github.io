@@ -8,8 +8,561 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-08T00:00:00Z</updated>
+    <updated>2018-09-09T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 2 Exercise 22</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_22.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_22.html</id>
+    <published>2018-09-09T00:00:00Z</published>
+    <updated>2018-09-09T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 22</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  9, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/basketball.html">basketball</a>, <a href="/tags/prior%20choice.html">prior choice</a>, <a href="/tags/weakly%0Ainformative%20prior.html">weakly
+informative prior</a>, <a href="/tags/noninformative%20prior.html">noninformative prior</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 22, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose you have a random sample of 100 college students in a basketball study. Each student takes 100 free-throws to establish a baseline success probability, <span class="math inline">\(\phi_0\)</span>. The students then take 50 practice free-throws per day for a month. After this month is up, each takes 100 shots for a final measurement of success probability, <span class="math inline">\(\phi_1\)</span>. We wish to estimate the increase in success probability, <span class="math inline">\(\theta := \phi_1 - \phi_0\)</span>.</p>
+<p>We could use the uniform distribution on the range of theoretically possible values <span class="math inline">\([-1, 1]\)</span> as a ‘non-informative’ prior, i.e. every level of increase is equally likely.</p>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/noninformative_prior-1..svg" />
+</figure>
+<p>To construct an informative prior, I had to do a bit of background reading as I have next to zero basketball knowledge. After some google-fu, it seems the <a href="https://www.basketball-reference.com/leaders/ft_pct_career.html">best of the best</a> have a free-throw success rate of around 80-90%, and the <a href="https://abcnews.go.com/Sports/free-throws-easy-consequences-failing/story?id=40769445">worst of the best</a> around 50-60%. This latter estimate probably lies on the upper extreme for random college students. From watching some <a href="https://www.youtube.com/watch?v=LFF6_5hyokU">free throw videos</a>, I would guess that I would have a success rate of about 10% (baseline).</p>
+<p>Let’s model the baseline average as beta distributed around a mean of 10% and upper extreme below 40%.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu0 &lt;-<span class="st"> </span><span class="fl">0.10</span>
+n0 &lt;-<span class="st"> </span><span class="dv">15</span>
+
+alpha0 &lt;-<span class="st"> </span>mu0 <span class="op">*</span><span class="st"> </span>n0
+beta0 &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>mu0) <span class="op">*</span><span class="st"> </span>n0
+
+<span class="kw">tibble</span>(
+    <span class="dt">p =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(p, alpha0, beta0)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(p, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Average baseline success probability&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Density&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Baseline success probability simulation&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;Beta({alpha0}, {beta0})&#39;</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/baseline_simulation-1..svg" />
+</figure>
+<p>With this assumption, there is a 0.286% chance of an average above 40%.</p>
+<p>For the final estimate, the improvement could be quite significant given that random students are likely untrained (the better you get, the harder it is to improve). An average 15%% improvement seems plausible to me.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu1 &lt;-<span class="st"> </span>mu0 <span class="op">+</span><span class="st"> </span><span class="fl">0.15</span>
+n1 &lt;-<span class="st"> </span><span class="dv">20</span>
+
+alpha1 &lt;-<span class="st"> </span>mu1 <span class="op">*</span><span class="st"> </span>n1
+beta1 &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>mu1) <span class="op">*</span><span class="st"> </span>n1
+
+<span class="kw">tibble</span>(
+    <span class="dt">p =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(p, alpha1, beta1)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(p, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Average final success probability&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Density&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Final success probability simulation&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;Beta({alpha1}, {beta1})&#39;</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/final_simulation-1..svg" />
+</figure>
+<p>With the above assumptions, the distribution of the average increase is shown below. The bulk of the mass is above 0, which makes sense as most should improve through practice. There is also some chance of a decrease, with -25%% being fairly extreme.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">increase &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+    <span class="dt">phi0 =</span> <span class="kw">rbeta</span>(<span class="dv">10000</span>, alpha0, beta0),
+    <span class="dt">phi1 =</span> <span class="kw">rbeta</span>(<span class="dv">10000</span>, alpha1, beta1),
+    <span class="dt">theta =</span> phi1 <span class="op">-</span><span class="st"> </span>phi0
+  ) 
+
+increase <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">aes</span>(theta) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_histogram</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">&#39;dark orange&#39;</span>, <span class="dt">linetype =</span> <span class="st">&#39;dashed&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.2</span>), <span class="dt">limits =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Average increase in success probability (percentage points)&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Count&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Average increase in success probability simulation&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;Beta({alpha1}, {beta1}) - Beta({alpha0}, {beta0})&#39;</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/increase_simulation-1..svg" />
+</figure>
+<p>We could approximate this as a beta distribution on <span class="math inline">\([-1, 1]\)</span> to ensure the prior is bounded. In this case, we can probably get away with using a normal distribution since the probability of exceeding the bounds is negligible.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span>mu1 <span class="op">-</span><span class="st"> </span>mu0
+sigma &lt;-<span class="st"> </span><span class="kw">sd</span>(increase<span class="op">$</span>theta)
+
+<span class="kw">tibble</span>(
+    <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dnorm</span>(theta, mu, sigma)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(theta, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">&#39;dark orange&#39;</span>, <span class="dt">linetype =</span> <span class="st">&#39;dashed&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.25</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Average increase in success probability (percentage points)&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Density&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Strongly informative prior&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;Normal(μ = {signif(mu, digits = 2)}, σ = {signif(sigma, digits = 2)})&#39;</span>)
+  ) <span class="op">+</span>
+<span class="st">  </span><span class="ot">NULL</span></code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/informative_prior-1..svg" />
+</figure>
+<p>The probability that this normal distribution exceeds 1 is 0.000000000104%. A subjective prior for the average increase in success probability would thus be a <span class="math inline">\(\dnorm(0.15, 0.12)\)</span> prior.</p>
+<p>Finally, let’s construct a weakly informative prior. We’ll again use the beta distribution scaled to the interval <span class="math inline">\([-1, 1]\)</span>, with a mean of 0 so that an increase can be entirely attributed to the data and not to the prior. Since the best of the pros have a success probability around 90%, we’d expect the increase of 100 random students to be below this value.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">alpha &lt;-<span class="st"> </span><span class="dv">5</span>
+beta &lt;-<span class="st"> </span><span class="dv">5</span>
+
+<span class="kw">tibble</span>(
+    <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.01</span>),
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(<span class="fl">0.5</span> <span class="op">+</span><span class="st"> </span>theta <span class="op">/</span><span class="st"> </span><span class="dv">2</span>, alpha, beta)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(theta, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">0</span>, <span class="dt">colour =</span> <span class="st">&#39;dark orange&#39;</span>, <span class="dt">linetype =</span> <span class="st">&#39;dashed&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.25</span>), <span class="dt">labels =</span> percent) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Average increase in success probability (percentage points)&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Density&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Weakly informative prior&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;Beta({alpha}, {beta})&#39;</span>)
+  ) <span class="op">+</span>
+<span class="st">  </span><span class="ot">NULL</span></code></pre></div>
+<figure>
+<img src="chapter_02_exercise_22_files/figure-markdown/weakly_informative_prior-1..svg" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
+    <title>BDA3 Chapter 2 Exercise 21</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_21.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_21.html</id>
+    <published>2018-09-09T00:00:00Z</published>
+    <updated>2018-09-09T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 21</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September  9, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/poisson.html">poisson</a>, <a href="/tags/gamma.html">gamma</a>, <a href="/tags/exposure.html">exposure</a>, <a href="/tags/election.html">election</a>, <a href="/tags/usa.html">usa</a>, <a href="/tags/obama.html">obama</a>, <a href="/tags/pew%20research%20center.html">pew research center</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 21, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>I wasn’t able to find any of the data for this question on the book’s website (as indicated in the book). However, the data are available on the <a href="http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/">Pew Research Center website</a>. I am unsure if the Pew version is the same as the version intended in the book.</p>
+<h2 id="data-inspection">Data inspection</h2>
+<h3 id="loading">Loading</h3>
+<p>Unzipping the download into my local <code>data</code> directory gives three files of interest:</p>
+<ul>
+<li><p><code>ElectWkd08c.sav</code></p>
+<p>The dataset in SPSS format.</p></li>
+<li><p><code>ElecWknd08.que.doc</code></p>
+<p>A description of the survey questions and their column names in the dataset.</p></li>
+<li><p><code>readme.txt</code></p>
+<p>A description of the columns in the dataset derived from the survey questions.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(foreign)
+
+df0 &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="dt">file =</span> <span class="st">&#39;data/ElectWkd08c.sav&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>()
+
+df0 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">nrow</span>()</code></pre></div>
+<pre><code>[1] 3402</code></pre>
+<p>There are many columns.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">colnames</span>()</code></pre></div>
+<pre><code>  [1] &quot;psraid&quot;    &quot;attempt&quot;   &quot;fcall&quot;     &quot;refusal&quot;   &quot;int_date&quot; 
+  [6] &quot;area&quot;      &quot;scregion&quot;  &quot;sfips&quot;     &quot;sstate&quot;    &quot;cdist&quot;    
+ [11] &quot;msa&quot;       &quot;usr&quot;       &quot;usr1&quot;      &quot;sampzip&quot;   &quot;pdsgen&quot;   
+ [16] &quot;pdsrace&quot;   &quot;zfips&quot;     &quot;zstate&quot;    &quot;zcregion&quot;  &quot;zdensity3&quot;
+ [21] &quot;sdensity3&quot; &quot;file&quot;      &quot;sample&quot;    &quot;sex&quot;       &quot;qs1&quot;      
+ [26] &quot;thought&quot;   &quot;q1&quot;        &quot;voter&quot;     &quot;regist&quot;    &quot;regicert&quot; 
+ [31] &quot;planreg&quot;   &quot;precinct&quot;  &quot;q2&quot;        &quot;oftvote&quot;   &quot;where&quot;    
+ [36] &quot;horse&quot;     &quot;q3&quot;        &quot;q3_1&quot;      &quot;q3_2&quot;      &quot;q3_3&quot;     
+ [41] &quot;q3a&quot;       &quot;q3a_1&quot;     &quot;q3a_2&quot;     &quot;q3a_3&quot;     &quot;q3summ&quot;   
+ [46] &quot;q3summ2&quot;   &quot;q3tot&quot;     &quot;q3atot&quot;    &quot;q3horse&quot;   &quot;q3b&quot;      
+ [51] &quot;q3bfilt&quot;   &quot;q5&quot;        &quot;q6&quot;        &quot;swing&quot;     &quot;plan1&quot;    
+ [56] &quot;plan2&quot;     &quot;plan3&quot;     &quot;q7&quot;        &quot;q8&quot;        &quot;q9&quot;       
+ [61] &quot;q10a&quot;      &quot;q10b&quot;      &quot;q10c&quot;      &quot;q10d&quot;      &quot;q10e&quot;     
+ [66] &quot;q10f&quot;      &quot;q10g&quot;      &quot;q10de&quot;     &quot;q11&quot;       &quot;q12&quot;      
+ [71] &quot;q13&quot;       &quot;q14&quot;       &quot;q15&quot;       &quot;q15_1&quot;     &quot;q15_2&quot;    
+ [76] &quot;q15_3&quot;     &quot;Q15tot&quot;    &quot;q16&quot;       &quot;q16a&quot;      &quot;q17&quot;      
+ [81] &quot;age&quot;       &quot;recage&quot;    &quot;educ&quot;      &quot;receduc&quot;   &quot;hisp1&quot;    
+ [86] &quot;race_1&quot;    &quot;race_2&quot;    &quot;race_3&quot;    &quot;race_4&quot;    &quot;racecmb&quot;  
+ [91] &quot;racethn&quot;   &quot;marital&quot;   &quot;parent&quot;    &quot;relig&quot;     &quot;religos&quot;  
+ [96] &quot;chr&quot;       &quot;born&quot;      &quot;attend&quot;    &quot;income&quot;    &quot;party&quot;    
+[101] &quot;partyln&quot;   &quot;ideo&quot;      &quot;class&quot;     &quot;employ&quot;    &quot;pvote04a&quot; 
+[106] &quot;pvote04b&quot;  &quot;primary&quot;   &quot;first1&quot;    &quot;first2&quot;    &quot;scale10&quot;  
+[111] &quot;labor&quot;     &quot;ql1&quot;       &quot;ql2&quot;       &quot;qc1&quot;       &quot;qc2&quot;      
+[116] &quot;zipcode&quot;   &quot;money10&quot;   &quot;website&quot;   &quot;isex&quot;      &quot;ihisp1&quot;   
+[121] &quot;irace_1&quot;   &quot;irace_2&quot;   &quot;irace_3&quot;   &quot;irace_4&quot;   &quot;iraceth&quot;  
+[126] &quot;iracecmb&quot;  &quot;regfinal&quot;  &quot;ballot&quot;    &quot;mccain&quot;    &quot;obama&quot;    
+[131] &quot;sameday&quot;   &quot;battle&quot;    &quot;phoneuse&quot;  &quot;filter_$&quot;  &quot;lvs&quot;      
+[136] &quot;lvswt67&quot;   &quot;llweight&quot;  &quot;coweight&quot;  &quot;wt_weth&quot;   &quot;wt_thfr&quot;  
+[141] &quot;wt_frsa&quot;   &quot;wt_wefr&quot;   &quot;weight&quot;    &quot;unlvwt67&quot; </code></pre>
+<h3 id="state">State</h3>
+<p>For each state, we want to know how many label themselves as <code>Very liberal</code> and how many report supporting Obama. The state is given by the <code>sstate</code> column and doesn’t include Hawaii or Alaska.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(sstate) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">count</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="kw">reorder</span>(sstate, n), n) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;State&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Respondents&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Responses by state&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;There are {df0 %&gt;% distinct(sstate) %&gt;% nrow()} states in the dataset&#39;</span>),
+    <span class="dt">caption =</span> <span class="st">&#39;Source: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/state_count-1..svg" />
+</figure>
+<h3 id="ideology">Ideology</h3>
+<p>Consulting the documentation, we see that liberality is given by the <code>ideo</code> column.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(ideo) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Ideology&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Respondents&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Responses by ideology&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;There are {df0 %&gt;% distinct(ideo) %&gt;% nrow()} ideologies in the dataset&#39;</span>),
+    <span class="dt">caption =</span> <span class="st">&#39;Source: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/ideo_count-1..svg" />
+</figure>
+<h3 id="obama-voters">Obama voters</h3>
+<p>The data indicating vote is not so obvious. There is</p>
+<ul>
+<li>current voting preference in question 3, of which there are different versions for different states;</li>
+<li>there are various columns derived from the survey responses to question 3, such as <code>q3horse</code>;</li>
+<li>there is question 6 which asks for voting intention in November; and</li>
+<li>there is a column called <code>obama</code> for which I couldn’t find any documentation.</li>
+</ul>
+<p>Despite the lack of documentation, I’ll run with <code>obama</code> since the responses seem to align better with the purpose of the exercise.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(obama) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_bar</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Vote&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Respondents&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Responses by vote&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">&#39;There are {df0 %&gt;% distinct(obama) %&gt;% nrow()} voting intentions in the dataset&#39;</span>),
+    <span class="dt">caption =</span> <span class="st">&#39;Source data: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/vote_count-1..svg" />
+</figure>
+<h3 id="data-augmentation">Data augmentation</h3>
+<p>In order to display two-letter abbreviations of the states, we use the data provided by the <code>state</code> package and join it to the Pew dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mapping &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+  <span class="dt">name =</span> <span class="kw">as_factor</span>(state.name, <span class="dt">levels =</span> <span class="kw">levels</span>(df<span class="op">$</span>sstate)), 
+  <span class="dt">abbreviation =</span> state.abb
+)
+
+df &lt;-<span class="st"> </span>df0 <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">left_join</span>(mapping, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&#39;sstate&#39;</span> =<span class="st"> &#39;name&#39;</span>))</code></pre></div>
+<p>Here’s a sample from the mapping table.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:left;">
+abbreviation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alabama
+</td>
+<td style="text-align:left;">
+AL
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alaska
+</td>
+<td style="text-align:left;">
+AK
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arizona
+</td>
+<td style="text-align:left;">
+AZ
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arkansas
+</td>
+<td style="text-align:left;">
+AR
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+California
+</td>
+<td style="text-align:left;">
+CA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colorado
+</td>
+<td style="text-align:left;">
+CO
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ideology-vs.obama-voter">Ideology vs. Obama voter</h2>
+<h3 id="raw-proportions">Raw proportions</h3>
+<p>Let’s take a look at how the proportion of liberals relates to the proportion of Obama voters. There seems to be a positive relation, although the data are fairly noisy. Plotting the full range of values on the y-axis makes the noise more prominent. We only show the resticted range in order to show the individual state names.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(sstate) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(
+    <span class="dt">respondents =</span> <span class="kw">n</span>(),
+    <span class="dt">liberals =</span> <span class="kw">sum</span>(ideo <span class="op">==</span><span class="st"> &#39;Very liberal&#39;</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
+    <span class="dt">liberal_proportion =</span> liberals <span class="op">/</span><span class="st"> </span>respondents,
+    <span class="dt">obama_voters =</span> <span class="kw">sum</span>(obama <span class="op">==</span><span class="st"> &#39;Obama voter&#39;</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),
+    <span class="dt">obama_vote_share =</span> obama_voters <span class="op">/</span><span class="st"> </span>respondents  
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">left_join</span>(mapping, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&#39;sstate&#39;</span> =<span class="st"> &#39;name&#39;</span>))
+
+qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> liberal_proportion, <span class="dt">x =</span> obama_vote_share) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">&#39;Observed proportion of liberals&#39;</span>,
+    <span class="dt">x =</span> <span class="st">&#39;Obama vote share&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Obama vote share vs liberal proportion for each state&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="st">&#39;The y-axis is truncated so that the labels are readable&#39;</span>,
+    <span class="dt">caption =</span> <span class="st">&#39;Source data: http://www.people-press.org/2008/11/02/november-2008-election-weekend-survey/&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/state_liberal_vs_obama-1..svg" />
+</figure>
+<h3 id="posterior-inference">Posterior inference</h3>
+<p>We’ll base our prior on the data (for convenience) and don’t take survey non-response issues into account. The pooled mean proportion of liberals will be our prior mean.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span><span class="kw">sum</span>(df<span class="op">$</span>ideo <span class="op">==</span><span class="st"> &#39;Very liberal&#39;</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">/</span><span class="st"> </span><span class="kw">nrow</span>(df)
+<span class="kw">percent</span>(mu)</code></pre></div>
+<pre><code>[1] &quot;3.5%&quot;</code></pre>
+<p>After trying various possibilities for the standard deviation <code>sigma</code>, the value below results in a prior that puts most of the density between 0% and 18%.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sigma &lt;-<span class="st"> </span><span class="fl">0.04</span>
+
+shape &lt;-<span class="st"> </span>(mu <span class="op">/</span><span class="st"> </span>sigma)<span class="op">^</span><span class="dv">2</span>
+rate &lt;-<span class="st"> </span>shape <span class="op">/</span><span class="st"> </span>mu
+
+<span class="kw">tibble</span>(
+    <span class="dt">prop =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="fl">0.0005</span>),
+    <span class="dt">density =</span> <span class="kw">dgamma</span>(prop, shape, rate)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(prop, density) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">&#39;skyblue&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;white&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.3</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Proportion of liberals&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Density&#39;</span>,
+    <span class="dt">title =</span> <span class="kw">str_glue</span>(<span class="kw">paste</span>(
+      <span class="st">&#39;Gamma(shape = {signif(shape, digits = 2)}, rate = {signif(rate, digits = 2)})&#39;</span>,
+      <span class="dt">sep =</span> <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>
+    ))
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/prior-1..svg" />
+</figure>
+<p>Let’s add the posterior means to our dataset and plot the them against proportion of Obama voters. In order to be visually comparable to the plot of observed data, we keep the limits of the axes the same.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior &lt;-<span class="st"> </span>qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">posterior_shape =</span> shape <span class="op">+</span><span class="st"> </span>liberals,
+    <span class="dt">posterior_rate =</span> rate <span class="op">+</span><span class="st"> </span>respondents,
+    <span class="dt">posterior_mean =</span> posterior_shape <span class="op">/</span><span class="st"> </span>posterior_rate
+  )
+
+qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> posterior_mean, <span class="dt">x =</span> obama_vote_share) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">&#39;Posterior mean of proportion of liberals&#39;</span>,
+    <span class="dt">x =</span> <span class="st">&#39;Obama vote share&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Obama vote share vs estimate of liberal proportion&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/posterior-1..svg" />
+</figure>
+<p>The posterior 95% credible intervals are shown below. Arizona and Louisianna seem to have a smaller proportional of liberals compared to the country average. Only Oregon’s credible interval is entirely above the country average.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">ci =</span> <span class="kw">map2</span>(
+      posterior_shape, 
+      posterior_rate, 
+      <span class="cf">function</span>(s, r) 
+        <span class="kw">tibble</span>(
+          <span class="dt">type =</span> <span class="kw">c</span>(<span class="st">&#39;lower&#39;</span>, <span class="st">&#39;upper&#39;</span>),
+          <span class="dt">value =</span> <span class="kw">qgamma</span>(<span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>), s, r)
+        ) 
+    )
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(ci) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(type, value) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> mu, <span class="dt">linetype =</span> <span class="st">&#39;dotted&#39;</span>, <span class="dt">colour =</span> <span class="st">&#39;orange&#39;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(<span class="kw">reorder</span>(sstate, posterior_mean), posterior_mean) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_pointrange</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lower, <span class="dt">ymax =</span> upper), <span class="dt">fatten =</span> <span class="fl">0.1</span>, <span class="dt">size =</span> <span class="fl">0.4</span>)  <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">coord_flip</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">y =</span> <span class="st">&#39;Posterior value&#39;</span>,
+    <span class="dt">x =</span> <span class="st">&#39;State&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;95% credible intervals for the proportion of liberals per state&#39;</span>,
+    <span class="dt">subtitle =</span> <span class="st">&#39;The pooled observed mean value is shown in orange&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/ci-1..svg" />
+</figure>
+<p>All of the states in which no liberals were observed had smaller sample sizes (below 50). The largest proportions were also observed in the states with sample sizes below 50. This plot looks fairly similar to the analogous plot for the cancer rate example, albeit with fewer data points.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(respondents, liberal_proportion) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Number of respondents&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Observed proportion of liberals&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Observed proportion of liberals per state&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/observed_prop_vs_num_respondents-1..svg" />
+</figure>
+<p>The posterior estimates result in much less extreme values for the states with few respondents.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">qa_posterior <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(respondents, posterior_mean) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label =</span> abbreviation, <span class="dt">alpha =</span> <span class="kw">log</span>(respondents)), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">hjust =</span> <span class="op">-</span><span class="fl">0.1</span>, <span class="dt">vjust =</span> <span class="op">-</span><span class="fl">0.1</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">labels =</span> percent, <span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.2</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">&#39;Number of respondents&#39;</span>,
+    <span class="dt">y =</span> <span class="st">&#39;Posterior mean of proportion of liberals&#39;</span>,
+    <span class="dt">title =</span> <span class="st">&#39;Posterior proportion of liberals by state&#39;</span>
+  )</code></pre></div>
+<figure>
+<img src="chapter_02_exercise_21_files/figure-markdown/posterior_prop_vs_num_respondents-1..svg" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 2 Exercise 20</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_20.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_20.html</id>
@@ -1076,194 +1629,6 @@ ci_d</code></pre></div>
 </figure>
 <h2 id="part-e">Part e</h2>
 <p>There are a number of issues to consider that are not mentioned in the question or suggested by the data. The number of fatal accidents depends on the number of miles flown by airplanes: if there are more flights, there will likely be more accidents. However, the number of flights isn’t directly accounted for in the number of passenger miles since the number of passengers per flight can vary from year to year. In any case, the number of passenger deaths per year is not independent because passengers on the same flight will have more similar survival chances.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 12</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_12.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_12.html</id>
-    <published>2018-09-01T00:00:00Z</published>
-    <updated>2018-09-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 12</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  1, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/poisson.html">poisson</a>, <a href="/tags/jeffrey%20prior.html">jeffrey prior</a>, <a href="/tags/gamma.html">gamma</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 12, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Suppose <span class="math inline">\(\theta\)</span> has a Poisson likelihood so that <span class="math inline">\(\log p(y \mid \theta) \propto y \log(\theta) - \theta\)</span>. We will find Jeffrey’s prior for <span class="math inline">\(\theta\)</span> and the gamma distribution that most closely approximates it.</p>
-<p>The derivative of the log likelihood is <span class="math inline">\(\frac{y}{\theta} - 1\)</span> and the second derivative is <span class="math inline">\(-\frac{y}{\theta^2}\)</span>. It follows that the Fisher information for <span class="math inline">\(\theta\)</span> is</p>
-<p class="mathjaxWide"><span class="math display">\[
-J(\theta)
-=
-\mathbb E \left( \frac{y}{\theta^2} \right)
-=
-\frac{1}{\theta}
-,
-\]</span></p>
-<p>so Jeffrey’s prior is <span class="math inline">\(p(\theta) \propto \frac{1}{\sqrt{\theta}}\)</span>. This is an improper prior because</p>
-<p class="mathjaxWide"><span class="math display">\[
-\int_0^\infty \theta^{-\frac{1}{2}} d\theta
-=
-\left[ 2\theta^{\frac{1}{2}} \right]_0^\infty
-=
-\infty
-.
-\]</span></p>
-<p>Since Jeffrey’s prior is improper, we can try approximate it with a gamma prior. Let <span class="math inline">\(\alpha, \beta \in (0, \infty)\)</span> be the shape and rate parameters of a gamma distribution. Then</p>
-<p class="mathjaxWide"><span class="math display">\[
-\dgamma(\theta \mid \alpha, \beta) 
-\propto
-x^{\alpha - 1}e^{-\beta x}
-.
-\]</span></p>
-<p>Choosing <span class="math inline">\(\alpha = \frac{1}{2}\)</span> and <span class="math inline">\(\beta = 0\)</span> yields Jeffrey’s prior. However, <span class="math inline">\(\beta\)</span> must be positive for the gamma distribution to be proper, so we can choose <span class="math inline">\(\beta = \epsilon\)</span> sufficiently small. We’ll use the <a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/zMachine.html">smallest positive float</a> representable in R.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">epsilon &lt;-<span class="st"> </span>.Machine<span class="op">$</span>double.xmin
-
-upper_limit &lt;-<span class="st"> </span><span class="dv">100000000</span>
-step &lt;-<span class="st"> </span>upper_limit <span class="op">/</span><span class="st"> </span><span class="dv">10000</span>
-
-prior &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, upper_limit, step)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">dgamma</span>(theta, <span class="fl">0.5</span>, epsilon)) </code></pre></div>
-<figure>
-<img src="chapter_02_exercise_12_files/figure-markdown/gamma_jeffrey_plot-1.png" />
-</figure>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 11</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_11.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_11.html</id>
-    <published>2018-09-01T00:00:00Z</published>
-    <updated>2018-09-01T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 11</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  1, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/cauchy.html">cauchy</a>, <a href="/tags/posterior%20predictive.html">posterior predictive</a>, <a href="/tags/grid%0Aapproximation.html">grid
-approximation</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 11, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dnorm}{normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dgamma}{gamma} \DeclareMathOperator{\invlogit}{invlogit} \DeclareMathOperator{\logit}{logit} \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Assume the sampling distribution is <span class="math inline">\(\dcauchy(y \mid \theta, 1)\)</span> with uniform prior <span class="math inline">\(p(\theta) \propto 1\)</span> on <span class="math inline">\([0, 100]\)</span>. Given observations <span class="math inline">\(y\)</span>, we can approximate the posterior for <span class="math inline">\(\theta\)</span> by dividing the interval <span class="math inline">\([0, 100]\)</span> into partitions of length <span class="math inline">\(\frac{1}{m}\)</span>. The unnormalised posterior for <span class="math inline">\(\theta\)</span> on this grid is then computed as follows.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># observations</span>
-y &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">43</span>, <span class="dv">44</span>, <span class="dv">45</span>, <span class="fl">46.5</span>, <span class="fl">47.5</span>) 
-
-<span class="co"># grid granularity</span>
-m &lt;-<span class="st"> </span><span class="dv">100</span>
-
-<span class="co"># L(θ) := p(y | θ)</span>
-likelihood &lt;-<span class="st"> </span><span class="cf">function</span>(theta) 
-  y <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">map</span>(dcauchy, theta, <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">reduce</span>(prod)
-
-<span class="co"># unnormalised posterior grid</span>
-posterior_unnorm &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">1</span> <span class="op">/</span><span class="st"> </span>m)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> <span class="kw">map</span>(theta, likelihood) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>())</code></pre></div>
-<p>We can approximate the normalising constant by summing the approximate area on each partition. Each partition has width <span class="math inline">\(\frac{1}{m}\)</span> and approximate height given by the density, so the approximate area is the multiple of the two.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># grid approx to area under curve</span>
-normalising_constant &lt;-<span class="st"> </span>posterior_unnorm <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">summarise</span>(<span class="kw">sum</span>(density) <span class="op">/</span><span class="st"> </span>m) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">pull</span>()
-
-<span class="co"># normalised posterior grid</span>
-posterior &lt;-<span class="st"> </span>posterior_unnorm <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">density =</span> density <span class="op">/</span><span class="st"> </span>normalising_constant)
-
-normalising_constant</code></pre></div>
-<pre><code>[1] 3.418359e-05</code></pre>
-<figure>
-<img src="chapter_02_exercise_11_files/figure-markdown/posterior_plot-1.png" />
-</figure>
-<p>Let’s zoom in on the region <span class="math inline">\([40, 50]\)</span> where most of the density lies.</p>
-<figure>
-<img src="chapter_02_exercise_11_files/figure-markdown/posterior_plot_zoomed-1.png" />
-</figure>
-<p>Sampling from this posterior yields a histogram with a similar shape.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">posterior_draws &lt;-<span class="st"> </span>posterior <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">sample_n</span>(<span class="dv">1000</span>, <span class="dt">replace =</span> <span class="ot">TRUE</span>, <span class="dt">weight =</span> density) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(theta)</code></pre></div>
-<figure>
-<img src="chapter_02_exercise_11_files/figure-markdown/posterior_sample_plot-1.png" />
-</figure>
-<p>We can draw from the posterior predictive distribution by first drawing <span class="math inline">\(\tilde\theta\)</span> from the posterior of <span class="math inline">\(\theta\)</span>, then drawing <span class="math inline">\(\tilde y\)</span> from <span class="math inline">\(\dcauchy(\tilde\theta, 1)\)</span>. The tails of the posterior predictive distribution are much wider than for <span class="math inline">\(\theta\)</span> so we plot this histogram on the interval <span class="math inline">\([10, 90]\)</span> (although there are a few observations outside this interval).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">posterior_predictive &lt;-<span class="st"> </span>posterior_draws <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pp =</span> <span class="kw">rcauchy</span>(<span class="kw">n</span>(), theta, <span class="dv">1</span>)) </code></pre></div>
-<figure>
-<img src="chapter_02_exercise_11_files/figure-markdown/posterior_predictive_plot-1.png" />
-</figure>
 
 <div id="disqus_thread"></div>
 <script>

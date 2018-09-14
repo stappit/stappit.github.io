@@ -1,0 +1,365 @@
+---
+title: "Cox Proportional Hazard"
+author: "Brian Callander"
+date: "2018-09-10"
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  cache = TRUE, 
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  error = TRUE,
+  knitr.table.format = 'html',
+  dev = "svglite",
+  fig.ext = ".svg" 
+)
+
+library(tidyverse)
+library(broom)
+library(scales)
+
+library(survival)
+library(survminer)
+
+library(kableExtra)
+
+theme_set(theme_bw())
+
+```
+
+[Last time](./hazard.html) we saw that the hazard function can be modelled directly from [right-censored time-to-event observations](./censoring.html) using a Poisson likelihood. In this post, we'll use those ideas to fit a constant hazard to data using Poisson regression, then exend those ideas to fitting arbitrary hazard functions (again with Poisson regression). This latter model is often called a Cox proportional hazards model. We'll finish by comparing our Cox model with that provided by the [survival package](https://cran.r-project.org/web/packages/survival/index.html).
+
+<!--more-->
+
+## Constant hazard
+
+Time-to-event observations have constant hazard when those observations have an exponential distribution. We'll generate observations from an exponential distribution with mean 5 and with censoring occurring independently of these observations. The hazard should be equal to the reciprocal of the mean, $h = 1 / 5 = 0.2$.
+
+```{r dataset_constant}
+N <- 1000
+mu <- 5
+
+dfc <- tibble(
+  id = 1:N,
+  tte = rexp(N, 1 / mu),
+  tto = pmin(rpois(N, 6) + 1, tte),
+  censored = tto < tte
+)
+```
+
+```{r table, echo = FALSE}
+dfc %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+The [hazard](./hazard.html) can be estimated by Poisson regression of the deaths (= -`censored`) against the exposure time (`tto`).
+
+```{r fit_constant_hazard}
+dfc %>% 
+  glm(
+    formula = !censored ~ 1 + offset(log(tto)),
+    family = poisson(link = 'log'),
+    data = .
+  ) %>% 
+  tidy() %>% 
+  pull(estimate) %>% 
+  exp() # inverse of the log-link
+```
+
+As expected, it's around 0.2.
+
+## Cox model
+
+Instead of assuming that our observations are drawn from a specified distribution, we can try to model arbitrary distributions. We do this by breaking up our observations into intervals and modelling the average hazard as a constant in each interval using the method outlined above.
+
+### The unknown distribution
+
+Let's use the Weibull distributions as the 'unknown' distribution from which our times-to-event are drawn.
+
+```{r weibull, echo = FALSE}
+scale <- 1.5
+shape <- 6
+
+tibble(x = seq(0, 22, 0.1), y = dweibull(x, scale, shape)) %>% 
+  ggplot() +
+  aes(x, y) +
+  geom_area(fill = 'skyblue', colour = 'white') +
+  labs(
+    x = 'time-to-event',
+    y = 'Probability density',
+    title = str_glue('Weibull(scale = {scale}, shape = {shape})')
+  )
+
+```
+
+The corresponding hazard function is shown below.
+
+```{r}
+tibble(
+    x = seq(0, 3, 0.1),
+    h = (shape / scale) * (x / scale)^(shape - 1)
+  ) %>% 
+  ggplot() +
+  aes(x, h) +
+  geom_line() +
+  labs(
+    y = 'Hazard',
+    title = str_glue('Weibull(scale = {scale}, shape = {shape}) hazard function')
+  )
+```
+
+### Fitting the parameters
+
+Let's generate data where the `tte` is generated from the Weibull distribution above, but where the observations `tto` are censored.
+
+```{r dataset_arbitrary}
+N <- 1000
+mu <- 5
+
+dfa <- tibble(
+  id = 1:N,
+  tte = rweibull(N, shape, scale),
+  tto = pmin(rpois(N, 5) + 1, tte),
+  censored = tto < tte
+)
+```
+
+```{r weibull_table}
+dfa %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+```{r}
+make_invervals <- function(df, M) {
+  
+  # all combos of person and interval
+  expand.grid(
+    id = df$id,                        # person
+    lower = seq(0, max(df$tto) + M, M) # interval lower bound
+  ) %>% 
+  as_tibble() %>% 
+  
+  # add strict upper bound for the interval
+  mutate(upper = lower + M) %>%
+
+  # add data for each person
+  inner_join(df, by = 'id') %>%
+
+  # exclude people that died in a previous interval
+  # if months lies on the lower bound, assign death to previous interval
+  filter(lower < tto) %>%
+
+  # add death and exposure info
+  mutate(
+    death = if_else(!censored & tte <= upper, 1, 0),
+    exposure = pmin(tte - lower, M)
+  ) %>% 
+
+  # sorted is easier to look at
+  arrange(id, lower)
+}
+
+dfb <- make_invervals(dfa, 0.1)
+dfb
+```
+
+
+## Comparison with `survival`
+
+### Data
+
+```{r}
+data("mastectomy", package = "HSAUR")
+
+df <- mastectomy %>% 
+  as_tibble() %>% 
+  arrange(time) %>% 
+  transmute(
+    id = 1:n(),
+    months = time,
+    event,
+    metastized = metastized == 'yes'
+  ) 
+```
+
+```{r masectomy_table}
+df %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+```{r}
+df %>% 
+  ggplot(aes(x = event, y = ..count.. / sum(..count..))) +
+  geom_bar(position = 'stack') +
+  scale_y_continuous(labels = percent) +
+  labs(
+    x = 'Event observed?',
+    y = 'Fraction of rows',
+    title = 'Censoring in the masectomy dataset',
+    subtitle = str_glue('Total rows: {df %>% nrow()}')
+  )
+```
+
+
+```{r metastized_censoring, fig.height = 6, fig.width = 6}
+df %>% 
+  ggplot(aes(y = months, x = reorder(id, months), fill = metastized, width = 0.2)) +
+  geom_col() +
+  geom_point(aes(alpha = event)) +
+  coord_flip() +
+  labs(
+    y = 'Months',
+    x = 'Person',
+    title = '',
+    fill = 'Metastised?',
+    alpha = 'Event?'
+  ) 
+```
+
+
+
+### Piecewise-constant hazard
+
+```{r}
+M <- 3 # size of intervals
+
+df1 <- 
+  # all combos of person and interval
+  expand.grid(
+    id = df$id,                           # person
+    lower = seq(0, max(df$months) + M, M) # interval lower bound
+  ) %>% 
+  as_tibble() %>% 
+  
+  # add strict upper bound for the interval
+  mutate(upper = lower + M) %>% 
+  
+  # add data for each person
+  inner_join(df, by = 'id') %>% 
+  
+  # exclude people that died in a previous interval
+  # if months lies on the lower bound, assign death to previous interval
+  filter(lower < months) %>% 
+  
+  # add death and exposure info
+  mutate(
+    death = if_else(event & months <= upper, 1, 0),
+    exposure = pmin(months - lower, M)
+  ) %>% 
+  arrange(id, lower)
+```
+
+Let's take a look at some entries to see what this looks like. We should see 
+
+* a row for every interval in which the person was part of the experiment
+* the sum of the exposures is equal to `months`
+* `death` is 1 for the last interval if there was no censoring, or 0 otherwise
+
+Here is id 2.
+
+```{r, echo = FALSE}
+df1 %>% 
+  filter(id == 2) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+In the case that the event occurred on the lower boundary of an interval, we assign the event to the previous interval. This is why we see a death in interval [15, 18) with exposure 3, rather than in interval [18, 21) with exposure 0. We do this because exposure 0 doesn't make much sense. We can see this for id 5.
+
+```{r, echo = FALSE}
+df1 %>% 
+  filter(id == 5) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+For censored cases, `death` is always 0, as we can see for id 21.
+
+```{r, echo = FALSE}
+df1 %>% 
+  filter(id == 21) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+We can check these properties for the whole dataset. First, exposure is never zero.
+
+```{r}
+min(df1$exposure)
+```
+
+The sum of the exposures is equal to the time to observation.
+
+```{r}
+df1 %>% 
+  group_by(id) %>% 
+  summarise(correct = max(months) == sum(exposure)) %>% 
+  count(correct) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+
+```
+
+The sum of all `death`s is equal to the censoring status.
+
+```{r}
+df1 %>% 
+  group_by(id) %>% 
+  summarise(correct = sum(death) == max(if_else(event, 1, 0))) %>% 
+  count(correct) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+
+```
+
+### Parameter fitting 
+
+Just like before, we estimate the hazard with Poisson regression of the number of deaths against the interval, with exposure equal to the time observed in that interval. We add `metastized` to estimate whether it has an effect on the survival time.
+
+```{r}
+m <- glm(
+  death ~ 0 + ordered(lower) + metastized + offset(log(exposure)), 
+  data = df1, 
+  family = poisson()
+)
+
+summary(m)
+```
+
+```{r}
+d <- expand.grid(
+    metastized = c(FALSE, TRUE),
+    lower = 1 * 0:max(df1$lower),
+    exposure = M
+  ) %>% 
+  as_tibble() 
+
+augment(x = m, newdata = d, type.predict= 'response')
+
+```
+
+
+### The survival package
+
+```{r}
+cx <- coxph(
+  formula = Surv(months, event) ~ metastized,
+  data = df
+)
+
+cx
+```

@@ -9,15 +9,6 @@ output:
     preserve_yaml: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = TRUE,
-  comment = NA
-  # cache = TRUE
-)
-
-library(tidyverse)
-```
 
 
 I've been working with the unsupervised clustering algorithm [latent Dirichlet allocation](./latent_dirichlet_allocation.html) recently,  which comes along with the notion of *perplexity*. 
@@ -28,7 +19,7 @@ I've been working with the unsupervised clustering algorithm [latent Dirichlet a
 
 Suppose I pick one of four balls uniformly at random, where each ball has a different colour, and you have to guess the colour. A good guessing strategy is depicted in the tree below.
 
-![]()
+![](./tex/uniform.pdf)
 
 You will always need 2 questions to get the the answer using this strategy. We'll show below that it's not possible to guarantee an expected number of questions fewer than 2. For the moment, notice that the number of questions we ask is the negative log-probability of being correct.
 

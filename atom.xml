@@ -8,8 +8,172 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-14T00:00:00Z</updated>
+    <updated>2018-09-15T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 3 Exercise 2</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html</id>
+    <published>2018-09-15T00:00:00Z</published>
+    <updated>2018-09-15T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 2</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September 15, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/multinomial.html">multinomial</a>, <a href="/tags/dirichlet.html">dirichlet</a>, <a href="/tags/beta.html">beta</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 2, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+survey
+</th>
+<th style="text-align:right;">
+bush
+</th>
+<th style="text-align:right;">
+dukakis
+</th>
+<th style="text-align:right;">
+other
+</th>
+<th style="text-align:right;">
+total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+pre-debate
+</td>
+<td style="text-align:right;">
+294
+</td>
+<td style="text-align:right;">
+307
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+639
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+post-debate
+</td>
+<td style="text-align:right;">
+288
+</td>
+<td style="text-align:right;">
+332
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+639
+</td>
+</tr>
+</tbody>
+</table>
+<p>Let <span class="math inline">\(\theta_\text{pre} \sim \ddirichlet_3(\alpha_\text{pre})\)</span> and <span class="math inline">\(\theta_\text{post} \sim \ddirichlet_3(\alpha_\text{post})\)</span> be the pre- and post-debate priors. Then the posteriors are</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \theta_\text{pre} \mid y &amp;\sim \ddirichlet\left(294 + \alpha_{(\text{pre}, \text{b})}, 307 + \alpha_{(\text{pre}, \text{d})}, 38 + \alpha_{(\text{pre}, \text{o})} \right)
+  \\
+  \theta_\text{post} \mid y &amp;\sim \ddirichlet\left(288 + \alpha_{(\text{post}, \text{b})}, 332 + \alpha_{(\text{post}, \text{d})}, 19 + \alpha_{(\text{post}, \text{o})} \right)
+.
+\end{align}
+\]</span></p>
+<p>Denote the proportion of support for Bush amongst Bush/Dukakis supporters by <span class="math inline">\(\phi_\bullet := \frac{\theta_{(\bullet, \text{b})}}{\theta_{(\bullet, \text{b})} + \theta_{(\bullet, \text{d})}}\)</span>. The results of the <a href="./chapter_03_exercise_01.html">previous exercise</a> show that we can treat this as a beta-binomial problem by simply ignoring the results for <code>other</code>. More precisely,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \phi_\text{pre} \mid y &amp;\sim \dbeta\left(294 + \alpha_{(\text{pre}, \text{b})}, 307 + \alpha_{(\text{pre}, \text{d})} \right)
+  \\
+  \phi_\text{post} \mid y &amp;\sim \dbeta\left(288 + \alpha_{(\text{post}, \text{b})}, 332 + \alpha_{(\text{post}, \text{d})} \right)
+\end{align}
+.
+\]</span></p>
+<p>Let’s plot these posteriors and their difference <span class="math inline">\(\delta := (\phi_\text{post} \mid y) - (\phi_\text{pre} \mid y)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">alpha_bush &lt;-<span class="st"> </span><span class="dv">1</span>
+alpha_dukakis &lt;-<span class="st"> </span><span class="dv">1</span>
+
+posteriors &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
+    <span class="dt">value =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>),
+    <span class="dt">survey =</span> df<span class="op">$</span>survey
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">inner_join</span>(df, <span class="dt">by =</span> <span class="st">&#39;survey&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">post_bush =</span> bush <span class="op">+</span><span class="st"> </span>alpha_bush,
+    <span class="dt">post_dukakis =</span> dukakis <span class="op">+</span><span class="st"> </span>alpha_dukakis,
+    <span class="dt">density =</span> <span class="kw">dbeta</span>(value, post_bush, post_dukakis)
+  ) </code></pre></div>
+<figure>
+<img src="chapter_03_exercise_02_files/figure-markdown/posteriors_plot-1..svg" />
+</figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">10000</span>
+
+shift &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
+    <span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>N, 
+    <span class="dt">survey =</span> df<span class="op">$</span>survey
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">inner_join</span>(df, <span class="dt">by =</span> <span class="st">&#39;survey&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">post_bush =</span> bush <span class="op">+</span><span class="st"> </span>alpha_bush,
+    <span class="dt">post_dukakis =</span> dukakis <span class="op">+</span><span class="st"> </span>alpha_dukakis,
+    <span class="dt">value =</span> <span class="kw">rbeta</span>(<span class="kw">n</span>(), post_bush, post_dukakis)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(draw, survey, value) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(survey, value) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">difference =</span> <span class="st">`</span><span class="dt">post-debate</span><span class="st">`</span> <span class="op">-</span><span class="st"> `</span><span class="dt">pre-debate</span><span class="st">`</span>) </code></pre></div>
+<figure>
+<img src="chapter_03_exercise_02_files/figure-markdown/shift_plot-1..svg" />
+</figure>
+<p>There is a 19.1% probability (the area above 0) that there was a positive shift towards Bush.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 3 Exercise 1</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_01.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_01.html</id>
@@ -140,17 +304,17 @@ p(\theta_1, \theta_2 \mid y)
 .
 \]</span></p>
 <h2 id="change-of-variables">Change of variables</h2>
-<p>Now define <span class="math inline">\((\phi_1, \phi_2) := (\frac{\theta_1}{\theta_1 + \theta_2}, \theta_1 + \theta_2)\)</span>, so that $(_1, _2) = (_1_2, _2 - _12). The Jacobian of this transformation is</p>
+<p>Now define <span class="math inline">\((\phi_1, \phi_2) := (\frac{\theta_1}{\theta_1 + \theta_2}, \theta_1 + \theta_2)\)</span>, so that <span class="math inline">\((\theta_1, \theta_2) = (\phi_1\phi_2, \phi_2 - \phi_1\phi_2)\)</span>. The Jacobian of this transformation is</p>
 <p class="mathjaxWide"><span class="math display">\[
-\begin{bmatrix}
+\begin{vmatrix}
   \frac{\partial\theta_1}{\partial\phi_1} &amp; \frac{\partial\theta_1}{\partial\phi_2} \\
   \frac{\partial\theta_2}{\partial\phi_1} &amp; \frac{\partial\theta_2}{\partial\phi_2} 
-\end{bmatrix}
+\end{vmatrix}
 =
-\begin{bmatrix}
+\begin{vmatrix}
   \phi_2 &amp; \phi_1 \\
   -\phi_2 &amp; 1 - \phi_1
-\end{bmatrix}
+\end{vmatrix}
 =
 \phi_2
 .
@@ -1339,182 +1503,6 @@ a = b
   }{(\alpha + \beta + 1) (\alpha + \beta)^2}
   .
 \end{align}\]</span>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 14</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_14.html</id>
-    <published>2018-09-03T00:00:00Z</published>
-    <updated>2018-09-03T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 14</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  3, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/conjugate%20prior.html">conjugate prior</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 14, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Suppose we have a normal prior <span class="math inline">\(\theta \sim \dnorm (\mu_0, \frac{1}{\tau_0})\)</span> and a normal sampling distribution <span class="math inline">\(y \mid \theta \sim \dnorm(\theta, \sigma)\)</span>, where the variance is known. We will show by induction that the posterior is <span class="math inline">\(\theta \mid y_1, \dotsc, y_{n} \sim \dnorm(\mu_{n}, \frac{1}{\tau_{n}})\)</span> where</p>
-<p class="mathjaxWide"><span class="math display">\[
-  \frac{1}{\tau_{n}^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
-\]</span></p>
-<p>for <span class="math inline">\(n = 1, \dotsc, \infty\)</span>.</p>
-<h2 id="base-case">Base case</h2>
-<p>The case <span class="math inline">\(n = 1\)</span> can be reexpressed as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \frac{1}{\tau_1^2} = \frac{\sigma^2 + \tau_0^2}{\sigma^2\tau_0^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_1 = \frac{\sigma_0^2\mu_0 + \tau_0^2y}{\sigma^2 + \tau_0^2}
-  .
-\end{align}
-\]</span></p>
-<p>Now we can combine the fractions in the exponent, expand the brackets, collect the terms as <span class="math inline">\(\theta\)</span>-coefficients, rewrite the coefficients in terms of <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\tau_1\)</span>, then complete the square in terms of <span class="math inline">\(\theta\)</span>:</p>
-<span class="math display">\[\begin{align}
-  \frac{(y - \theta)^2}{\sigma^2}
-  +
-  \frac{(\theta - \mu_0)^2}{\tau_0^2}
-  
-  &amp;=
-  \frac{(y^2 + \theta^2 - 2\theta y) \tau_0^2 + (\theta^2 + \mu_0^2 - 2 \theta \mu_0) \sigma^2}{\sigma^2 \tau_0^2}
-  
-  \\
-  &amp;=
-  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta (\sigma^2\mu_0 + \tau_0^2y) + (y^2\tau_0^2 + \mu_0^2\sigma^2)}{\sigma^2\tau_0^2}
-  \\
-  &amp;=
-  \frac{\theta^2 (\tau_0^2 + \sigma^2) -2 \theta \mu_1 (\sigma^2 + \tau_0^2) + \mu_1 (\sigma^2 + \tau_0^2) }{\sigma^2\tau_0^2}
-  \\
-  &amp;=
-  \theta^2\frac{1}{\tau_1^2} -2\theta \mu_1 \frac{1}{\tau_1^2} + \mu_1 \frac{1}{\tau_1^2}
-  \\
-  &amp;=
-  \frac{\theta^2 -2 \mu_1 \theta + \mu_1^2}{\tau_1^2} 
-  \\
-  &amp;=
-  \frac{(\theta - \mu_1)^2}{\tau_1^2} 
-  .
-\end{align}\]</span>
-<h2 id="induction-step">Induction step</h2>
-<p>The induction hypothesis is that the variance and mean are given by</p>
-<p class="mathjaxWide"><span class="math display">\[
-  \frac{1}{\tau_n^2} = \frac{1}{\tau_0^2} + \frac{n}{\sigma^2}
-  \quad
-  \text{and}
-  \quad
-  \mu_n = \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}}
-\]</span></p>
-<p>for some <span class="math inline">\(n \ge 1\)</span>.</p>
-<p>Starting with the variance, the base step can be reexpressed as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{\tau_{n+1}^2} 
-=
-\frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
-.
-\]</span></p>
-<p>Now apply the induction hypothesis to get</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{1}{\tau_{n+1}^2} 
-=
-\frac{1}{\tau_0^2} + \frac{n}{\sigma^2} + \frac{1}{\sigma^2}
-=
-\frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-.
-\]</span></p>
-<p>For the mean we apply the same strategy. The base step can be reexpressed as</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mu_{n+1}
-=
-\frac{
-  \frac{1}{\tau_n^2}\mu_n + \frac{1}{\sigma^2}y_{n+1}
-}{
-  \frac{1}{\tau_n^2} + \frac{1}{\sigma^2}
-}
-.
-\]</span></p>
-<p>Applying the induction hypothesis then gives</p>
-<span class="math display">\[\begin{align}
-  \mu_{n+1}
-  &amp;=
-  \frac{
-    \frac{1}{\tau_n^2} \left( \frac{\frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n}{\frac{1}{\tau_0^2} + \frac{n}{\sigma^2}} \right) + \frac{1}{\sigma^2}y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}}
-  
-  \\
-  &amp;=
-  \frac{
-    \frac{1}{\tau_0^2}\mu_0 + \frac{n}{\sigma^2}\bar y_n + \frac{1}{\sigma^2}y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-  }
-  
-  \\
-  &amp;=
-  \frac{
-    \frac{1}{\tau_0^2}\mu_0 + \frac{n+1}{\sigma^2}\bar y_{n+1}
-  }{
-    \frac{1}{\tau_0^2} + \frac{n+1}{\sigma^2}
-  }
-  ,
-\end{align}\]</span>
-<p>since</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-(n + 1) \bar y_{n + 1}
-&amp;:=
-\sum_1^{n+1} y_i
-\\
-&amp;=
-y_{n+1} + \sum_1^n y_i
-\\
-&amp;=
-y_{n+1} + n\bar y_n
-.
-\end{align}
-\]</span></p>
 
 <div id="disqus_thread"></div>
 <script>

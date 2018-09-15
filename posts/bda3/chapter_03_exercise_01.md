@@ -155,18 +155,18 @@ $$
 
 ## Change of variables
 
-Now define $(\phi_1, \phi_2) := (\frac{\theta_1}{\theta_1 + \theta_2}, \theta_1 + \theta_2)$, so that $(\theta_1, \theta_2) = (\phi_1\phi_2, \phi_2 - \phi_1\phi2). The Jacobian of this transformation is
+Now define $(\phi_1, \phi_2) := (\frac{\theta_1}{\theta_1 + \theta_2}, \theta_1 + \theta_2)$, so that $(\theta_1, \theta_2) = (\phi_1\phi_2, \phi_2 - \phi_1\phi_2)$. The Jacobian of this transformation is
 
 $$
-\begin{bmatrix}
+\begin{vmatrix}
   \frac{\partial\theta_1}{\partial\phi_1} & \frac{\partial\theta_1}{\partial\phi_2} \\
   \frac{\partial\theta_2}{\partial\phi_1} & \frac{\partial\theta_2}{\partial\phi_2} 
-\end{bmatrix}
+\end{vmatrix}
 =
-\begin{bmatrix}
+\begin{vmatrix}
   \phi_2 & \phi_1 \\
   -\phi_2 & 1 - \phi_1
-\end{bmatrix}
+\end{vmatrix}
 =
 \phi_2
 .

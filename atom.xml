@@ -8,8 +8,103 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-09-15T00:00:00Z</updated>
+    <updated>2018-09-16T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 3 Exercise 3</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_03.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_03.html</id>
+    <published>2018-09-16T00:00:00Z</published>
+    <updated>2018-09-16T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 3</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on September 16, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/t.html">t</a>, <a href="/tags/behrens-fischer.html">behrens-fischer</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 3, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose we have <span class="math inline">\(n\)</span> measurements <span class="math inline">\(y \mid \mu, \sigma \sim \dnorm(\mu, \sigma)\)</span>, where the prior <span class="math inline">\(p(\mu, \log \sigma) \propto 1\)</span> is uniform. The calculations on page 66 show that the marginal posterior distribution of <span class="math inline">\(\mu\)</span> is <span class="math inline">\(\mu \mid y \sim \dt(\bar y, s / n)\)</span>, where <span class="math inline">\(s\)</span> is the sample standard deviation. The measurements are as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">control &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="dt">n =</span> <span class="dv">32</span>,
+  <span class="dt">mean =</span> <span class="fl">1.013</span>,
+  <span class="dt">sd =</span> <span class="fl">0.24</span>
+)
+
+treatment &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="dt">n =</span> <span class="dv">36</span>,
+  <span class="dt">mean =</span> <span class="fl">1.173</span>,
+  <span class="dt">sd =</span> <span class="fl">0.2</span>
+)</code></pre></div>
+<p>The t-distribution in base-R is a standardised t-distribution. For a more general t-distribution (with arbitrary location and scale), we’ll use the <a href="https://www.rdocumentation.org/packages/LaplacesDemon/versions/16.1.1">LaplacesDemon</a> package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(LaplacesDemon)</code></pre></div>
+<p>This allows us to plot the marginal posterior means.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mp &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">value =</span> <span class="kw">seq</span>(<span class="fl">0.95</span>, <span class="fl">1.25</span>, <span class="fl">0.001</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">ctrl =</span> <span class="kw">dst</span>(value, control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">dst</span>(value, treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">gather</span>(cohort, density, ctrl, trt) </code></pre></div>
+<figure>
+<img src="chapter_03_exercise_03_files/figure-markdown/mp_plot-1..svg" />
+</figure>
+<p>The 95% credible interval of the marginal posterior means is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span><span class="dv">10000</span>
+
+difference &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>draws) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">ctrl =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">difference =</span> trt <span class="op">-</span><span class="st"> </span>ctrl
+  ) 
+
+ci &lt;-<span class="st"> </span>difference<span class="op">$</span>difference <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>)) 
+
+ci</code></pre></div>
+<pre><code>       5%       95% 
+0.1443125 0.1757713 </code></pre>
+<p>We can also plot the distribution of the difference.</p>
+<figure>
+<img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1..svg" />
+</figure>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 3 Exercise 2</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html</id>
@@ -1372,137 +1467,6 @@ a = b
 ,
 \]</span></p>
 <p>where we have used the facts that <span class="math inline">\(\alpha &gt; 0\)</span>, <span class="math inline">\(\Gamma(\alpha + 1) = \alpha \Gamma(\alpha)\)</span>, and that the gamma function is positive on the reals. Therefore, <span class="math inline">\(\alpha = \beta = 1\)</span>. In other words, if the beta-binomial distribution is uniform, then <span class="math inline">\(\alpha = \beta = 1\)</span>.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 15</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_15.html</id>
-    <published>2018-09-04T00:00:00Z</published>
-    <updated>2018-09-04T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 15</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  4, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta.html">beta</a>, <a href="/tags/mean.html">mean</a>, <a href="/tags/variance.html">variance</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 15, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Suppose <span class="math inline">\(Z \sim \dbeta(\alpha, \beta)\)</span>. Then for <span class="math inline">\(m, n \in \mathbb N\)</span> we have</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mathbb E \left[ Z^m (1 - Z)^n \right]
-  &amp;=
-  \frac{1}{B(\alpha, \beta)} \int_0^1 z^m (1 - z)^n z^{\alpha - 1} (1 - z)^{\beta - 1} dz
-  \\
-  &amp;=
-  \frac{1}{B(\alpha, \beta)} \int_0^1 z^{m + \alpha - 1} (1 - z)^{n + \beta - 1} dz
-  \\
-  &amp;=
-  \frac{1}{B(\alpha, \beta)} \frac{\Gamma (m + \alpha) \Gamma( n + \beta )}{\Gamma (m + n + \alpha + \beta)}
-  \\
-  &amp;=
-  \frac{(\alpha + \beta -1)!}{(\alpha - 1)! (\beta - 1)!} \frac{(m + \alpha - 1)! (n + \beta - 1)!}{(m + n + \alpha + \beta - 1)!}
-  ,
-\end{align}
-\]</span></p>
-<p>where <span class="math inline">\(B\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">beta function</a> and <span class="math inline">\(\Gamma\)</span> is the <a href="https://en.wikipedia.org/wiki/Gamma_function">gamma function</a>.</p>
-<p>I’m not sure how the above integral is so useful for this exercise since calculating the mean and variance only require <span class="math inline">\(n = 0\)</span> and <span class="math inline">\(m = 1, 2\)</span>.</p>
-<p>The mean of <span class="math inline">\(Z\)</span> is the above expectation when <span class="math inline">\(m = 1\)</span> and <span class="math inline">\(n = 0\)</span>, giving</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mathbb E (Z)
-=
-\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
-\frac{\alpha! (\beta - 1)!}{(\alpha + \beta)!}
-=
-\frac{\alpha}{\alpha + \beta}
-.
-\]</span></p>
-<p>The second moment is given by <span class="math inline">\(m = 2\)</span> and <span class="math inline">\(n = 0\)</span>, which is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mathbb E(Z^2)
-=
-\frac{(\alpha + \beta - 1)!}{(\alpha - 1)! (\beta - 1)!}
-\frac{(\alpha +1)! (\beta - 1)!}{(\alpha + \beta + 1)!}
-=
-\frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
-.
-\]</span></p>
-<p>It follows that the variance is</p>
-<span class="math display">\[\begin{align}
-  \mathbb E (Z^2) - \mathbb E (Z)^2
-  &amp;=
-  \frac{(\alpha + 1) \alpha}{(\alpha + \beta + 1) (\alpha + \beta)}
-  -
-  \frac{\alpha^2}{(\alpha + \beta)^2}
-  
-  \\
-  &amp;=
-  
-  \frac{(\alpha + 1) \alpha (\alpha + \beta)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
-  -
-  \frac{\alpha^2(\alpha + \beta + 1)}{(\alpha + \beta + 1) (\alpha + \beta)^2}
-  
-  \\
-  &amp;=
-  
-  \frac{
-    \alpha^2 (\alpha + \beta) + \alpha (\alpha + \beta)
-    -
-    \alpha^2(\alpha + \beta) - \alpha^2
-  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
-  
-  \\
-  &amp;=
-  
-  \frac{
-    \alpha (\alpha + \beta)
-    -
-    \alpha^2
-  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
-  \\
-  &amp;=
-  
-  \frac{
-    \alpha \beta
-  }{(\alpha + \beta + 1) (\alpha + \beta)^2}
-  .
-\end{align}\]</span>
 
 <div id="disqus_thread"></div>
 <script>

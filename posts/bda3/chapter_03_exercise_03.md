@@ -29,7 +29,7 @@ $y \mid \mu, \sigma \sim \dnorm(\mu, \sigma)$, where the prior
 $p(\mu, \log \sigma) \propto 1$ is uniform. The calculations on page 66
 show that the marginal posterior distribution of $\mu$ is
 $\mu \mid y \sim \dt(\bar y, s / n)$, where $s$ is the sample standard
-deviation.
+deviation. The measurements are as follows.
 
 ``` {.r}
 control <- list(
@@ -45,49 +45,50 @@ treatment <- list(
 )
 ```
 
+The t-distribution in base-R is a standardised t-distribution. For a
+more general t-distribution (with arbitrary location and scale), we'll
+use the
+[LaplacesDemon](https://www.rdocumentation.org/packages/LaplacesDemon/versions/16.1.1)
+package.
+
 ``` {.r}
 library(LaplacesDemon)
-
-tibble(value = seq(0.95, 1.25, 0.001)) %>% 
-  mutate(
-    ctrl = dst(value, control$mean, control$sd / control$n, control$n - 1),
-    trt = dst(value, treatment$mean, treatment$sd / treatment$n, treatment$n - 1),
-  ) %>% 
-  gather(cohort, density, ctrl, trt) %>% 
-  ggplot() +
-  aes(value, density, fill = cohort) +
-  geom_area(colour = 'white') +
-  labs(
-    x = 'Value',
-    y = 'Density',
-    title = 'Marginal posterior mean distributions'
-  )
 ```
 
-![](chapter_03_exercise_03_files/figure-markdown/unnamed-chunk-1-1..svg)
+This allows us to plot the marginal posterior means.
+
+``` {.r}
+mp <- tibble(value = seq(0.95, 1.25, 0.001)) %>% 
+  mutate(
+    ctrl = dst(value, control$mean, control$sd / control$n, control$n - 1),
+    trt = dst(value, treatment$mean, treatment$sd / treatment$n, treatment$n - 1)
+  ) %>% 
+  gather(cohort, density, ctrl, trt) 
+```
+
+![](chapter_03_exercise_03_files/figure-markdown/mp_plot-1..svg)
+
+The 95% credible interval of the marginal posterior means is:
 
 ``` {.r}
 draws <- 10000
 
-tibble(draw = 1:draws) %>% 
+difference <- tibble(draw = 1:draws) %>% 
   mutate(
     ctrl = rst(n(), control$mean, control$sd / control$n, control$n - 1),
     trt = rst(n(), treatment$mean, treatment$sd / treatment$n, treatment$n - 1),
     difference = trt - ctrl
   ) 
+
+ci <- difference$difference %>% 
+  quantile(probs = c(0.05, 0.95)) 
+
+ci
 ```
 
-    # A tibble: 10,000 x 4
-        draw  ctrl   trt difference
-       <int> <dbl> <dbl>      <dbl>
-     1     1  1.02  1.18      0.158
-     2     2  1.01  1.17      0.163
-     3     3  1.00  1.18      0.181
-     4     4  1.01  1.17      0.160
-     5     5  1.01  1.17      0.151
-     6     6  1.02  1.17      0.157
-     7     7  1.02  1.16      0.140
-     8     8  1.02  1.17      0.154
-     9     9  1.01  1.18      0.167
-    10    10  1.01  1.17      0.156
-    # ... with 9,990 more rows
+           5%       95% 
+    0.1443125 0.1757713 
+
+We can also plot the distribution of the difference.
+
+![](chapter_03_exercise_03_files/figure-markdown/diffs_plot-1..svg)

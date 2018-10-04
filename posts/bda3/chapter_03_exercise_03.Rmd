@@ -2,7 +2,7 @@
 title: "BDA3 Chapter 3 Exercise 3"
 author: "Brian Callander"
 date: "2018-09-16"
-tags: bda chapter 3, solutions, bayes, normal, t, behrens-fischer
+tags: bda chapter 3, solutions, bayes, normal, t, behrens-fischer, marginal posterior
 always_allow_html: yes
 output: 
   md_document:
@@ -49,7 +49,7 @@ theme_set(theme_bw())
 
 ```
 
-Suppose we have $n$ measurements $y \mid \mu, \sigma \sim \dnorm(\mu, \sigma)$, where the prior $p(\mu, \log \sigma) \propto 1$ is uniform. The calculations on page 66 show that the marginal posterior distribution of $\mu$ is $\mu \mid y \sim \dt(\bar y, s / n)$, where $s$ is the sample standard deviation.
+Suppose we have $n$ measurements $y \mid \mu, \sigma \sim \dnorm(\mu, \sigma)$, where the prior $p(\mu, \log \sigma) \propto 1$ is uniform. The calculations on page 66 show that the marginal posterior distribution of $\mu$ is $\mu \mid y \sim \dt(\bar y, s / n)$, where $s$ is the sample standard deviation. The measurements are as follows.
 
 
 ```{r data}
@@ -66,26 +66,40 @@ treatment <- list(
 )
 ```
 
-```{r}
-library(LaplacesDemon)
+The t-distribution in base-R is a standardised t-distribution. For a more general t-distribution (with arbitrary location and scale), we'll use the [LaplacesDemon](https://www.rdocumentation.org/packages/LaplacesDemon/versions/16.1.1) package.
 
-tibble(value = seq(0.95, 1.25, 0.001)) %>% 
+```{r package}
+library(LaplacesDemon)
+```
+
+This allows us to plot the marginal posterior means. 
+
+```{r mp}
+mp <- tibble(value = seq(0.95, 1.25, 0.001)) %>% 
   mutate(
     ctrl = dst(value, control$mean, control$sd / control$n, control$n - 1),
     trt = dst(value, treatment$mean, treatment$sd / treatment$n, treatment$n - 1)
   ) %>% 
-  gather(cohort, density, ctrl, trt) %>% 
+  gather(cohort, density, ctrl, trt) 
+```
+
+```{r mp_plot, echo = FALSE}
+mp %>% 
   ggplot() +
   aes(value, density, fill = cohort) +
-  geom_area(colour = 'white') +
+  geom_area(colour = 'white', position = 'identity') +
+  scale_x_continuous(breaks = seq(0, 2, 0.05)) +
   labs(
     x = 'Value',
     y = 'Density',
+    fill = 'Cohort',
     title = 'Marginal posterior mean distributions'
   )
 ```
 
-```{r}
+The 95% credible interval of the marginal posterior means is:
+
+```{r diffs}
 draws <- 10000
 
 difference <- tibble(draw = 1:draws) %>% 
@@ -94,21 +108,27 @@ difference <- tibble(draw = 1:draws) %>%
     trt = rst(n(), treatment$mean, treatment$sd / treatment$n, treatment$n - 1),
     difference = trt - ctrl
   ) 
+
+ci <- difference$difference %>% 
+  quantile(probs = c(0.05, 0.95)) 
+
+ci
+```
+
+We can also plot the distribution of the difference.
   
+```{r diffs_plot, echo = FALSE}
 difference %>% 
   ggplot() +
   aes(difference) +
   geom_histogram() +
+  geom_errorbarh(aes(xmin = ci[1], xmax = ci[2], y = 0), colour = 'chocolate', size = 1) +
   labs(
     x = 'Difference',
     y = 'Count',
     title = 'Difference in marginal posteriors of the means',
-    subtitle = 'Treatment - Control'
+    subtitle = str_glue('Treatment - Control: {comma(draws)} draws')
   )
 ```
 
-```{r}
-difference$difference %>% 
-  quantile(probs = c(0.05, 0.95)) 
-```
 

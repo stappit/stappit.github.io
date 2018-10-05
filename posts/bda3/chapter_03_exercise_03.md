@@ -6,7 +6,9 @@ output:
   md_document:
     preserve_yaml: True
     variant: markdown
-tags: 'bda chapter 3, solutions, bayes, normal, t, behrens-fischer'
+tags: |
+    bda chapter 3, solutions, bayes, normal, t, behrens-fischer, marginal
+    posterior
 title: BDA3 Chapter 3 Exercise 3
 ---
 
@@ -58,15 +60,15 @@ library(LaplacesDemon)
 This allows us to plot the marginal posterior means.
 
 ``` {.r}
-mp <- tibble(value = seq(0.95, 1.25, 0.001)) %>% 
+mp <- tibble(value = seq(0, 2, 0.01)) %>% 
   mutate(
-    ctrl = dst(value, control$mean, control$sd / control$n, control$n - 1),
-    trt = dst(value, treatment$mean, treatment$sd / treatment$n, treatment$n - 1)
+    ctrl = dst(value, control$mean, control$sd / sqrt(control$n), control$n - 1),
+    trt = dst(value, treatment$mean, treatment$sd / sqrt(treatment$n), treatment$n - 1)
   ) %>% 
   gather(cohort, density, ctrl, trt) 
 ```
 
-![](chapter_03_exercise_03_files/figure-markdown/mp_plot-1..svg)
+![](chapter_03_exercise_03_files/figure-markdown/mp_plot-1.png)
 
 The 95% credible interval of the marginal posterior means is:
 
@@ -75,8 +77,8 @@ draws <- 10000
 
 difference <- tibble(draw = 1:draws) %>% 
   mutate(
-    ctrl = rst(n(), control$mean, control$sd / control$n, control$n - 1),
-    trt = rst(n(), treatment$mean, treatment$sd / treatment$n, treatment$n - 1),
+    ctrl = rst(n(), control$mean, control$sd / sqrt(control$n), control$n - 1),
+    trt = rst(n(), treatment$mean, treatment$sd / sqrt(treatment$n), treatment$n - 1),
     difference = trt - ctrl
   ) 
 
@@ -86,9 +88,9 @@ ci <- difference$difference %>%
 ci
 ```
 
-           5%       95% 
-    0.1443125 0.1757713 
+            5%        95% 
+    0.06998355 0.25134861 
 
 We can also plot the distribution of the difference.
 
-![](chapter_03_exercise_03_files/figure-markdown/diffs_plot-1..svg)
+![](chapter_03_exercise_03_files/figure-markdown/diffs_plot-1.png)

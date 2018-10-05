@@ -51,7 +51,8 @@
   <div class="card-body post-meta">
     <p class="card-text text-muted text-left">
     Posted on October  4, 2018  by Brian </br>
-     Tags: <a href="../../tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/normal.html">normal</a>, <a href="../../tags/t.html">t</a>, <a href="../../tags/behrens-fischer.html">behrens-fischer</a> </br>
+     Tags: <a href="../../tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/normal.html">normal</a>, <a href="../../tags/t.html">t</a>, <a href="../../tags/behrens-fischer.html">behrens-fischer</a>, <a href="../../tags/marginal%0Aposterior.html">marginal
+posterior</a> </br>
      Category: <a href="../../categories/bda3.html">bda3</a> 
     </p>
   </div>
@@ -77,22 +78,22 @@ treatment &lt;-<span class="st"> </span><span class="kw">list</span>(
 <p>The t-distribution in base-R is a standardised t-distribution. For a more general t-distribution (with arbitrary location and scale), we’ll use the <a href="https://www.rdocumentation.org/packages/LaplacesDemon/versions/16.1.1">LaplacesDemon</a> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(LaplacesDemon)</code></pre></div>
 <p>This allows us to plot the marginal posterior means.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mp &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">value =</span> <span class="kw">seq</span>(<span class="fl">0.95</span>, <span class="fl">1.25</span>, <span class="fl">0.001</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mp &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">value =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">ctrl =</span> <span class="kw">dst</span>(value, control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
-    <span class="dt">trt =</span> <span class="kw">dst</span>(value, treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
+    <span class="dt">ctrl =</span> <span class="kw">dst</span>(value, control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(control<span class="op">$</span>n), control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">dst</span>(value, treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(treatment<span class="op">$</span>n), treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">gather</span>(cohort, density, ctrl, trt) </code></pre></div>
 <figure>
-<img src="chapter_03_exercise_03_files/figure-markdown/mp_plot-1..svg" />
+<img src="chapter_03_exercise_03_files/figure-markdown/mp_plot-1.png" />
 </figure>
 <p>The 95% credible interval of the marginal posterior means is:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span><span class="dv">10000</span>
 
 difference &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>draws) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">ctrl =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
-    <span class="dt">trt =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">ctrl =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(control<span class="op">$</span>n), control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(treatment<span class="op">$</span>n), treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
     <span class="dt">difference =</span> trt <span class="op">-</span><span class="st"> </span>ctrl
   ) 
 
@@ -100,11 +101,11 @@ ci &lt;-<span class="st"> </span>difference<span class="op">$</span>difference <
 <span class="st">  </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>)) 
 
 ci</code></pre></div>
-<pre><code>       5%       95% 
-0.1443125 0.1757713 </code></pre>
+<pre><code>        5%        95% 
+0.06998355 0.25134861 </code></pre>
 <p>We can also plot the distribution of the difference.</p>
 <figure>
-<img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1..svg" />
+<img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1.png" />
 </figure>
 
 <div id="disqus_thread"></div>

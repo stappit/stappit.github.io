@@ -37,8 +37,9 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   error = TRUE,
-  dev = "svglite",
-  fig.ext = ".svg" 
+  # dev = "svglite",
+  # fig.ext = ".svg",
+  NULL
 )
 
 library(tidyverse)
@@ -75,10 +76,10 @@ library(LaplacesDemon)
 This allows us to plot the marginal posterior means. 
 
 ```{r mp}
-mp <- tibble(value = seq(0.95, 1.25, 0.001)) %>% 
+mp <- tibble(value = seq(0, 2, 0.01)) %>% 
   mutate(
-    ctrl = dst(value, control$mean, control$sd / control$n, control$n - 1),
-    trt = dst(value, treatment$mean, treatment$sd / treatment$n, treatment$n - 1)
+    ctrl = dst(value, control$mean, control$sd / sqrt(control$n), control$n - 1),
+    trt = dst(value, treatment$mean, treatment$sd / sqrt(treatment$n), treatment$n - 1)
   ) %>% 
   gather(cohort, density, ctrl, trt) 
 ```
@@ -87,8 +88,8 @@ mp <- tibble(value = seq(0.95, 1.25, 0.001)) %>%
 mp %>% 
   ggplot() +
   aes(value, density, fill = cohort) +
-  geom_area(colour = 'white', position = 'identity') +
-  scale_x_continuous(breaks = seq(0, 2, 0.05)) +
+  geom_area(colour = 'white', position = 'identity', alpha = 0.8) +
+  scale_x_continuous(limits = c(0.8, 1.4), breaks = seq(0, 2, 0.05)) +
   labs(
     x = 'Value',
     y = 'Density',
@@ -104,8 +105,8 @@ draws <- 10000
 
 difference <- tibble(draw = 1:draws) %>% 
   mutate(
-    ctrl = rst(n(), control$mean, control$sd / control$n, control$n - 1),
-    trt = rst(n(), treatment$mean, treatment$sd / treatment$n, treatment$n - 1),
+    ctrl = rst(n(), control$mean, control$sd / sqrt(control$n), control$n - 1),
+    trt = rst(n(), treatment$mean, treatment$sd / sqrt(treatment$n), treatment$n - 1),
     difference = trt - ctrl
   ) 
 
@@ -121,7 +122,7 @@ We can also plot the distribution of the difference.
 difference %>% 
   ggplot() +
   aes(difference) +
-  geom_histogram() +
+  geom_histogram(bins = 50) +
   geom_errorbarh(aes(xmin = ci[1], xmax = ci[2], y = 0), colour = 'chocolate', size = 1) +
   labs(
     x = 'Difference',

@@ -8,8 +8,210 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-10-04T00:00:00Z</updated>
+    <updated>2018-10-05T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 3 Exercise 4</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_04.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_04.html</id>
+    <published>2018-10-05T00:00:00Z</published>
+    <updated>2018-10-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 4</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on October  5, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/odds%20ratio.html">odds ratio</a>, <a href="/tags/noninformative%20priors.html">noninformative priors</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 4, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose we have two independent trials where the likelihood of death is binomial, <span class="math inline">\(y_i \mid p_0, p_1 \sim \dbinomial(n_i, p_i)\)</span>, <span class="math inline">\(i = 0, 1\)</span>. We will compare two different non-informative priors on the odds ratio</p>
+<p class="mathjaxWide"><span class="math display">\[
+\theta
+:=
+\frac{p_0}{1 - p_0} / \frac{p_1}{1 - p_1} 
+.
+\]</span></p>
+<p>Here are the given data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">tibble</span>(
+    <span class="dt">cohort =</span> <span class="kw">c</span>(<span class="st">&#39;control&#39;</span>, <span class="st">&#39;treatment&#39;</span>),
+    <span class="dt">patients =</span> <span class="kw">c</span>(<span class="dv">674</span>, <span class="dv">680</span>),
+    <span class="dt">deaths =</span> <span class="kw">c</span>(<span class="dv">39</span>, <span class="dv">22</span>)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">survived =</span> patients <span class="op">-</span><span class="st"> </span>deaths)</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+cohort
+</th>
+<th style="text-align:right;">
+patients
+</th>
+<th style="text-align:right;">
+deaths
+</th>
+<th style="text-align:right;">
+survived
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+control
+</td>
+<td style="text-align:right;">
+674
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+635
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+treatment
+</td>
+<td style="text-align:right;">
+680
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+658
+</td>
+</tr>
+</tbody>
+</table>
+<p>We’ll need a couple of functions for drawing random samples for <span class="math inline">\(\theta\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">odds &lt;-<span class="st"> </span><span class="cf">function</span>(p) p <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p)
+
+simulate &lt;-<span class="st"> </span><span class="cf">function</span>(n, k, a, b, <span class="dt">draws =</span> <span class="dv">10000</span>)
+  <span class="co"># draws from posterior</span>
+  <span class="co"># n bernouille trials, k successes with beta(a, b) prior</span>
+  <span class="kw">tibble</span>(
+    <span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>draws, 
+    <span class="dt">value =</span> <span class="kw">rbeta</span>(draws, k <span class="op">+</span><span class="st"> </span>a, n <span class="op">-</span><span class="st"> </span>k <span class="op">+</span><span class="st"> </span>b)
+  )
+
+posterior &lt;-<span class="st"> </span><span class="cf">function</span>(a, b, <span class="dt">draws =</span> <span class="dv">10000</span>)
+  <span class="co"># random samples from theta posterior with beta(a, b) prior</span>
+  df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">transmute</span>(
+      cohort,
+      <span class="dt">draws =</span> <span class="kw">map2</span>(patients, deaths, simulate, a, b, draws)
+    ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">unnest</span>(draws) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">spread</span>(cohort, value) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">theta =</span> <span class="kw">odds</span>(control) <span class="op">/</span><span class="st"> </span><span class="kw">odds</span>(treatment))</code></pre></div>
+<p>Let’s compare a uniform prior to a prior close to <span class="math inline">\(\dbeta(0, 0)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">uni &lt;-<span class="st"> </span><span class="kw">posterior</span>(<span class="dv">1</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior =</span> <span class="st">&#39;uniform&#39;</span>)
+
+zero &lt;-<span class="st"> </span><span class="kw">posterior</span>(<span class="fl">0.000000001</span>, <span class="fl">0.000000001</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior =</span> <span class="st">&#39;zero&#39;</span>)
+
+posteriors &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(uni, zero)</code></pre></div>
+<figure>
+<img src="chapter_03_exercise_04_files/figure-markdown/posteriors_plot-1..svg" />
+</figure>
+<p>Here are the 95% posterior credible intervals for <span class="math inline">\(\theta\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cis &lt;-<span class="st"> </span>posteriors <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(prior) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(
+    <span class="dt">q05 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.05</span>),
+    <span class="dt">q50 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.5</span>),
+    <span class="dt">q95 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.95</span>)
+  )</code></pre></div>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+prior
+</th>
+<th style="text-align:right;">
+q05
+</th>
+<th style="text-align:right;">
+q50
+</th>
+<th style="text-align:right;">
+q95
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+uniform
+</td>
+<td style="text-align:right;">
+1.167356
+</td>
+<td style="text-align:right;">
+1.808981
+</td>
+<td style="text-align:right;">
+2.859778
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+zero
+</td>
+<td style="text-align:right;">
+1.190899
+</td>
+<td style="text-align:right;">
+1.845182
+</td>
+<td style="text-align:right;">
+2.939430
+</td>
+</tr>
+</tbody>
+</table>
+<p>The estimates with the “zero” prior are slightly higher than those from the uniform prior, especially in the tails.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 3 Exercise 3</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_03.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_03.html</id>
@@ -21,7 +223,8 @@
   <div class="card-body post-meta">
     <p class="card-text text-muted text-left">
     Posted on October  4, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/t.html">t</a>, <a href="/tags/behrens-fischer.html">behrens-fischer</a> </br>
+     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/t.html">t</a>, <a href="/tags/behrens-fischer.html">behrens-fischer</a>, <a href="/tags/marginal%0Aposterior.html">marginal
+posterior</a> </br>
      Category: <a href="/categories/bda3.html">bda3</a> 
     </p>
   </div>
@@ -47,22 +250,22 @@ treatment &lt;-<span class="st"> </span><span class="kw">list</span>(
 <p>The t-distribution in base-R is a standardised t-distribution. For a more general t-distribution (with arbitrary location and scale), we’ll use the <a href="https://www.rdocumentation.org/packages/LaplacesDemon/versions/16.1.1">LaplacesDemon</a> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(LaplacesDemon)</code></pre></div>
 <p>This allows us to plot the marginal posterior means.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mp &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">value =</span> <span class="kw">seq</span>(<span class="fl">0.95</span>, <span class="fl">1.25</span>, <span class="fl">0.001</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mp &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">value =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="fl">0.01</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">ctrl =</span> <span class="kw">dst</span>(value, control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
-    <span class="dt">trt =</span> <span class="kw">dst</span>(value, treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
+    <span class="dt">ctrl =</span> <span class="kw">dst</span>(value, control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(control<span class="op">$</span>n), control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">dst</span>(value, treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(treatment<span class="op">$</span>n), treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">gather</span>(cohort, density, ctrl, trt) </code></pre></div>
 <figure>
-<img src="chapter_03_exercise_03_files/figure-markdown/mp_plot-1..svg" />
+<img src="chapter_03_exercise_03_files/figure-markdown/mp_plot-1.png" />
 </figure>
 <p>The 95% credible interval of the marginal posterior means is:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span><span class="dv">10000</span>
 
 difference &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>draws) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">ctrl =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>control<span class="op">$</span>n, control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
-    <span class="dt">trt =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span>treatment<span class="op">$</span>n, treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">ctrl =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), control<span class="op">$</span>mean, control<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(control<span class="op">$</span>n), control<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
+    <span class="dt">trt =</span> <span class="kw">rst</span>(<span class="kw">n</span>(), treatment<span class="op">$</span>mean, treatment<span class="op">$</span>sd <span class="op">/</span><span class="st"> </span><span class="kw">sqrt</span>(treatment<span class="op">$</span>n), treatment<span class="op">$</span>n <span class="op">-</span><span class="st"> </span><span class="dv">1</span>),
     <span class="dt">difference =</span> trt <span class="op">-</span><span class="st"> </span>ctrl
   ) 
 
@@ -70,11 +273,11 @@ ci &lt;-<span class="st"> </span>difference<span class="op">$</span>difference <
 <span class="st">  </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>)) 
 
 ci</code></pre></div>
-<pre><code>       5%       95% 
-0.1443125 0.1757713 </code></pre>
+<pre><code>        5%        95% 
+0.06998355 0.25134861 </code></pre>
 <p>We can also plot the distribution of the difference.</p>
 <figure>
-<img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1..svg" />
+<img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1.png" />
 </figure>
 
 <div id="disqus_thread"></div>
@@ -1357,116 +1560,6 @@ a = b
 ↯
 \]</span></p>
 <p>This is true of any two boundary points, so the highest posterior region is a point. This contradicts the fact that the highest posterior region contains 95% probability mass. Therefore, the highest posterior regions are not invariant under reparameterisation.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 2 Exercise 16</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_02_exercise_16.html</id>
-    <published>2018-09-06T00:00:00Z</published>
-    <updated>2018-09-06T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 2 Exercise 16</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September  6, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%202.html">bda chapter 2</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/beta-binomial.html">beta-binomial</a>, <a href="/tags/marginal.html">marginal</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 16, chapter 2, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{normal}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dgamma}{gamma}  \DeclareMathOperator{\invlogit}{invlogit}  \DeclareMathOperator{\logit}{logit}  \DeclareMathOperator{\dbeta}{beta}\)</span></p>
-</div>
-<p>Suppose <span class="math inline">\(y \mid \theta \sim \dbinomial(n, \theta)\)</span> and <span class="math inline">\(\theta \sim \dbeta(\alpha, \beta)\)</span>. Then</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  p(y)
-  &amp;=
-  \int_0^1 p(y \mid \theta) p(\theta) d\theta
-  \\
-  &amp;=
-  \int_0^1 \binom{n}{y} \theta^y (1 - \theta)^{n - y} \theta^{\alpha - 1} (1 - \theta)^{\beta - 1} d\theta
-  \\
-  &amp;=
-  \binom{n}{y} \frac{\Gamma (y + \alpha) \Gamma (n - y + \beta)}{\Gamma (n + \alpha + \beta)}
-.
-\end{align}
-\]</span></p>
-<p>If this density is constant in <span class="math inline">\(y\)</span> for any <span class="math inline">\(n\)</span>, then</p>
-<p class="mathjaxWide"><span class="math display">\[
-\binom{n}{y} \Gamma (y + \alpha) \Gamma (n - y + \beta) 
-\]</span></p>
-<p>is also constant in <span class="math inline">\(y\)</span> for any <span class="math inline">\(n\)</span>. In particular, for <span class="math inline">\(n = 1\)</span>, we can evaulate this at <span class="math inline">\(y = 0\)</span> and <span class="math inline">\(y = n\)</span> to give</p>
-<p class="mathjaxWide"><span class="math display">\[
-\Gamma (\alpha) \Gamma (1 + \beta) 
-=
-\Gamma (\beta) \Gamma (1 + \alpha) 
-.
-\]</span></p>
-<p><a href="https://en.wikipedia.org/wiki/Gamma_function">Since</a> <span class="math inline">\(\Gamma (1 + \alpha) = \alpha \Gamma(\alpha)\)</span>, it follows that</p>
-<p class="mathjaxWide"><span class="math display">\[
-\beta \Gamma (\alpha) \Gamma (\beta)
-=
-\alpha \Gamma (\alpha) \Gamma (\beta)
-.
-\]</span></p>
-<p>Using the fact that the gamma function is always positive on the reals, we can conclude <span class="math inline">\(\alpha = \beta\)</span>.</p>
-<p>Now, for <span class="math inline">\(n = 2\)</span>, we can evaluate at <span class="math inline">\(y = 0\)</span> and <span class="math inline">\(y = 1\)</span> to get</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-\Gamma(\alpha) \Gamma(\alpha + 2)
-&amp;=
-2 \Gamma(\alpha + 1)^2
-\\
-\Leftrightarrow
-(\alpha + 1) \alpha \Gamma (\alpha)^2
-&amp;=
-2 \alpha^2 \Gamma (\alpha)^2
-\\
-\Leftrightarrow
-\alpha + 1 
-&amp;= 
-2\alpha
-\\
-\Leftrightarrow
-\alpha 
-&amp;=
-1
-\end{align}
-,
-\]</span></p>
-<p>where we have used the facts that <span class="math inline">\(\alpha &gt; 0\)</span>, <span class="math inline">\(\Gamma(\alpha + 1) = \alpha \Gamma(\alpha)\)</span>, and that the gamma function is positive on the reals. Therefore, <span class="math inline">\(\alpha = \beta = 1\)</span>. In other words, if the beta-binomial distribution is uniform, then <span class="math inline">\(\alpha = \beta = 1\)</span>.</p>
 
 <div id="disqus_thread"></div>
 <script>

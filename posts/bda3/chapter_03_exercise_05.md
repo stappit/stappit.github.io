@@ -6,7 +6,9 @@ output:
   md_document:
     preserve_yaml: True
     variant: markdown
-tags: 'bda chapter 3, solutions, bayes, rounding'
+tags: |
+    bda chapter 3, solutions, bayes, rounding error, marginal posterior,
+    measurement error, noninformative prior, normal
 title: BDA3 Chapter 3 Exercise 5
 ---
 
@@ -204,88 +206,88 @@ z5
 <tbody>
 <tr>
 <td style="text-align:right;">
-10.571597
+9.687131
 </td>
 <td style="text-align:right;">
-1.6144275
+1.4458022
 </td>
 <td style="text-align:left;">
 rounded
 </td>
 <td style="text-align:right;">
-10.360065
+9.72795
 </td>
 <td style="text-align:right;">
-9.831945
+10.265646
 </td>
 <td style="text-align:right;">
-11.92909
+11.94897
 </td>
 <td style="text-align:right;">
-11.42070
+11.06143
 </td>
 <td style="text-align:right;">
-9.029586
+9.116118
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-10.356458
+10.517837
 </td>
 <td style="text-align:right;">
-0.7148322
+0.5648234
 </td>
 <td style="text-align:left;">
 rounded
 </td>
 <td style="text-align:right;">
-10.403458
+10.33178
 </td>
 <td style="text-align:right;">
-9.632827
+9.797315
 </td>
 <td style="text-align:right;">
-12.12136
+11.54332
 </td>
 <td style="text-align:right;">
-11.31122
+10.60547
 </td>
 <td style="text-align:right;">
-9.368883
+9.153462
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-9.958842
+11.381591
 </td>
 <td style="text-align:right;">
-1.1275643
+2.1127547
 </td>
 <td style="text-align:left;">
 rounded
 </td>
 <td style="text-align:right;">
-9.580593
+10.09489
 </td>
 <td style="text-align:right;">
-9.895158
+10.176548
 </td>
 <td style="text-align:right;">
-11.59226
+12.44288
 </td>
 <td style="text-align:right;">
-10.54476
+10.92263
 </td>
 <td style="text-align:right;">
-8.764560
+8.700090
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-11.325056
+9.965578
 </td>
 <td style="text-align:right;">
-1.4785700
+1.2079231
 </td>
 <td style="text-align:left;">
 unrounded
@@ -308,10 +310,10 @@ NA
 </tr>
 <tr>
 <td style="text-align:right;">
-9.572388
+10.062636
 </td>
 <td style="text-align:right;">
-0.9271161
+1.2355530
 </td>
 <td style="text-align:left;">
 unrounded
@@ -334,10 +336,10 @@ NA
 </tr>
 <tr>
 <td style="text-align:right;">
-11.136024
+9.922399
 </td>
 <td style="text-align:right;">
-0.6441271
+1.7637659
 </td>
 <td style="text-align:left;">
 unrounded
@@ -405,13 +407,13 @@ model
 rounded
 </td>
 <td style="text-align:right;">
-0.6133990
+0.6044134
 </td>
 <td style="text-align:right;">
-1.021025
+1.025455
 </td>
 <td style="text-align:right;">
-2.079248
+2.073181
 </td>
 </tr>
 <tr>
@@ -419,13 +421,13 @@ rounded
 unrounded
 </td>
 <td style="text-align:right;">
-0.6903072
+0.6804532
 </td>
 <td style="text-align:right;">
-1.102328
+1.095101
 </td>
 <td style="text-align:right;">
-2.175680
+2.133040
 </td>
 </tr>
 </tbody>

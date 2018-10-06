@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 3 Exercise 5</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 3 Exercise 5</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on October  6, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/rounding.html">rounding</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 5, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dt}{t}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\ddirichlet}{Dirichlet}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose we weigh an object 5 times with measurements</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">measurements &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">11</span>, <span class="dv">9</span>)</code></pre></div>
+<p>all rounded to the nearest kilogram. Assuming the unrounded measurements are normally distributed, we wish to estimate the weight of the object. We will use the uniform non-informative prior <span class="math inline">\(p(\mu, \log \sigma) \propto 1\)</span>.</p>
+<p>First, let’s assume the measurments are not rounded. Then the marginal posterior mean is <span class="math inline">\(\mu \mid y \sim t_{n - 1}(\bar y, s / \sqrt{n}) = t_4(10.4, 0.51)\)</span>.</p>
+<figure>
+<img src="chapter_03_exercise_05_files/figure-markdown/mpm_plot-1..svg" />
+</figure>
+<p>Now, let’s find the posterior assuming rounded measurements. The probability of getting the rounded measurements <span class="math inline">\(y\)</span> is</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(y \mid \mu, \sigma) = \prod_{i = 1}^n \Phi_{\mu, \sigma} (y_i + 0.5) - \Phi_{\mu, \sigma} (y_i - 0.5)
+\]</span></p>
+<p>where <span class="math inline">\(\Phi_{\mu, \sigma}\)</span> is the CDF of the <span class="math inline">\(\dnorm(\mu, \sigma)\)</span> distribution. This implies that the posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(\mu, \sigma \mid y) \propto \frac{1}{\sigma^2} \prod_{i = 1}^n \Phi_{\mu, \sigma} (y_i + 0.5) - \Phi_{\mu, \sigma} (y_i - 0.5) .
+\]</span></p>
+<p>Calculating this marginal posterior mean is pretty difficult, so we’ll use <a href="http://mc-stan.org/">Stan</a> to draw samples. My <a href="src/ex_03_05.stan">first attempt</a> at writing the model was a direct translation of the maths above. However, it doesn’t allow us to infer the unrounded values, as required in part d. The model can be expressed differently by considering the unrounded values as uniformly distributed around the rounded values, i.e. <span class="math inline">\(z_i \sim \duniform (y_i - 0.5, y_i + 0.5)\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">'src/ex_03_05_d.stan'</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
+<pre><code>S4 class stanmodel 'ex_03_05' coded as follows:
+data {
+  int&lt;lower = 1&gt; n;
+  vector[n] y;
+}
+
+parameters {
+  real mu;
+  real&lt;lower = 0&gt; sigma;
+}
+
+model {
+  target += -2 * log(sigma);
+  target += log(
+    Phi((y + 0.5 - mu) / sigma) - Phi((y - 0.5 - mu) / sigma)
+  );
+} </code></pre>
+<p>Note that Stan assumes parameters are uniform on their range unless specified otherwise.</p>
+<p>Let’s also load a model that assumes the measurements are unrounded.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_unrounded &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">'src/ex_03_05_unrounded.stan'</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_unrounded</code></pre></div>
+<pre><code>S4 class stanmodel 'ex_03_05_unrounded' coded as follows:
+data {
+  int&lt;lower = 1&gt; n;
+  vector[n] y; 
+}
+
+parameters {
+  real mu; 
+  real&lt;lower = 0&gt; sigma; 
+}
+
+model {
+  target += -2 * log(sigma); 
+  y ~ normal(mu, sigma);
+} </code></pre>
+<p>Now we can fit the models to the data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data  =<span class="st"> </span><span class="kw">list</span>(
+  <span class="dt">n =</span> <span class="kw">length</span>(measurements),
+  <span class="dt">y =</span> measurements
+)
+ 
+fit &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>rstan<span class="op">::</span><span class="kw">sampling</span>(
+    <span class="dt">data =</span> data,
+    <span class="dt">warmup =</span> <span class="dv">1000</span>,
+    <span class="dt">iter =</span> <span class="dv">5000</span>
+  ) 
+
+fit_unrounded &lt;-<span class="st"> </span>model_unrounded <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>rstan<span class="op">::</span><span class="kw">sampling</span>(
+    <span class="dt">data =</span> data,
+    <span class="dt">warmup =</span> <span class="dv">1000</span>,
+    <span class="dt">iter =</span> <span class="dv">5000</span>
+  ) </code></pre></div>
+<p>We’ll also need some draws from the posteriors to make our comparisons.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span>fit <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">spread_draws</span>(mu, sigma, z[index]) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="co"># spread out z's so that</span>
+<span class="st">  </span><span class="co"># there is one row per draw</span>
+<span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st">  </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">index =</span> <span class="kw">paste0</span>(<span class="st">'z'</span>, <span class="kw">as.character</span>(index)),
+    <span class="dt">name =</span> <span class="st">'rounded'</span>
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(index, z)
+
+draws_unrounded &lt;-<span class="st"> </span>fit_unrounded <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">spread_draws</span>(mu, sigma) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">name =</span> <span class="st">'unrounded'</span>) 
+
+draws_all &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">bind_rows</span>(draws_unrounded)</code></pre></div>
+<p>Here’s what the first few draws look like.</p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+.chain
+</th>
+<th style="text-align:right;">
+.iteration
+</th>
+<th style="text-align:right;">
+.draw
+</th>
+<th style="text-align:right;">
+mu
+</th>
+<th style="text-align:right;">
+sigma
+</th>
+<th style="text-align:left;">
+name
+</th>
+<th style="text-align:right;">
+z1
+</th>
+<th style="text-align:right;">
+z2
+</th>
+<th style="text-align:right;">
+z3
+</th>
+<th style="text-align:right;">
+z4
+</th>
+<th style="text-align:right;">
+z5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11.674380
+</td>
+<td style="text-align:right;">
+1.5490165
+</td>
+<td style="text-align:left;">
+rounded
+</td>
+<td style="text-align:right;">
+10.050592
+</td>
+<td style="text-align:right;">
+10.240799
+</td>
+<td style="text-align:right;">
+12.00554
+</td>
+<td style="text-align:right;">
+11.13187
+</td>
+<td style="text-align:right;">
+8.682707
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+8.767578
+</td>
+<td style="text-align:right;">
+1.1303778
+</td>
+<td style="text-align:left;">
+rounded
+</td>
+<td style="text-align:right;">
+10.190018
+</td>
+<td style="text-align:right;">
+9.716352
+</td>
+<td style="text-align:right;">
+11.67719
+</td>
+<td style="text-align:right;">
+10.70150
+</td>
+<td style="text-align:right;">
+9.209900
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+9.884429
+</td>
+<td style="text-align:right;">
+1.9590434
+</td>
+<td style="text-align:left;">
+rounded
+</td>
+<td style="text-align:right;">
+9.814005
+</td>
+<td style="text-align:right;">
+10.364376
+</td>
+<td style="text-align:right;">
+12.37454
+</td>
+<td style="text-align:right;">
+11.25993
+</td>
+<td style="text-align:right;">
+8.815854
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+9.581762
+</td>
+<td style="text-align:right;">
+0.8654739
+</td>
+<td style="text-align:left;">
+unrounded
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+9.797718
+</td>
+<td style="text-align:right;">
+0.8650144
+</td>
+<td style="text-align:left;">
+unrounded
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+10.186062
+</td>
+<td style="text-align:right;">
+1.1711989
+</td>
+<td style="text-align:left;">
+unrounded
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<p>The contour plots look very similar but with <span class="math inline">\(\sigma\)</span> shifted upward when we treat the observations as unrounded measurements. This is contrary to my intuition about what should happen: by introducing uncertainty into our measurments, I would have thought we’d see more uncertainty in our parameter estimates.</p>
+<figure>
+<img src="chapter_03_exercise_05_files/figure-markdown/contour_plot-1..svg" />
+</figure>
+<p>The density for <span class="math inline">\(\mu \mid y\)</span> look much the same in both models.</p>
+<figure>
+<img src="chapter_03_exercise_05_files/figure-markdown/mu_plot-1..svg" />
+</figure>
+<p>The marginal posterior for <span class="math inline">\(\sigma\)</span> again shows a decrease when taking rounding error into account. I’m not sure why that would happen.</p>
+<figure>
+<img src="chapter_03_exercise_05_files/figure-markdown/sigma_plot-1..svg" />
+</figure>
+<p>Finally, let’s calculate the posterior for <span class="math inline">\(\theta := (z_1 - z_2)^2\)</span> (assuming we observe rounded measurements).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sims &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">theta =</span> (z1 <span class="op">-</span><span class="st"> </span>z2)<span class="op">^</span><span class="dv">2</span>) </code></pre></div>
+<figure>
+<img src="chapter_03_exercise_05_files/figure-markdown/sims_plot-1..svg" />
+</figure>
+<p>There is a lot of mass near 0 because the observed rounded measurments are the same for <span class="math inline">\(z_1\)</span> and <span class="math inline">\(z_2\)</span>. The probability density is also entirely less than 1 because the rounding is off by at most 0.5 in any direction.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 3 Exercise 6</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 3 Exercise 6</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on October  7, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/hierarchical.html">hierarchical</a>, <a href="../../tags/grid%20approximation.html">grid approximation</a>, <a href="../../tags/binomial.html">binomial</a>, <a href="../../tags/log-factorial.html">log-factorial</a>, <a href="../../tags/stirling%27s%20approximation.html">stirling's approximation</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 6, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\duniform}{Uniform} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<h2 id="theory">Theory</h2>
+<p>Suppose we have binomial data where both the number of trials <span class="math inline">\(N\)</span> and the success rate <span class="math inline">\(\theta\)</span> are unknown and to be estimated. <a href="http://pluto.huji.ac.il/~galelidan/52558/Material/Raftery.pdf">Rafferty</a> suggests the following hierarchical model:</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  y \mid N, \theta &amp;\sim \dbinomial(N, \theta)
+  \\
+  \theta &amp;\sim \duniform(0, 1)
+  \\
+  N \mid \mu &amp;\sim \dpois(\mu)
+\end{align}
+\]</span></p>
+<p>where the parameter <span class="math inline">\(\mu\)</span> is also unknown. Instead of putting a prior on <span class="math inline">\(\mu\)</span>, it is suggested to define</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \lambda &amp;:= \mu \theta
+  \\
+  p(\lambda) &amp;\propto \frac{1}{\lambda}
+\end{align}
+\]</span></p>
+<p>and to put a prior on <span class="math inline">\(\lambda\)</span>. This is advantageous since <span class="math inline">\(\lambda\)</span> is the expected number of successes, which is easier to reason about than <span class="math inline">\(N\)</span> since we can actually observe it. The hierarchical structure allows us to be vague about the prior magnitude of <span class="math inline">\(N\)</span>; an unconditional Poisson prior on <span class="math inline">\(N\)</span> could be a good idea if we had reason to believe it lies in the plausible range as defined by that prior. It is improper since its integral is the logarithm evaluated where it goes to infinity.</p>
+<p>Let’s find the corresponding prior on <span class="math inline">\(N\)</span>. First note that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(\mu, \theta)
+  &amp;\propto
+  p(\lambda, \theta) \cdot
+  \begin{vmatrix}
+    \theta &amp; \mu \\
+    0 &amp; 1
+  \end{vmatrix}
+  \\
+  &amp;=
+  \frac{1}{\lambda}
+  \cdot
+  \theta
+  \\
+  &amp;=
+  \frac{1}{\mu}.
+\end{align}
+\]</span></p>
+<p>It follows that <span class="math inline">\(p(\mu) \propto \mu^{-1}\)</span>. Thus,</p>
+<span class="math display">\[\begin{align}
+  p(N, \mu)
+  &amp;=
+  p(N \mid \mu) p(\mu)
+  \\
+  &amp;\propto
+  \frac{\mu^N e^{-\mu}}{N!}\frac{1}{\mu}
+  \\
+  &amp;=
+  \frac{\mu^{N-1} e^{-\mu}}{N!}
+  
+\end{align}\]</span>
+<p>From the definition of the <a href="https://en.wikipedia.org/wiki/Gamma_function#Main_definition">Gamma function</a>, it follows that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(N)
+  &amp;\propto
+  \int_0^\infty \frac{\mu^{N-1} e^{-\mu}}{N!} d\mu
+  \\
+  &amp;=
+  \frac{1}{N!} \Gamma (N)
+  \\
+  &amp;=
+  \frac{1}{N!} (N - 1)!
+  \\
+  &amp;=
+  \frac{1}{N}
+  .
+\end{align}
+\]</span></p>
+<p>The joint posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(N, \theta \mid y)
+\propto
+\frac{1}{N}\cdot \prod_{i = 1}^n \binom{N}{y_i} \cdot \theta^{\sum_{i = 1}^n y_i} (1 - \theta)^{nN - \sum_{i = 1}^n y_i}
+.
+\]</span></p>
+<p>and the marginal posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p(N \mid y)
+  &amp;=
+  \int_0^1
+  p(N, \theta \mid y) d\theta
+  \\
+  &amp;\propto
+  \frac{1}{N}\cdot \prod_{i = 1}^n \binom{N}{y_i} 
+  \int_0^1 \theta^{\sum_{i = 1}^n y_i} (1 - \theta)^{nN - \sum_{i = 1}^n y_i} d\theta
+  \\
+  &amp;=
+  \frac{1}{N}\cdot \prod_{i = 1}^n \binom{N}{y_i} 
+  \cdot
+  \frac{\Gamma(1 + \sum_1^n y_i)\Gamma(1 + nN - \sum_1^n y_i)}{\Gamma(2 + nN)}
+  \\
+  &amp;=
+  \frac{1}{N}\cdot \prod_{i = 1}^n \binom{N}{y_i} 
+  \cdot
+  \frac{\left( \sum_1^n y_i \right)!\left( nN - \sum_1^n y_i \right)!}{(1 + nN)!}
+\end{align}
+\]</span></p>
+<h2 id="example">Example</h2>
+<p>Suppose we observe the following counts.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">counts &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">count =</span> <span class="kw">c</span>(<span class="dv">53</span>, <span class="dv">57</span>, <span class="dv">66</span>, <span class="dv">67</span>, <span class="dv">72</span>))</code></pre></div>
+<p>We’d like to estimate the probability that <span class="math inline">\(N &gt; 100\)</span>. Stan can’t help us here because the algorithm it uses requires parameters to be continuous. I learned a lot from approximating the posterior on a suitable grid, so let’s do that.</p>
+<p>Here’s our first computational problem: overflow.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">counts<span class="op">$</span>count <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">sum</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">factorial</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">log</span>()</code></pre></div>
+<pre><code>Warning in factorial(.): value out of range in 'gammafn'
+
+[1] Inf</code></pre>
+<p>The factorial function gets big very fast, but computers can only deal with a finite range. John Cook has a <a href="https://www.johndcook.com/blog/2010/08/16/how-to-compute-log-factorial/">very useful post</a> with several solutions to get around this problem. I couldn’t find a definitive answer on how to make efficient hash tables in base R, so I’ll just use vectors.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># slow but exact</span>
+logfactorial0 &lt;-<span class="st"> </span><span class="cf">function</span>(k)
+  <span class="dv">1</span><span class="op">:</span>k <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">log</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">sum</span>()
+
+<span class="co"># precalculated values</span>
+lookup &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">256</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(logfactorial0)
+
+<span class="co"># stirling approximation</span>
+stirling &lt;-<span class="st"> </span><span class="cf">function</span>(k) 
+  (k <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span>) <span class="op">*</span><span class="st"> </span><span class="kw">log</span>(k) <span class="op">-</span><span class="st"> </span>k <span class="op">+</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span><span class="kw">log</span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>pi) <span class="op">+</span><span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>(<span class="dv">12</span> <span class="op">*</span><span class="st"> </span>k)
+
+<span class="co"># 'efficient' implementation</span>
+logfactorial &lt;-<span class="st"> </span><span class="cf">function</span>(k) {
+  <span class="cf">if</span> (k <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) {
+    result &lt;-<span class="st"> </span><span class="dv">0</span>
+  } <span class="cf">else</span> <span class="cf">if</span> (k <span class="op">&lt;=</span><span class="st"> </span><span class="dv">256</span>) {
+    result &lt;-<span class="st"> </span>lookup[[k]]
+  } <span class="cf">else</span> {
+    result &lt;-<span class="st"> </span><span class="kw">stirling</span>(k)
+  }
+  <span class="kw">return</span>(result)
+}</code></pre></div>
+<p>To convince ourselves our functions work correctly, we can look at a few examples.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="dv">1</span><span class="op">:</span><span class="dv">4</span> <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(logfactorial) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">map</span>(exp)</code></pre></div>
+<pre><code>[[1]]
+[1] 1
+
+[[2]]
+[1] 2
+
+[[3]]
+[1] 6
+
+[[4]]
+[1] 24</code></pre>
+<p>Now we can calculate the log of the factorial. The factorial itself though is still too large to be represented as a finite number.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">counts<span class="op">$</span>count <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">sum</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">logfactorial</span>()</code></pre></div>
+<pre><code>[1] 1500.856</code></pre>
+<p>The log-factorial is enough for us to calculate the (unnormalised) log-density.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">util &lt;-<span class="st"> </span><span class="cf">function</span>(N)
+  counts <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">mutate</span>(
+      <span class="dt">logfac =</span> <span class="kw">map</span>(count, logfactorial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),
+      <span class="dt">nlogfac =</span> <span class="kw">map</span>(N <span class="op">-</span><span class="st"> </span>count, logfactorial) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),
+      <span class="dt">logperm =</span> <span class="kw">logfactorial</span>(N) <span class="op">-</span><span class="st"> </span>logfac <span class="op">-</span><span class="st"> </span>nlogfac
+    ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">summarise</span>(
+      <span class="dt">n =</span> <span class="kw">n</span>(),
+      <span class="dt">sum_count =</span> <span class="kw">sum</span>(count),
+      <span class="dt">sum_logperm =</span> <span class="kw">sum</span>(logperm),
+      <span class="dt">max_count =</span> <span class="kw">max</span>(count)
+    ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">as.list</span>()
+  
+joint_posterior &lt;-<span class="st"> </span><span class="cf">function</span>(N, theta) {
+  p &lt;-<span class="st"> </span><span class="kw">util</span>(N)
+  <span class="cf">if</span> (N <span class="op">&lt;</span><span class="st"> </span>p<span class="op">$</span>max_count) {
+    density &lt;-<span class="st"> </span><span class="dv">0</span>
+  } <span class="cf">else</span> {
+    logdensity &lt;-<span class="st"> </span><span class="op">-</span><span class="kw">log</span>(N) <span class="op">+</span><span class="st"> </span>p<span class="op">$</span>sum_logperm <span class="op">+</span><span class="st"> </span>p<span class="op">$</span>sum_count <span class="op">*</span><span class="st"> </span><span class="kw">log</span>(theta) <span class="op">+</span><span class="st"> </span>(p<span class="op">$</span>n <span class="op">*</span><span class="st"> </span>N <span class="op">-</span><span class="st"> </span>p<span class="op">$</span>sum_count) <span class="op">*</span><span class="st"> </span><span class="kw">log</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>theta)
+    density &lt;-<span class="st"> </span><span class="kw">exp</span>(logdensity)
+  }
+  <span class="kw">return</span>(density)
+}</code></pre></div>
+<p>In order to approximate the posterior on a grid, we need a suitable grid. It’s only worth calculating this where the posterior is non-negligible. For a given <span class="math inline">\(N\)</span>, the posterior can only have non-negligible density when <span class="math inline">\(\theta N\)</span> is near the range 50-75. We’ll broaden that a bit and restrict it to be in the range 35-90.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">grid_joint &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
+    <span class="dt">N =</span> <span class="kw">max</span>(counts<span class="op">$</span>count)<span class="op">:</span><span class="dv">5000</span>,
+    <span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.01</span>)
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="dv">35</span> <span class="op">&lt;</span><span class="st"> </span>N <span class="op">*</span><span class="st"> </span>theta <span class="op">&amp;</span><span class="st"> </span>N <span class="op">*</span><span class="st"> </span>theta <span class="op">&lt;</span><span class="st"> </span><span class="dv">90</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">unnormalised_density =</span> <span class="kw">map2</span>(N, theta, joint_posterior) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),
+    <span class="dt">normalising_constant =</span> <span class="kw">sum</span>(unnormalised_density),
+    <span class="dt">density =</span> unnormalised_density <span class="op">/</span><span class="st"> </span>normalising_constant
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>unnormalised_density, <span class="op">-</span>normalising_constant)</code></pre></div>
+<figure>
+<img src="chapter_03_exercise_06_files/figure-markdown/joint_plot-1..svg" />
+</figure>
+<p>We can also calculate the marginal posterior of <span class="math inline">\(N\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">marginal &lt;-<span class="st"> </span>grid_joint <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(N) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mass =</span> <span class="kw">sum</span>(density)) </code></pre></div>
+<figure>
+<img src="chapter_03_exercise_06_files/figure-markdown/marginal_plot-1..svg" />
+</figure>
+<p>The posterior probability that <span class="math inline">\(N &gt; 100\)</span> is then:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">grid_joint <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(N <span class="op">&gt;</span><span class="st"> </span><span class="dv">100</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mass =</span> <span class="kw">sum</span>(density)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">percent</span>()</code></pre></div>
+<pre><code>[1] &quot;95.6%&quot;</code></pre>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

@@ -1,7 +1,7 @@
 ---
 title: BDA3 Chapter 4 Exercise 1
 author: Brian Callander
-date: '2018-11-05'
+date: 2018-11-03
 tags: bda chapter 4, solutions, bayes, cauchy, normal approximation
 always_allow_html: True
 output:
@@ -136,7 +136,7 @@ grid %>%
 
 Indeed, it looks like the mode could be 0. Zooming in we see that it is very likely to be zero.
 
-```{r, echo = FALSE}
+```{r closeup, echo = FALSE}
 grid %>% 
   filter(theta < 2 * mode_numerical) %>% 
   ggplot() +

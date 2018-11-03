@@ -1,7 +1,7 @@
 ---
 always_allow_html: True
 author: Brian Callander
-date: '2018-11-05'
+date: '2018-11-03'
 output:
   md_document:
     preserve_yaml: True
@@ -95,7 +95,7 @@ grid <- tibble(theta = seq(0, 1, length.out = granularity)) %>%
 Indeed, it looks like the mode could be 0. Zooming in we see that it is
 very likely to be zero.
 
-![](chapter_04_exercise_01_files/figure-markdown/unnamed-chunk-3-1..svg)
+![](chapter_04_exercise_01_files/figure-markdown/closeup-1..svg)
 
 ``` {.r}
 mode <- 0

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 3 Exercise 12</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 3 Exercise 12</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on October 22, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 12, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dt}{t}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\duniform}{Uniform}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\ddirichlet}{Dirichlet}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>We will take another look at [exercise 13 from chapter 2], this time taking time <span class="math inline">\(t\)</span> into account. The mean parameter of <span class="math inline">\(\dpois(\theta)\)</span> must be positive. If we express <span class="math inline">\(\theta = \alpha + \beta t\)</span>, we need to somehow keep <span class="math inline">\(\theta &gt; 0\)</span>. This makes the choice of prior difficult and we are forced to reason about the particular dataset we are working with in order to do it.</p>
+<p>Let’s load the data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">'data/chapter_02_exercise_13.csv'</span>)</code></pre></div>
+<figure>
+<img src="chapter_03_exercise_12_files/figure-markdown/data_plot-1..svg" />
+</figure>
+<h2 id="a-non-informative-prior">A non-informative prior</h2>
+<p>We could use a uniform prior on the domain <span class="math inline">\(D := \{ (\alpha, \beta) \in [-\infty, \infty] \times [-\infty, \infty] \mid \alpha + \beta t_i \ge 0, \forall i \}\)</span>. Strictly speaking, this isn’t a valid prior since it depends strongly on the data.</p>
+<p>With the uniform prior, the posterior is:</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  p (\alpha, \beta \mid y)
+  &amp;=
+  \prod_{i = 1}^n 
+  \lambda_i^{y_i} e^{\lambda_i}
+  \\
+  &amp;=
+  \prod_{i = 1}^n (\alpha + \beta t_i)^{y_i} e^{-(\alpha + \beta t_i)}
+  \\
+  &amp;=
+  e^{-n\alpha - \beta \sum_1^n t_i} \prod_{i = 1}^n (\alpha + \beta t_i)^{y_i}
+  .
+\end{align}
+\]</span></p>
+<p>It seems that the sufficient statistics would seem to be <span class="math inline">\(((y_1, t_1), \dotsc, (y_n, t_n))\)</span>. I wasn’t able to find a fixed number of sufficient statistics independent of <span class="math inline">\(n\)</span>, but was also not able to prove that it is impossible.</p>
+<p>The parameters given by linear regression are hard to interpret.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">m0 &lt;-<span class="st"> </span><span class="kw">lm</span>(
+    fatal_accidents <span class="op">~</span><span class="st"> </span><span class="dv">1</span> <span class="op">+</span><span class="st"> </span>year,
+    <span class="dt">data =</span> df
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>broom<span class="op">::</span><span class="kw">tidy</span>() </code></pre></div>
+<table class="table table-hover table-striped table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+term
+</th>
+<th style="text-align:right;">
+estimate
+</th>
+<th style="text-align:right;">
+std.error
+</th>
+<th style="text-align:right;">
+statistic
+</th>
+<th style="text-align:right;">
+p.value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+1848.2606061
+</td>
+<td style="text-align:right;">
+877.5775935
+</td>
+<td style="text-align:right;">
+2.106094
+</td>
+<td style="text-align:right;">
+0.0682871
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+year
+</td>
+<td style="text-align:right;">
+-0.9212121
+</td>
+<td style="text-align:right;">
+0.4431086
+</td>
+<td style="text-align:right;">
+-2.078976
+</td>
+<td style="text-align:right;">
+0.0712285
+</td>
+</tr>
+</tbody>
+</table>
+<p>We would like to be able to consider the intercept as the ‘mean’ value decreasing by a certain amount each year, but <code>m0 %&gt;% filter(term == '(Intercept)') %&gt;% pull(estimate)</code> is too high. Since the intercept isn’t interpretable, slope is also not interpretable.</p>
+<h2 id="an-informative-prior">An informative prior</h2>
+<p>To construct a (weakly) informative prior, we’ll use a gamma distribution for the intercept (representing the mean number of fatal accidents over the year) and a normal distribution centred at 0 for the change per year.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span><span class="dv">23</span>
+sigma &lt;-<span class="st"> </span><span class="dv">7</span>
+
+shape &lt;-<span class="st"> </span>(mu <span class="op">/</span><span class="st"> </span>sigma)<span class="op">^</span><span class="dv">2</span>
+rate &lt;-<span class="st"> </span>shape <span class="op">/</span><span class="st"> </span>mu
+
+<span class="kw">tibble</span>(<span class="dt">x =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">60</span>, <span class="fl">0.5</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">p =</span> <span class="kw">dgamma</span>(x, shape, rate)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(x, p) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_area</span>(<span class="dt">fill =</span> <span class="st">'skyblue'</span>, <span class="dt">colour =</span> <span class="st">'white'</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">5</span>)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">title =</span> <span class="st">'Informative α-prior'</span>,
+    <span class="dt">subtitle =</span> <span class="kw">str_glue</span>(<span class="st">'Gamma(shape = {signif(shape, digits = 3)}, rate = {signif(rate, digits = 3)}), with mean {mu} and standard deviation {signif(sigma, digits = 3)}'</span>)
+  )</code></pre></div>
+<figure>
+<img src="chapter_03_exercise_12_files/figure-markdown/unnamed-chunk-1-1..svg" />
+</figure>
+<p>We’ll use <span class="math inline">\(\beta \sim \dnorm(0, 0.005)\)</span> because the <code>year</code> is has 3 orders of magnitude so this prior puts the change per year on ~1 order of magnitude.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">prior_predictive_draws &lt;-<span class="st"> </span><span class="cf">function</span>(n, <span class="dt">beta_sigma =</span> <span class="fl">0.005</span>) {
+  draws &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>n
+  
+  <span class="kw">tibble</span>(<span class="dt">draw =</span> draws) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(
+      <span class="dt">alpha =</span> <span class="kw">rgamma</span>(<span class="kw">n</span>(), shape, rate),
+      <span class="dt">beta =</span> <span class="kw">rnorm</span>(<span class="kw">n</span>(), <span class="dv">0</span>, beta_sigma)
+    ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">inner_join</span>(
+      <span class="kw">expand.grid</span>(<span class="dt">draw =</span> draws, <span class="dt">year =</span> <span class="dv">1976</span><span class="op">:</span><span class="dv">1985</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as_tibble</span>(),
+      <span class="dt">by =</span> <span class="st">'draw'</span>
+    ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">theta =</span> alpha <span class="op">+</span><span class="st"> </span>beta <span class="op">*</span><span class="st"> </span>year) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">filter</span>(theta <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">fatal_accidents =</span> <span class="kw">rpois</span>(<span class="kw">n</span>(), theta)) 
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prior_predictive_draws</span>(<span class="dv">10000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(alpha, beta) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.01</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(
+    <span class="dt">x =</span> <span class="st">'α'</span>,
+    <span class="dt">y =</span> <span class="st">'β'</span>,
+    <span class="dt">title =</span> <span class="st">'Joint prior distribution of α and β'</span>
+  ) <span class="op">+</span>
+<span class="st">  </span><span class="ot">NULL</span></code></pre></div>
+<figure>
+<img src="chapter_03_exercise_12_files/figure-markdown/unnamed-chunk-2-1..svg" />
+</figure>
+<figure>
+<img src="chapter_03_exercise_12_files/figure-markdown/prior_predictive_draws_plot-1..svg" />
+</figure>
+<p>We won’t bother plotting the prior predictive draws from the uninformative prior distribution since they are crazy.</p>
+<h2 id="the-posterior">The posterior</h2>
+<h2 id="discussion">Discussion</h2>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

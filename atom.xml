@@ -8,8 +8,155 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-10-21T00:00:00Z</updated>
+    <updated>2018-11-05T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 4 Exercise 1</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_04_exercise_01.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_04_exercise_01.html</id>
+    <published>2018-11-05T00:00:00Z</published>
+    <updated>2018-11-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 4 Exercise 1</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on November  5, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%204.html">bda chapter 4</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/cauchy.html">cauchy</a>, <a href="/tags/normal%20approximation.html">normal approximation</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 1, chapter 4, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\duniform}{Uniform} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\dinvchi}{InvChi2} \DeclareMathOperator{\dnorminvchi}{NormInvChi2} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose the likelihood is Cauchy, <span class="math inline">\(p(y_i \mid \theta) \propto (1 + (y_i - \theta)^2)^{-1}\)</span>, with a prior uniform on <span class="math inline">\([0, 1]\)</span>. Then the posterior has the same equation as the likelihood on the support of <span class="math inline">\(\theta\)</span>. Part of the exercise is to find the posterior mode but the hint is more confusing than helpful. Solving for the mode algebraically involves solving a polynomial of degree <span class="math inline">\(2n + 1\)</span>, where <span class="math inline">\(n\)</span> is the number of observations. We’ll use some numerical approximations to find the mode.</p>
+<h2 id="posterior-mode">Posterior mode</h2>
+<p>The observed data are as follows.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">1.5</span>, <span class="fl">2.5</span>)</code></pre></div>
+<p>We could make draws from the posterior by coding this up in stan. However, an estimation of the mode from such values is difficult. An alternative is to use numerical optimisation. For that we’ll use the posterior on the log scale.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">log_likelihood &lt;-<span class="st"> </span><span class="cf">function</span>(y, theta)
+  (<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>(y <span class="op">-</span><span class="st"> </span>theta)<span class="op">^</span><span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">log</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">sum</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">map_dbl</span>(<span class="st">`</span><span class="dt">*</span><span class="st">`</span>, <span class="op">-</span><span class="dv">1</span>)
+
+log_posterior_given &lt;-<span class="st"> </span><span class="cf">function</span>(y) {
+  <span class="cf">function</span>(theta) {
+    <span class="cf">if</span> (theta <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">|</span><span class="st"> </span><span class="dv">1</span> <span class="op">&lt;</span><span class="st"> </span>theta) {
+      <span class="kw">return</span>(<span class="op">-</span><span class="ot">Inf</span>)
+    } <span class="cf">else</span> {
+      <span class="kw">return</span>(<span class="kw">log_likelihood</span>(y, theta))
+    }
+  }
+}
+
+log_posterior &lt;-<span class="st"> </span><span class="kw">log_posterior_given</span>(y)</code></pre></div>
+<p>Numerical maximisation gives us a value near, but not quite, zero.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mode_numerical &lt;-<span class="st"> </span><span class="kw">optimise</span>(log_posterior, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dt">maximum =</span> <span class="ot">TRUE</span>)<span class="op">$</span>maximum
+mode_numerical</code></pre></div>
+<pre><code>[1] 6.610696e-05</code></pre>
+<p>Let’s plot the posterior.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">granularity &lt;-<span class="st"> </span><span class="fl">1e5</span>
+grid &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">theta =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dt">length.out =</span> granularity)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">id =</span> <span class="dv">1</span><span class="op">:</span><span class="kw">n</span>(),
+    <span class="dt">log_unnormalised_density =</span> <span class="kw">map_dbl</span>(theta, log_posterior),
+    <span class="dt">unnormalised_density =</span> <span class="kw">exp</span>(log_unnormalised_density),
+    <span class="dt">density =</span> granularity <span class="op">*</span><span class="st"> </span>unnormalised_density <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(unnormalised_density),
+    <span class="dt">is_mode =</span> <span class="kw">abs</span>(theta <span class="op">-</span><span class="st"> </span><span class="kw">signif</span>(mode_numerical, <span class="dt">digits =</span> <span class="dv">1</span>)) <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.5</span> <span class="op">/</span><span class="st"> </span>granularity
+  ) </code></pre></div>
+<figure>
+<img src="chapter_04_exercise_01_files/figure-markdown/grid_plot-1..svg" />
+</figure>
+<p>Indeed, it looks like the mode could be 0. Zooming in we see that it is very likely to be zero.</p>
+<figure>
+<img src="chapter_04_exercise_01_files/figure-markdown/unnamed-chunk-3-1..svg" />
+</figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mode &lt;-<span class="st"> </span><span class="dv">0</span></code></pre></div>
+<h2 id="normal-approximation">Normal approximation</h2>
+<p>Now let’s calculate the derivatives in order to find the normal approximation. The derivative of the log posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{d}{d\theta} \log p(y \mid \theta)
+=
+2 \sum_1^5 \frac{y_i - \theta}{1 + (y_i - \theta)^2}
+.
+\]</span></p>
+<p>The second derivative of the log posterior is</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\frac{d^2}{d\theta^2} \log p(y \mid \theta)
+&amp;=
+\sum_1^5
+\frac{
+  \frac{-2}{1 + (y_i - \theta)^2} - \frac{2(y_i - \theta)}{(1 + (y_i - \theta)^2)^2}\cdot 2(y_i - \theta)
+}{
+  \left( 1 + (y_i - \theta)^2 \right)^2
+}
+\\
+&amp;=
+\sum_1^5
+\frac{-2\left( 1 + (y_i - \theta)^2 \right)^2 - 4 (y_i - \theta)^2}{\left( 1 + (y_i - \theta)^2 \right)^4}
+\\
+&amp;=
+-2
+\sum_1^5
+\frac{3(y_i - \theta)^2 + 2(y_i - \theta) + 1}{\left( 1 + (y_i - \theta)^2 \right)^4}
+.
+\end{align}
+\]</span></p>
+<p>Evaluating this at the mode gives</p>
+<p class="mathjaxWide"><span class="math display">\[
+-2 \sum_1^5 \frac{3y_i^2 + 2y_i + 1}{\left( 1 + y_i^2 \right)^4}
+.
+\]</span></p>
+<p>The means that the observed information is</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">I &lt;-<span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">sum</span>((<span class="dv">3</span> <span class="op">*</span><span class="st"> </span>y<span class="op">^</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>y <span class="op">+</span><span class="st"> </span><span class="dv">1</span>) <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>y<span class="op">^</span><span class="dv">2</span>)<span class="op">^</span><span class="dv">4</span>)
+I</code></pre></div>
+<pre><code>[1] 2.489427</code></pre>
+<p>This gives us the normal approximation with</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mu &lt;-<span class="st"> </span>mode
+variance &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>I
+std &lt;-<span class="st"> </span><span class="kw">sqrt</span>(variance)
+
+<span class="kw">c</span>(mu, std)</code></pre></div>
+<pre><code>[1] 0.0000000 0.6337972</code></pre>
+<p>which gives us the normal approximation <span class="math inline">\(p(\theta \mid y) \approx \dnorm(0, 0.634)\)</span> on <span class="math inline">\([0, 1]\)</span>.</p>
+<figure>
+<img src="chapter_04_exercise_01_files/figure-markdown/approx_plot-1..svg" />
+</figure>
+<p>The approximation isn’t very good.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 3 Exercise 11</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_11.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_11.html</id>
@@ -1795,170 +1942,6 @@ ci</code></pre></div>
 <figure>
 <img src="chapter_03_exercise_03_files/figure-markdown/diffs_plot-1.png" />
 </figure>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 3 Exercise 2</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_02.html</id>
-    <published>2018-09-15T00:00:00Z</published>
-    <updated>2018-09-15T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 2</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on September 15, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/multinomial.html">multinomial</a>, <a href="/tags/dirichlet.html">dirichlet</a>, <a href="/tags/beta.html">beta</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 2, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
-</div>
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-survey
-</th>
-<th style="text-align:right;">
-bush
-</th>
-<th style="text-align:right;">
-dukakis
-</th>
-<th style="text-align:right;">
-other
-</th>
-<th style="text-align:right;">
-total
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-pre-debate
-</td>
-<td style="text-align:right;">
-294
-</td>
-<td style="text-align:right;">
-307
-</td>
-<td style="text-align:right;">
-38
-</td>
-<td style="text-align:right;">
-639
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-post-debate
-</td>
-<td style="text-align:right;">
-288
-</td>
-<td style="text-align:right;">
-332
-</td>
-<td style="text-align:right;">
-19
-</td>
-<td style="text-align:right;">
-639
-</td>
-</tr>
-</tbody>
-</table>
-<p>Let <span class="math inline">\(\theta_\text{pre} \sim \ddirichlet_3(\alpha_\text{pre})\)</span> and <span class="math inline">\(\theta_\text{post} \sim \ddirichlet_3(\alpha_\text{post})\)</span> be the pre- and post-debate priors. Then the posteriors are</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \theta_\text{pre} \mid y &amp;\sim \ddirichlet\left(294 + \alpha_{(\text{pre}, \text{b})}, 307 + \alpha_{(\text{pre}, \text{d})}, 38 + \alpha_{(\text{pre}, \text{o})} \right)
-  \\
-  \theta_\text{post} \mid y &amp;\sim \ddirichlet\left(288 + \alpha_{(\text{post}, \text{b})}, 332 + \alpha_{(\text{post}, \text{d})}, 19 + \alpha_{(\text{post}, \text{o})} \right)
-.
-\end{align}
-\]</span></p>
-<p>Denote the proportion of support for Bush amongst Bush/Dukakis supporters by <span class="math inline">\(\phi_\bullet := \frac{\theta_{(\bullet, \text{b})}}{\theta_{(\bullet, \text{b})} + \theta_{(\bullet, \text{d})}}\)</span>. The results of the <a href="./chapter_03_exercise_01.html">previous exercise</a> show that we can treat this as a beta-binomial problem by simply ignoring the results for <code>other</code>. More precisely,</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \phi_\text{pre} \mid y &amp;\sim \dbeta\left(294 + \alpha_{(\text{pre}, \text{b})}, 307 + \alpha_{(\text{pre}, \text{d})} \right)
-  \\
-  \phi_\text{post} \mid y &amp;\sim \dbeta\left(288 + \alpha_{(\text{post}, \text{b})}, 332 + \alpha_{(\text{post}, \text{d})} \right)
-\end{align}
-.
-\]</span></p>
-<p>Let’s plot these posteriors and their difference <span class="math inline">\(\delta := (\phi_\text{post} \mid y) - (\phi_\text{pre} \mid y)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">alpha_bush &lt;-<span class="st"> </span><span class="dv">1</span>
-alpha_dukakis &lt;-<span class="st"> </span><span class="dv">1</span>
-
-posteriors &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
-    <span class="dt">value =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.001</span>),
-    <span class="dt">survey =</span> df<span class="op">$</span>survey
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">inner_join</span>(df, <span class="dt">by =</span> <span class="st">&#39;survey&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">post_bush =</span> bush <span class="op">+</span><span class="st"> </span>alpha_bush,
-    <span class="dt">post_dukakis =</span> dukakis <span class="op">+</span><span class="st"> </span>alpha_dukakis,
-    <span class="dt">density =</span> <span class="kw">dbeta</span>(value, post_bush, post_dukakis)
-  ) </code></pre></div>
-<figure>
-<img src="chapter_03_exercise_02_files/figure-markdown/posteriors_plot-1..svg" />
-</figure>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">N &lt;-<span class="st"> </span><span class="dv">10000</span>
-
-shift &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(
-    <span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>N, 
-    <span class="dt">survey =</span> df<span class="op">$</span>survey
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">as_tibble</span>() <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">inner_join</span>(df, <span class="dt">by =</span> <span class="st">&#39;survey&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">post_bush =</span> bush <span class="op">+</span><span class="st"> </span>alpha_bush,
-    <span class="dt">post_dukakis =</span> dukakis <span class="op">+</span><span class="st"> </span>alpha_dukakis,
-    <span class="dt">value =</span> <span class="kw">rbeta</span>(<span class="kw">n</span>(), post_bush, post_dukakis)
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(draw, survey, value) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">spread</span>(survey, value) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">difference =</span> <span class="st">`</span><span class="dt">post-debate</span><span class="st">`</span> <span class="op">-</span><span class="st"> `</span><span class="dt">pre-debate</span><span class="st">`</span>) </code></pre></div>
-<figure>
-<img src="chapter_03_exercise_02_files/figure-markdown/shift_plot-1..svg" />
-</figure>
-<p>There is a 19.1% probability (the area above 0) that there was a positive shift towards Bush.</p>
 
 <div id="disqus_thread"></div>
 <script>

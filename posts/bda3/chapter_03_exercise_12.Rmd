@@ -1,0 +1,216 @@
+---
+title: "BDA3 Chapter 3 Exercise 12"
+author: "Brian Callander"
+date: "2018-10-22"
+tags: bda chapter 3, solutions, bayes
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: yes
+---
+
+Here's my solution to exercise 12, chapter 3, of [Gelman's](https://andrewgelman.com/) *Bayesian Data Analysis* (BDA), 3rd edition. There are [solutions](http://www.stat.columbia.edu/~gelman/book/solutions.pdf) to some of the exercises on the [book's webpage](http://www.stat.columbia.edu/~gelman/book/).
+
+<!--more-->
+
+<div style="display:none">
+  $\DeclareMathOperator{\dbinomial}{Binomial}
+   \DeclareMathOperator{\dbern}{Bernoulli}
+   \DeclareMathOperator{\dpois}{Poisson}
+   \DeclareMathOperator{\dnorm}{Normal}
+   \DeclareMathOperator{\dt}{t}
+   \DeclareMathOperator{\dcauchy}{Cauchy}
+   \DeclareMathOperator{\dexponential}{Exp}
+   \DeclareMathOperator{\duniform}{Uniform}
+   \DeclareMathOperator{\dgamma}{Gamma}
+   \DeclareMathOperator{\dinvgamma}{InvGamma}
+   \DeclareMathOperator{\invlogit}{InvLogit}
+   \DeclareMathOperator{\logit}{Logit}
+   \DeclareMathOperator{\ddirichlet}{Dirichlet}
+   \DeclareMathOperator{\dbeta}{Beta}$
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  error = TRUE,
+  # cache = TRUE,
+  dev = "svglite",
+  fig.ext = ".svg" 
+)
+
+library(tidyverse)
+library(scales)
+library(kableExtra)
+
+library(rstan)
+library(rstanarm)
+library(tidybayes)
+
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+
+theme_set(theme_bw())
+
+```
+
+We will take another look at [exercise 13 from chapter 2], this time taking time $t$ into account.
+The mean parameter of $\dpois(\theta)$ must be positive. If we express $\theta = \alpha + \beta t$, we need to somehow keep $\theta > 0$. This makes the choice of prior difficult and we are forced to reason about the particular dataset we are working with in order to do it.
+
+Let's load the data.
+
+```{r data}
+df <- read_csv('data/chapter_02_exercise_13.csv')
+```
+
+```{r data_plot, echo = FALSE}
+df %>% 
+  ggplot() +
+  aes(year, fatal_accidents) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits = c(0, 35), breaks = seq(0, 35, 5)) +
+  scale_x_continuous(breaks = 1900:2000) +
+  labs(
+    x = 'Year',
+    y = 'Fatal accidents',
+    title = 'Observed number of fatal accidents'
+  ) +
+  NULL
+```
+
+
+## A non-informative prior
+
+We could use a uniform prior on the domain $D := \{ (\alpha, \beta) \in [-\infty, \infty] \times [-\infty, \infty] \mid \alpha + \beta t_i \ge 0, \forall i \}$. Strictly speaking, this isn't a valid prior since it depends strongly on the data. 
+
+With the uniform prior, the posterior is:
+
+$$
+\begin{align}
+  p (\alpha, \beta \mid y)
+  &=
+  \prod_{i = 1}^n 
+  \lambda_i^{y_i} e^{\lambda_i}
+  \\
+  &=
+  \prod_{i = 1}^n (\alpha + \beta t_i)^{y_i} e^{-(\alpha + \beta t_i)}
+  \\
+  &=
+  e^{-n\alpha - \beta \sum_1^n t_i} \prod_{i = 1}^n (\alpha + \beta t_i)^{y_i}
+  .
+\end{align}
+$$
+
+It seems that the sufficient statistics would seem to be $((y_1, t_1), \dotsc, (y_n, t_n))$. I wasn't able to find a fixed number of sufficient statistics independent of $n$, but was also not able to prove that it is impossible.
+
+The parameters given by linear regression are hard to interpret.
+
+```{r simple_regression}
+m0 <- lm(
+    fatal_accidents ~ 1 + year,
+    data = df
+  ) %>% 
+  broom::tidy() 
+```
+
+```{r simple_regression_table, echo = FALSE}
+m0 %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c('hover', 'striped', 'responsive'))
+```
+
+We would like to be able to consider the intercept as the 'mean' value decreasing by a certain amount each year, but `r m0 %>% filter(term == '(Intercept)') %>% pull(estimate)` is too high. Since the intercept isn't interpretable, slope is also not interpretable.
+
+## An informative prior
+
+To construct a (weakly) informative prior, we'll use a gamma distribution for the intercept (representing the mean number of fatal accidents over the year) and a normal distribution centred at 0 for the change per year. 
+
+```{r informative_alpha, echo = FALSE}
+mu <- 23
+sigma <- 7
+
+shape <- (mu / sigma)^2
+rate <- shape / mu
+
+tibble(x = seq(0, 60, 0.5)) %>% 
+  mutate(p = dgamma(x, shape, rate)) %>% 
+  ggplot() +
+  aes(x, p) +
+  geom_area(fill = 'skyblue', colour = 'white') +
+  scale_x_continuous(breaks = seq(0, 100, 5)) +
+  labs(
+    title = 'Informative α-prior',
+    subtitle = str_glue('Gamma(shape = {signif(shape, digits = 3)}, rate = {signif(rate, digits = 3)}), with mean {mu} and standard deviation {signif(sigma, digits = 3)}')
+  )
+```
+
+We'll use $\beta \sim \dnorm(0, 0.005)$ because the `year` is has 3 orders of magnitude so this prior puts the change per year on ~1 order of magnitude.
+
+```{r prior_predictive_draws}
+prior_predictive_draws <- function(n, beta_sigma = 0.005) {
+  draws <- 1:n
+  
+  tibble(draw = draws) %>%
+    mutate(
+      alpha = rgamma(n(), shape, rate),
+      beta = rnorm(n(), 0, beta_sigma)
+    ) %>% 
+    inner_join(
+      expand.grid(draw = draws, year = 1976:1985) %>% as_tibble(),
+      by = 'draw'
+    ) %>% 
+    mutate(theta = alpha + beta * year) %>% 
+    filter(theta > 0) %>%
+    mutate(
+      fatal_accidents = rpois(n(), theta),
+      draws = n_distinct(draw)
+    ) 
+}
+```
+
+```{r, echo = FALSE}
+draws <- prior_predictive_draws(10000) 
+draws %>% 
+  ggplot() +
+  aes(alpha, beta) +
+  geom_point(alpha = 0.01) +
+  labs(
+    x = 'α',
+    y = 'β',
+    title = 'Joint prior distribution of α and β',
+    subtitle = str_glue('{comma(min(draws$draws))} draws')
+  ) +
+  NULL
+
+```
+
+
+```{r prior_predictive_draws_plot, echo = FALSE}
+prior_predictive_draws(6) %>% 
+  ggplot() + 
+  aes(year, fatal_accidents, colour = factor(draw)) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(limits = c(0, NA), breaks = seq(0, 200, 5)) +
+  scale_x_continuous(breaks = 1900:2000) +
+  labs(
+    x = 'Year',
+    y = 'Fatal accidents',
+    title = 'Prior predictive draws of fatal accidents',
+    colour = 'Draw'
+  )
+    
+```
+
+We won't bother plotting the prior predictive draws from the uninformative prior distribution since they are crazy.
+
+## The posterior
+
+
+
+## Discussion

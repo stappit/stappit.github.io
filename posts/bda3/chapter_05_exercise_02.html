@@ -15,7 +15,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
-    <title>Brian - BDA3 Chapter 5 Exercise 1</title>
+    <title>Brian - BDA3 Chapter 5 Exercise 2</title>
   </head>
 
   <body>
@@ -45,7 +45,7 @@
     <section>
       <article>
         <div id="content" class="container">
-          <h1 class="post-title">BDA3 Chapter 5 Exercise 1</h1>
+          <h1 class="post-title">BDA3 Chapter 5 Exercise 2</h1>
 
 <div class="card post-meta border-0">
   <div class="card-body post-meta">
@@ -57,32 +57,47 @@
   </div>
 </div>
 
-<p>Here’s my solution to exercise 1, chapter 5, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<p>Here’s my solution to exercise 2, chapter 5, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
 <!--more-->
 <div style="display:none">
 <p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dt}{t}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\duniform}{Uniform}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\dinvchi}{InvChi2}  \DeclareMathOperator{\dsinvchi}{SInvChi2}  \DeclareMathOperator{\dchi}{Chi2}  \DeclareMathOperator{\dnorminvchi}{NormInvChi2}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\ddirichlet}{Dirichlet}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
 </div>
-<p>Suppose we have a box with one black ball and one white ball inside. We picka ball <span class="math inline">\(y_1\)</span> at random, put it back, then pick another ball <span class="math inline">\(y_2\)</span> at random. Then <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span> are independent, and therefore also exchangeable.</p>
-<p>The draws are no longer independent if we don’t put the first ball back before picking the second ball. They remain exchangeable since the joint probability only depends on the equality of the arguments, not on their order. More specifically,</p>
+<p>This exercise is an extension of <a href="./chapter_05_exercise_01.html">the previous exercise</a>. Suppose we have a box with <span class="math inline">\(n\)</span> balls, with <span class="math inline">\(B\)</span> black balls and <span class="math inline">\(W\)</span> white balls (<span class="math inline">\(n = B + W\)</span>), where we don’t know how many of each. We pick a ball <span class="math inline">\(y_1\)</span> at random, put it back, then pick another ball <span class="math inline">\(y_2\)</span> at random. In this case, Then <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span> are independent, and therefore also exchangeable.</p>
+<p>The draws are no longer independent if we don’t put the first ball back before picking the second ball. They remain exchangeable since the conditional joint probability function does not depend on the order</p>
+<p class="mathjaxWide"><span class="math display">\[
+  p(y_1, y_2 \mid B, W)
+  =
+  \begin{cases}
+    \frac{BW}{n(n - 1)} &amp; \text{ if } y_1 \ne y_2 \\
+    \frac{W(W - 1)}{n (n - 1)} &amp; \text{ if } y_1 = y_2 = \text{white} \\
+    \frac{B(B - 1)}{n (n - 1)} &amp; \text{ if } y_1 = y_2 = \text{black,} 
+  \end{cases}
+\]</span></p>
+<p>which implies that the joint probability does not depend on the order</p>
 <p class="mathjaxWide"><span class="math display">\[
   p(y_1, y_2)
   =
-  \begin{cases}
-    \frac{1}{2} &amp; \text{ if } y_1 \ne y_2 \\
-    0 &amp; \text{ otherwise.}
-  \end{cases}
+  \sum_{B + W \ge 2 \\ B \ge 0, W \ge 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
+  .
 \]</span></p>
-<p>Treating the draws as if they were independent would not be a good idea.</p>
-<p>If there were <span class="math inline">\(M\)</span> balls of each colour, where <span class="math inline">\(M \gg 0\)</span> such as <span class="math inline">\(M = 10^6\)</span>, then the draws would still not be independent, but they would be very close to independence. They remain exchangeable. This is clearer from the joint probability function</p>
+<p>Whether we can treat them as if they were independent depends on the prior <span class="math inline">\(p(B, W)\)</span>. If there is significant probability mass on low values, then we shouldn’t treat them as independent (see <a href="./chapter_05_exercise_01.html">the previous exercise</a>). If the only significant probability mass were on very large values of <span class="math inline">\(B\)</span> and <span class="math inline">\(W\)</span>, then we could treat them as if they were independent. This follows from the fact that</p>
 <p class="mathjaxWide"><span class="math display">\[
-  p(y_1, y_2)
-  =
-  \begin{cases}
-    \frac{1}{2}\frac{M}{2M - 1} &amp; \text{ if } y_1 \ne y_2 \\
-    \frac{1}{2}\frac{M - 1}{2M - 1} &amp; \text{ otherwise,}
-  \end{cases}
+\begin{align}
+  \frac{B-1}{n - 1} 
+  &amp;\approx
+  \frac{B}{n}
+  \approx
+  \frac{B}{n-1}
+  \\
+  \frac{W-1}{n - 1} 
+  &amp;\approx
+  \frac{W}{n}
+  \approx
+  \frac{W}{n-1}
+  ,
+\end{align}
 \]</span></p>
-<p>since <span class="math inline">\(\frac{M}{2M - 1} \approx \frac{1}{2} \approx \frac{M - 1}{2M - 1}\)</span> for <span class="math inline">\(M \gg 0\)</span>.</p>
+<p>when <span class="math inline">\(B, W \gg 0\)</span>.</p>
 
 <div id="disqus_thread"></div>
 <script>

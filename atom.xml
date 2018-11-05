@@ -10,6 +10,93 @@
     </author>
     <updated>2018-11-05T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 5 Exercise 2</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_05_exercise_02.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_05_exercise_02.html</id>
+    <published>2018-11-05T00:00:00Z</published>
+    <updated>2018-11-05T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 5 Exercise 2</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on November  5, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%205.html">bda chapter 5</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/exchangeability.html">exchangeability</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 2, chapter 5, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dt}{t}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\duniform}{Uniform}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\dinvchi}{InvChi2}  \DeclareMathOperator{\dsinvchi}{SInvChi2}  \DeclareMathOperator{\dchi}{Chi2}  \DeclareMathOperator{\dnorminvchi}{NormInvChi2}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\ddirichlet}{Dirichlet}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>This exercise is an extension of <a href="./chapter_05_exercise_01.html">the previous exercise</a>. Suppose we have a box with <span class="math inline">\(n\)</span> balls, with <span class="math inline">\(B\)</span> black balls and <span class="math inline">\(W\)</span> white balls (<span class="math inline">\(n = B + W\)</span>), where we don’t know how many of each. We pick a ball <span class="math inline">\(y_1\)</span> at random, put it back, then pick another ball <span class="math inline">\(y_2\)</span> at random. In this case, Then <span class="math inline">\(y_1\)</span> and <span class="math inline">\(y_2\)</span> are independent, and therefore also exchangeable.</p>
+<p>The draws are no longer independent if we don’t put the first ball back before picking the second ball. They remain exchangeable since the conditional joint probability function does not depend on the order</p>
+<p class="mathjaxWide"><span class="math display">\[
+  p(y_1, y_2 \mid B, W)
+  =
+  \begin{cases}
+    \frac{BW}{n(n - 1)} &amp; \text{ if } y_1 \ne y_2 \\
+    \frac{W(W - 1)}{n (n - 1)} &amp; \text{ if } y_1 = y_2 = \text{white} \\
+    \frac{B(B - 1)}{n (n - 1)} &amp; \text{ if } y_1 = y_2 = \text{black,} 
+  \end{cases}
+\]</span></p>
+<p>which implies that the joint probability does not depend on the order</p>
+<p class="mathjaxWide"><span class="math display">\[
+  p(y_1, y_2)
+  =
+  \sum_{B + W \ge 2 \\ B \ge 0, W \ge 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
+  .
+\]</span></p>
+<p>Whether we can treat them as if they were independent depends on the prior <span class="math inline">\(p(B, W)\)</span>. If there is significant probability mass on low values, then we shouldn’t treat them as independent (see <a href="./chapter_05_exercise_01.html">the previous exercise</a>). If the only significant probability mass were on very large values of <span class="math inline">\(B\)</span> and <span class="math inline">\(W\)</span>, then we could treat them as if they were independent. This follows from the fact that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \frac{B-1}{n - 1} 
+  &amp;\approx
+  \frac{B}{n}
+  \approx
+  \frac{B}{n-1}
+  \\
+  \frac{W-1}{n - 1} 
+  &amp;\approx
+  \frac{W}{n}
+  \approx
+  \frac{W}{n-1}
+  ,
+\end{align}
+\]</span></p>
+<p>when <span class="math inline">\(B, W \gg 0\)</span>.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 5 Exercise 1</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_05_exercise_01.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_05_exercise_01.html</id>
@@ -43,7 +130,7 @@
   \end{cases}
 \]</span></p>
 <p>Treating the draws as if they were independent would not be a good idea.</p>
-<p>If there were <span class="math inline">\(M\)</span> balls of each colour, where <span class="math inline">\(M \gg 0\)</span> such as <span class="math inline">\(M = 10^6\)</span>, then the draws would still not be independent, but they would be very close to independence. They remain exchangeable. This is clearer from the join probability function</p>
+<p>If there were <span class="math inline">\(M\)</span> balls of each colour, where <span class="math inline">\(M \gg 0\)</span> such as <span class="math inline">\(M = 10^6\)</span>, then the draws would still not be independent, but they would be very close to independence. They remain exchangeable. This is clearer from the joint probability function</p>
 <p class="mathjaxWide"><span class="math display">\[
   p(y_1, y_2)
   =
@@ -1716,208 +1803,6 @@ unrounded
 <img src="chapter_03_exercise_05_files/figure-markdown/sims_plot-1..svg" />
 </figure>
 <p>There is a lot of mass near 0 because the observed rounded measurments are the same for <span class="math inline">\(z_1\)</span> and <span class="math inline">\(z_2\)</span>. The probability density is also entirely less than 1 because the rounding is off by at most 0.5 in any direction.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 3 Exercise 4</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_04.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_04.html</id>
-    <published>2018-10-05T00:00:00Z</published>
-    <updated>2018-10-05T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 4</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on October  5, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/odds%20ratio.html">odds ratio</a>, <a href="/tags/noninformative%20priors.html">noninformative priors</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 4, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
-</div>
-<p>Suppose we have two independent trials where the likelihood of death is binomial, <span class="math inline">\(y_i \mid p_0, p_1 \sim \dbinomial(n_i, p_i)\)</span>, <span class="math inline">\(i = 0, 1\)</span>. We will compare two different non-informative priors on the odds ratio</p>
-<p class="mathjaxWide"><span class="math display">\[
-\theta
-:=
-\frac{p_0}{1 - p_0} / \frac{p_1}{1 - p_1} 
-.
-\]</span></p>
-<p>Here are the given data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">tibble</span>(
-    <span class="dt">cohort =</span> <span class="kw">c</span>(<span class="st">&#39;control&#39;</span>, <span class="st">&#39;treatment&#39;</span>),
-    <span class="dt">patients =</span> <span class="kw">c</span>(<span class="dv">674</span>, <span class="dv">680</span>),
-    <span class="dt">deaths =</span> <span class="kw">c</span>(<span class="dv">39</span>, <span class="dv">22</span>)
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">survived =</span> patients <span class="op">-</span><span class="st"> </span>deaths)</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-cohort
-</th>
-<th style="text-align:right;">
-patients
-</th>
-<th style="text-align:right;">
-deaths
-</th>
-<th style="text-align:right;">
-survived
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-control
-</td>
-<td style="text-align:right;">
-674
-</td>
-<td style="text-align:right;">
-39
-</td>
-<td style="text-align:right;">
-635
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-treatment
-</td>
-<td style="text-align:right;">
-680
-</td>
-<td style="text-align:right;">
-22
-</td>
-<td style="text-align:right;">
-658
-</td>
-</tr>
-</tbody>
-</table>
-<p>We’ll need a couple of functions for drawing random samples for <span class="math inline">\(\theta\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">odds &lt;-<span class="st"> </span><span class="cf">function</span>(p) p <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p)
-
-simulate &lt;-<span class="st"> </span><span class="cf">function</span>(n, k, a, b, <span class="dt">draws =</span> <span class="dv">10000</span>)
-  <span class="co"># draws from posterior</span>
-  <span class="co"># n bernouille trials, k successes with beta(a, b) prior</span>
-  <span class="kw">tibble</span>(
-    <span class="dt">draw =</span> <span class="dv">1</span><span class="op">:</span>draws, 
-    <span class="dt">value =</span> <span class="kw">rbeta</span>(draws, k <span class="op">+</span><span class="st"> </span>a, n <span class="op">-</span><span class="st"> </span>k <span class="op">+</span><span class="st"> </span>b)
-  )
-
-posterior &lt;-<span class="st"> </span><span class="cf">function</span>(a, b, <span class="dt">draws =</span> <span class="dv">10000</span>)
-  <span class="co"># random samples from theta posterior with beta(a, b) prior</span>
-  df <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">transmute</span>(
-      cohort,
-      <span class="dt">draws =</span> <span class="kw">map2</span>(patients, deaths, simulate, a, b, draws)
-    ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">unnest</span>(draws) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">spread</span>(cohort, value) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">theta =</span> <span class="kw">odds</span>(control) <span class="op">/</span><span class="st"> </span><span class="kw">odds</span>(treatment))</code></pre></div>
-<p>Let’s compare a uniform prior to a prior close to <span class="math inline">\(\dbeta(0, 0)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">uni &lt;-<span class="st"> </span><span class="kw">posterior</span>(<span class="dv">1</span>, <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior =</span> <span class="st">&#39;uniform&#39;</span>)
-
-zero &lt;-<span class="st"> </span><span class="kw">posterior</span>(<span class="fl">0.000000001</span>, <span class="fl">0.000000001</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">prior =</span> <span class="st">&#39;zero&#39;</span>)
-
-posteriors &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(uni, zero)</code></pre></div>
-<figure>
-<img src="chapter_03_exercise_04_files/figure-markdown/posteriors_plot-1..svg" />
-</figure>
-<p>Here are the 95% posterior credible intervals for <span class="math inline">\(\theta\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cis &lt;-<span class="st"> </span>posteriors <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">group_by</span>(prior) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">summarise</span>(
-    <span class="dt">q05 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.05</span>),
-    <span class="dt">q50 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.5</span>),
-    <span class="dt">q95 =</span> <span class="kw">quantile</span>(theta, <span class="fl">0.95</span>)
-  )</code></pre></div>
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-prior
-</th>
-<th style="text-align:right;">
-q05
-</th>
-<th style="text-align:right;">
-q50
-</th>
-<th style="text-align:right;">
-q95
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-uniform
-</td>
-<td style="text-align:right;">
-1.167356
-</td>
-<td style="text-align:right;">
-1.808981
-</td>
-<td style="text-align:right;">
-2.859778
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-zero
-</td>
-<td style="text-align:right;">
-1.190899
-</td>
-<td style="text-align:right;">
-1.845182
-</td>
-<td style="text-align:right;">
-2.939430
-</td>
-</tr>
-</tbody>
-</table>
-<p>The estimates with the “zero” prior are slightly higher than those from the uniform prior, especially in the tails.</p>
 
 <div id="disqus_thread"></div>
 <script>

@@ -56,7 +56,7 @@ $$
 
 Treating the draws as if they were independent would not be a good idea.
 
-If there were $M$ balls of each colour, where $M \gg 0$ such as $M = 10^6$, then the draws would still not be independent, but they would be very close to independence. They remain exchangeable. This is clearer from the join probability function
+If there were $M$ balls of each colour, where $M \gg 0$ such as $M = 10^6$, then the draws would still not be independent, but they would be very close to independence. They remain exchangeable. This is clearer from the joint probability function
 
 $$
   p(y_1, y_2)

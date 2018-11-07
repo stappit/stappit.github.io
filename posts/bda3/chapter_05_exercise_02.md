@@ -60,7 +60,7 @@ which implies that the joint probability does not depend on the order
 $$
   p(y_1, y_2)
   =
-  \sum_{B + W \ge 2 \\ B \ge 0, W \ge 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
+  \sum_{B + W \ge 2 \\ B \cdot W > 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
   .
 $$
 

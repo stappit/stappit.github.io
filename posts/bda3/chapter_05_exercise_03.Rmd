@@ -1,0 +1,245 @@
+---
+title: "BDA3 Chapter 5 Exercise 3"
+author: "Brian Callander"
+date: "2018-11-06"
+tags: bda chapter 3, solutions, bayes
+always_allow_html: yes
+output: 
+  md_document:
+    variant: markdown
+    preserve_yaml: yes
+---
+
+Here's my solution to exercise 3, chapter 5, of [Gelman's](https://andrewgelman.com/) *Bayesian Data Analysis* (BDA), 3rd edition. There are [solutions](http://www.stat.columbia.edu/~gelman/book/solutions.pdf) to some of the exercises on the [book's webpage](http://www.stat.columbia.edu/~gelman/book/).
+
+<!--more-->
+
+<div style="display:none">
+  $\DeclareMathOperator{\dbinomial}{Binomial}
+   \DeclareMathOperator{\dbern}{Bernoulli}
+   \DeclareMathOperator{\dpois}{Poisson}
+   \DeclareMathOperator{\dnorm}{Normal}
+   \DeclareMathOperator{\dt}{t}
+   \DeclareMathOperator{\dcauchy}{Cauchy}
+   \DeclareMathOperator{\dexponential}{Exp}
+   \DeclareMathOperator{\duniform}{Uniform}
+   \DeclareMathOperator{\dgamma}{Gamma}
+   \DeclareMathOperator{\dinvgamma}{InvGamma}
+   \DeclareMathOperator{\invlogit}{InvLogit}
+   \DeclareMathOperator{\logit}{Logit}
+   \DeclareMathOperator{\ddirichlet}{Dirichlet}
+   \DeclareMathOperator{\dbeta}{Beta}$
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  error = TRUE,
+  # cache = TRUE,
+  dev = "svglite",
+  fig.ext = ".svg" 
+)
+
+library(tidyverse)
+library(scales)
+library(kableExtra)
+
+library(rstan)
+library(rstanarm)
+library(tidybayes)
+
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+
+theme_set(theme_bw())
+
+```
+
+
+```{r data_gen}
+data <- list(
+  list(school = 'A', y = 25, std = 15),
+  list(school = 'B', y = 8,  std = 10),
+  list(school = 'C', y = -3, std = 16),
+  list(school = 'D', y = 7,  std = 11),
+  list(school = 'E', y = -1, std = 19),
+  list(school = 'F', y = 1,  std = 11),
+  list(school = 'G', y = 18, std = 10),
+  list(school = 'H', y = 12, std = 18)
+)
+
+df <- data %>% 
+  map_df(as_tibble) %>% 
+  mutate(school = factor(school))
+
+df %>% 
+  write_csv('data/chapter_05_exercise_03.csv') %>% 
+  write_csv('data/eight_schools.csv') 
+```
+
+
+```{r data}
+df <- read_csv('data/eight_schools.csv') %>% 
+  mutate(school = factor(school))
+```
+
+```{r data_table, echo = FALSE}
+df %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+```
+
+
+```{r model, results='hide'}
+model <- rstan::stan_model('src/ex_05_03.stan')
+```
+
+```{r, echo = FALSE}
+model
+```
+
+```{r}
+fit <- model %>% 
+  sampling(
+    data = list(
+      J = nrow(df),
+      y = df$y,
+      sigma = df$std
+    ),
+    warmup = 1000,
+    iter = 5000,
+    chains = 4,
+    refresh = -1
+  )
+```
+
+```{r}
+draws <- fit %>% 
+  tidybayes::spread_draws(mu, tau, eta[school_idx]) %>% 
+  mutate(
+    theta = mu + eta * tau,
+    school = levels(df$school)[school_idx]
+  ) 
+```
+
+```{r}
+draws %>% 
+  ggplot() +
+  aes(x = theta, y = school) +
+  geom_vline(xintercept = 0, linetype = 'dashed', colour = 'chocolate') +
+  tidybayes::geom_halfeyeh(fill = 'skyblue') +
+  scale_x_continuous(limits = c(-25, 40), breaks = seq(-50, 50, 5)) +
+  labs(
+    x = 'Effect',
+    y = 'School',
+    title = 'Posterior effect estimates for each school'
+  ) +
+  NULL
+```
+
+```{r}
+draws %>% 
+  group_by(school, tau = floor(tau)) %>% 
+  summarise(theta = mean(theta)) %>% 
+  ggplot() +
+  aes(tau, theta, colour = school) +
+  geom_line() +
+  scale_x_continuous(limits = c(0, 30)) +
+  labs(
+    x = 'τ',
+    y = 'Estimated treatment effect',
+    title = 'Conditional posterior means of treatment effects',
+    subtitle = 'E(θ | τ, y) approximated from posterior draws',
+    colour = 'School'
+  ) +
+  NULL
+
+```
+
+
+
+
+```{r}
+draws %>% 
+  filter(school == 'A') %>% 
+  ggplot() +
+  aes(theta) +
+  geom_histogram(fill = 'skyblue', bins = 50) +
+  labs(
+    x = 'Effect',
+    y = 'Count',
+    title = 'Marginal posterior effect in school A'
+  )
+```
+
+
+```{r}
+max_theta <- draws %>% 
+  group_by(.chain, .iteration, .draw) %>% 
+  slice(which.max(theta)) %>% 
+  ungroup()
+```
+
+```{r}
+max_theta %>% 
+  mutate(larger = theta > 28.4) %>% 
+  summarise(p_larger = sum(larger) / n()) %>% 
+  pull() %>% 
+  percent()
+```
+
+
+```{r max_plot, echo = FALSE}
+max_theta %>% 
+  mutate(smaller = theta < 28.4) %>% 
+  ggplot() +
+  aes(theta, fill = smaller) +
+  geom_histogram(bins = 50) +
+  labs(
+    x = 'Maximum effect',
+    y = 'Count',
+    title = 'Estimate of maximum effect',
+    subtitle = 'Draws larger than 28.4 are highlighted'
+  )
+```
+
+```{r}
+a_better_c <- draws %>% 
+  ungroup()  %>% 
+  select(.chain, .iteration, .draw, school, theta) %>% 
+  spread(school, theta) %>% 
+  mutate(a_minus_c = A - C) 
+```
+
+```{r}
+prob_a_better_c <- a_better_c %>% 
+  summarise(mean(a_minus_c > 0)) %>% 
+  pull() %>% 
+  percent()
+
+prob_a_better_c
+```
+
+```{r}
+a_better_c %>% 
+  ggplot() +
+  aes(a_minus_c) +
+  geom_histogram(fill = 'skyblue', bins = 50
+                 ) +
+  geom_vline(xintercept = 0, linetype = 'dashed', colour = 'chocolate') +
+  labs(
+    x = 'Effect of A minus effect of C',
+    y = 'Count',
+    title = 'Estimate of effect A minus effect of C',
+    subtitle = str_glue('P(A > C | y) = {prob_a_better_c}')
+  ) +
+  NULL
+```
+
+```{r}
+
+```
+

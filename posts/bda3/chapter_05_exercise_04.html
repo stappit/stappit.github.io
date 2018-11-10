@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="../../css/default.css">
+
+    <link rel="alternate" type="application/atom+xml" title="Brian's feed" href="atom.xml" />
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+    <title>Brian - BDA3 Chapter 5 Exercise 4</title>
+  </head>
+
+  <body>
+    <nav id="navbar-container" class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand mr-5" href="../../index.html">Brian</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbar" class="collapse navbar-collapse justify-content-end">
+          <ul class="nav navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="../../index.html"><i class="fas fa-home"></i> Recent</a></li>
+            <li class="nav-item"><a class="nav-link" href="../../archive.html"><i class="fas fa-archive"></i> Archive</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://github.com/stappit"><i class="fab fa-github"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../atom.xml"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="../../about.html"><i class="fas fa-info-circle"></i> About</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section>
+      <article>
+        <div id="content" class="container">
+          <h1 class="post-title">BDA3 Chapter 5 Exercise 4</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on November 10, 2018  by Brian </br>
+     Tags: <a href="../../tags/bda%20chapter%205.html">bda chapter 5</a>, <a href="../../tags/solutions.html">solutions</a>, <a href="../../tags/bayes.html">bayes</a>, <a href="../../tags/de%20finetti.html">de finetti</a>, <a href="../../tags/exchangeability.html">exchangeability</a>, <a href="../../tags/counter%0Aexample.html">counter
+example</a> </br>
+     Category: <a href="../../categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 4, chapter 5, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\duniform}{Uniform} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\dinvchi}{InvChi2} \DeclareMathOperator{\dsinvchi}{SInvChi2} \DeclareMathOperator{\dchi}{Chi2} \DeclareMathOperator{\dnorminvchi}{NormInvChi2} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>Suppose we have <span class="math inline">\(2J\)</span> parameters, of which <span class="math inline">\(J\)</span> are <span class="math inline">\(\dnorm(1, 1)\)</span> and the remaining <span class="math inline">\(J\)</span> are <span class="math inline">\(\dnorm(-1, 1)\)</span>. These parameters are exchangeable since we have no way of knowing which are in the former group in which in the latter. Their exchangeable joint probability distribution would be the product of the <span class="math inline">\(2J\)</span> independent normals averaged over all possible permutations.</p>
+<p>Suppose we could write the joint distribution as a mixture of iid components</p>
+<p class="mathjaxWide"><span class="math display">\[
+p(\theta)
+=
+\int \prod_{j = 1}^J p(\theta_j \mid \phi) p(\phi) d\phi
+.
+\]</span></p>
+<p>I won’t prove mathematically that his assumption leads to a contradiction, but rather simulate values to illustrate the point.</p>
+<p>First, <a href="chapter_05_exercise_05.html">the solution to exercise 5</a> shows that the covariance of <span class="math inline">\(\theta_i, \theta_j\)</span>, <span class="math inline">\(i \ne j\)</span>, would have to be non-negative. So let’s simulate some values and take a look at the covariance.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rbern &lt;-<span class="st"> </span><span class="cf">function</span>(n, p) <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw">rbinom</span>(n, <span class="dv">1</span>, p) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>
+
+simulate &lt;-<span class="st"> </span><span class="cf">function</span>(J, <span class="dt">iter =</span> <span class="dv">10000</span>) {
+  <span class="kw">tibble</span>(
+      <span class="dt">mu1 =</span> <span class="kw">rbern</span>(iter, <span class="fl">0.5</span>),
+      <span class="dt">flip =</span> <span class="kw">rbern</span>(iter, (J <span class="op">-</span><span class="st"> </span><span class="dv">1</span>) <span class="op">/</span><span class="st"> </span>(<span class="dv">2</span><span class="op">*</span>J <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)),
+      <span class="dt">mu2 =</span> mu1 <span class="op">*</span><span class="st"> </span>flip,
+      <span class="dt">theta1 =</span> <span class="kw">rnorm</span>(iter, mu1, <span class="dv">1</span>),
+      <span class="dt">theta2 =</span> <span class="kw">rnorm</span>(iter, mu2, <span class="dv">1</span>)
+    )
+}</code></pre></div>
+<p>In our <code>simulate</code> function, the <code>flip</code> variable indicates whether <span class="math inline">\(\theta_2\)</span> has a mean that is the negative of the mean of <span class="math inline">\(\theta_1\)</span>. Notice that the probability of a flip depends on <span class="math inline">\(J\)</span>. In particular, when <span class="math inline">\(J = 1\)</span> this probability is 1. For larger values of <span class="math inline">\(J\)</span>, the probability of a flip is strictly less than 0.5. As <span class="math inline">\(J \to \infty\)</span>, this probability converges to 0.5, as if <span class="math inline">\(\theta_1\)</span> and <span class="math inline">\(\theta_2\)</span> were independent.</p>
+<figure>
+<img src="chapter_05_exercise_04_files/figure-markdown/unnamed-chunk-2-1.png" />
+</figure>
+<p>For this case where <span class="math inline">\(J = 1\)</span>, the correlation is clearly negative. We can also see two clusters forming around <span class="math inline">\((1, -1)\)</span> and <span class="math inline">\((-1, 1)\)</span>. This seems reasonable since the mean of one is necessarily the negative of the mean of the other.</p>
+<p>To see what happens when <span class="math inline">\(J \to \infty\)</span>, let’s calculate the covariance for a range of values of <span class="math inline">\(J\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">covariance &lt;-<span class="st"> </span><span class="cf">function</span>(sims)
+  sims <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">summarise</span>(<span class="kw">cov</span>(theta1, theta2)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">pull</span>()
+
+covariances &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">J =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">500</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">sim =</span> <span class="kw">map</span>(J, simulate),
+    <span class="dt">cov_theta1_theta2 =</span> <span class="kw">map_dbl</span>(sim, covariance)
+  )</code></pre></div>
+<p>We can see below that the covariance is quite negative for small values of <span class="math inline">\(J\)</span>, and it seems to converge very quickly to 0. I suspect the positive values that appear are due to sampling variance.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">covariances <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">aes</span>(J, cov_theta1_theta2) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.4</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">'Covariance'</span>)</code></pre></div>
+<figure>
+<img src="chapter_05_exercise_04_files/figure-markdown/unnamed-chunk-4-1.png" />
+</figure>
+<p>Finally, let’s plot the samples for a large value of <span class="math inline">\(J\)</span> to verify that there is (almost) no covariance.</p>
+<figure>
+<img src="chapter_05_exercise_04_files/figure-markdown/unnamed-chunk-5-1.png" />
+</figure>
+<p>The covariance is negative for finite <span class="math inline">\(J\)</span> since a large value of <span class="math inline">\(\theta_1\)</span> implies it is most likely from <span class="math inline">\(\dnorm(1, 1)\)</span>, which implies that <span class="math inline">\(\theta_2\)</span> is most likely from <span class="math inline">\(\dnorm(-1, 1)\)</span> and would have a smaller value (and vice versa). This contradicts the assumption that we can write the joint distribution as a mixture of iids.</p>
+<p>This doesn’t lead to a contradiction to de Finetti’s theorem by letting <span class="math inline">\(J \to \infty\)</span> because the covariances converge to 0.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <div class="social">
+          <a href="https://twitter.com/mcbricall"><i class="fab fa-twitter"></i></a>
+          <a href="https://github.com/stappit"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/brian-callander-ba4117140/"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.strava.com/athletes/6396953"><i class="fab fa-strava"></i></a>
+          <a href="https://www.instagram.com/macbricall/"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:briancallander+blog@gmail.com"><i class="far fa-envelope"></i></a>
+          <a href="../../atom.xml"><i class="fas fa-rss"></i></a>
+        </div>
+
+        </br>
+
+        Site proudly generated by
+        <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+      </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

@@ -77,7 +77,7 @@
 <p class="mathjaxWide"><span class="math display">\[
   p(y_1, y_2)
   =
-  \sum_{B + W \ge 2 \\ B \ge 0, W \ge 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
+  \sum_{B + W \ge 2 \\ B \cdot W &gt; 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
   .
 \]</span></p>
 <p>Whether we can treat them as if they were independent depends on the prior <span class="math inline">\(p(B, W)\)</span>. If there is significant probability mass on low values, then we shouldn’t treat them as independent (see <a href="./chapter_05_exercise_01.html">the previous exercise</a>). If the only significant probability mass were on very large values of <span class="math inline">\(B\)</span> and <span class="math inline">\(W\)</span>, then we could treat them as if they were independent. This follows from the fact that</p>

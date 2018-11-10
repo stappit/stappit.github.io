@@ -8,8 +8,640 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-11-05T00:00:00Z</updated>
+    <updated>2018-11-10T00:00:00Z</updated>
     <entry>
+    <title>BDA3 Chapter 5 Exercise 3</title>
+    <link href="http://stappit.github.io/posts/bda3/chapter_05_exercise_03.html" />
+    <id>http://stappit.github.io/posts/bda3/chapter_05_exercise_03.html</id>
+    <published>2018-11-10T00:00:00Z</published>
+    <updated>2018-11-10T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 5 Exercise 3</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on November 10, 2018  by Brian </br>
+     Tags: <a href="/tags/bda%20chapter%205.html">bda chapter 5</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/hierarchical%20model.html">hierarchical model</a>, <a href="/tags/eight%20schools.html">eight schools</a>, <a href="/tags/pooling.html">pooling</a> </br>
+     Category: <a href="/categories/bda3.html">bda3</a> 
+    </p>
+  </div>
+</div>
+
+<p>Here’s my solution to exercise 3, chapter 5, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
+<!--more-->
+<div style="display:none">
+<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\duniform}{Uniform} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
+</div>
+<p>We’ll reproduce some of the calculations with different priors for the eight schools example. Here is the <a href="data/eight_schools.csv">eight schools dataset</a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw">read_csv</span>(<span class="st">&#39;data/eight_schools.csv&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">school =</span> <span class="kw">factor</span>(school))</code></pre></div>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+school
+</th>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+std
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+-3
+</td>
+<td style="text-align:right;">
+16
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:right;">
+-1
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+F
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+G
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+H
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+18
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="uniform-priors">Uniform priors</h2>
+<p>We’ll use <a href="http://mc-stan.org/">Stan</a> to calculate the correct posterior for us. Note that Stan will assume a uniform prior (on the domain of the parameter) unless otherwise specified.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">&#39;src/ex_05_03.stan&#39;</span>)</code></pre></div>
+<pre><code>S4 class stanmodel &#39;ex_05_03&#39; coded as follows:
+data {
+  int&lt;lower = 0&gt; J; // number of schools 
+  vector[J] y; // estimated treatment effects
+  vector&lt;lower = 0&gt;[J] sigma; // standard errors
+}
+
+parameters {
+  real mu; // pop mean
+  real&lt;lower = 0&gt; tau; // pop std deviation
+  vector[J] eta; // school-level errors
+}
+
+transformed parameters {
+  vector[J] theta = mu + tau * eta; // school effects
+}
+
+model {
+  eta ~ normal(0, 1);
+  y ~ normal(theta, sigma);
+} </code></pre>
+<p>We fit the model with the <a href="http://mc-stan.org/rstan/reference/stanmodel-method-sampling.html">sampling</a> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>rstan<span class="op">::</span><span class="kw">sampling</span>(
+    <span class="dt">data =</span> <span class="kw">list</span>(
+      <span class="dt">J =</span> <span class="kw">nrow</span>(df),
+      <span class="dt">y =</span> df<span class="op">$</span>y,
+      <span class="dt">sigma =</span> df<span class="op">$</span>std
+    ),
+    <span class="dt">warmup =</span> <span class="dv">1000</span>,
+    <span class="dt">iter =</span> <span class="dv">5000</span>,
+    <span class="dt">chains =</span> <span class="dv">4</span>
+  )</code></pre></div>
+<p>The <a href="https://mjskay.github.io/tidybayes/articles/tidybayes.html">tidybayes package</a> is super useful for custom calculations from the posterior draws. We’ll also add in the original school labels.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span>fit <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">spread_draws</span>(mu, tau, eta[school_idx]) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(
+    <span class="dt">theta =</span> mu <span class="op">+</span><span class="st"> </span>tau <span class="op">*</span><span class="st"> </span>eta,
+    <span class="dt">school =</span> <span class="kw">levels</span>(df<span class="op">$</span>school)[school_idx]
+  ) </code></pre></div>
+<p>We have 4 chains, each with 4000 (post-warmup) iterations, with a draw for each school parameter. Each draw is one sample from the posterior.</p>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+.chain
+</th>
+<th style="text-align:right;">
+.iteration
+</th>
+<th style="text-align:right;">
+.draw
+</th>
+<th style="text-align:right;">
+mu
+</th>
+<th style="text-align:right;">
+tau
+</th>
+<th style="text-align:right;">
+school_idx
+</th>
+<th style="text-align:right;">
+eta
+</th>
+<th style="text-align:right;">
+theta
+</th>
+<th style="text-align:left;">
+school
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.6796328
+</td>
+<td style="text-align:right;">
+13.009354
+</td>
+<td style="text-align:left;">
+A
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+-0.9133598
+</td>
+<td style="text-align:right;">
+6.045126
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.1107519
+</td>
+<td style="text-align:right;">
+8.795673
+</td>
+<td style="text-align:left;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.4297585
+</td>
+<td style="text-align:right;">
+12.338245
+</td>
+<td style="text-align:left;">
+D
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1.3404477
+</td>
+<td style="text-align:right;">
+12.098375
+</td>
+<td style="text-align:left;">
+E
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8.498217
+</td>
+<td style="text-align:right;">
+2.685788
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.3785970
+</td>
+<td style="text-align:right;">
+9.515048
+</td>
+<td style="text-align:left;">
+F
+</td>
+</tr>
+</tbody>
+</table>
+<p>Tidybayes also gives us convenient ggplot geoms for plotting the posterior distributions.</p>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/effects_plot-1..svg" />
+</figure>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">comparisons &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(school) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">compare_levels</span>(theta, <span class="dt">by =</span> school) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">mean_qi</span>()</code></pre></div>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/comparisons_plot-1..svg" />
+</figure>
+<p>We can also see how the estimated treatment effect varies as a function of the population variation. The curves are noiser than in the book because we are using our posterior draws to approximate the shape and there are relatively fewer draws for larger values of <span class="math inline">\(\tau\)</span>.</p>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/effect_vs_tau-1..svg" />
+</figure>
+<p>Here’s a simple histogram of the posterior draws for school A.</p>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/school_a_effect_plot-1..svg" />
+</figure>
+<p>To estimate the posterior for the maximum effect, we can simply calculate the maximum effect across all schools for each posterior draw.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">max_theta &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(.chain, .iteration, .draw) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">slice</span>(<span class="kw">which.max</span>(theta)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ungroup</span>()</code></pre></div>
+<p>The probability that the maximum effect is larger than 28.4 can then be approximated by the fraction of draws larger than 28.4.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p_max_theta &lt;-<span class="st"> </span>max_theta <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">larger =</span> theta <span class="op">&gt;</span><span class="st"> </span><span class="fl">28.4</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">p_larger =</span> <span class="kw">sum</span>(larger) <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">percent</span>()
+
+p_max_theta</code></pre></div>
+<pre><code>[1] &quot;6.97%&quot;</code></pre>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/max_plot-1..svg" />
+</figure>
+<p>To estimate the probability than the effect in school A is larger than the effect in school C, we first have to spread the data so that there is one draw per row.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">a_better_c &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ungroup</span>()  <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(.chain, .iteration, school, theta) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">spread</span>(school, theta) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">a_minus_c =</span> A <span class="op">-</span><span class="st"> </span>C) </code></pre></div>
+<p>The probability is then just the fraction of draws where A - C &gt; 0.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">prob_a_better_c &lt;-<span class="st"> </span>a_better_c <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="kw">mean</span>(a_minus_c <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">percent</span>()
+
+prob_a_better_c</code></pre></div>
+<pre><code>[1] &quot;65%&quot;</code></pre>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/a_better_c_plot-1..svg" />
+</figure>
+<h2 id="infinite-population-variance">Infinite population variance</h2>
+<p>With <span class="math inline">\(\tau = \infty\)</span>, we would expect there to be no shrinkage. From equation 5.17 (page 116), the posteriors of the school effects with <span class="math inline">\(\tau \to \infty\)</span> are</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \theta_j \mid \mu, \tau = \infty, y \sim \dnorm\left( \bar y_{\cdot j}, \sigma_j^2 \right)
+\end{align}
+\]</span></p>
+<p>since <span class="math inline">\(\frac{1}{\tau} \to 0\)</span> as <span class="math inline">\(\tau \to \infty\)</span>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">iters &lt;-<span class="st"> </span><span class="dv">16000</span>
+
+draws_infty &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">transmute</span>(
+    school,
+    <span class="dt">draws =</span> <span class="kw">map2</span>(
+      y, std, 
+      <span class="cf">function</span>(mu, sigma) {
+        <span class="kw">tibble</span>(
+          <span class="dt">iteration =</span> <span class="dv">1</span><span class="op">:</span>iters,
+          <span class="dt">theta =</span> <span class="kw">rnorm</span>(iters, mu, sigma)
+        )
+      }
+    )
+  ) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">unnest</span>(draws) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(iteration)</code></pre></div>
+<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+school
+</th>
+<th style="text-align:right;">
+iteration
+</th>
+<th style="text-align:right;">
+theta
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+17.305220
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+14.584088
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-8.254098
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-5.412114
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+E
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-5.607103
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+F
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6.429439
+</td>
+</tr>
+</tbody>
+</table>
+<p>We calculate the maximum effect just as before. The histogram shows that there is a higher probability of higher treatment effects than under the hierarchical model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">max_theta_infty &lt;-<span class="st"> </span>draws_infty <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(iteration) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">slice</span>(<span class="kw">which.max</span>(theta))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p_max_theta_infty &lt;-<span class="st"> </span>max_theta_infty <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">larger =</span> theta <span class="op">&gt;</span><span class="st"> </span><span class="fl">28.4</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">p_larger =</span> <span class="kw">sum</span>(larger) <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">pull</span>() <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">percent</span>()
+
+p_max_theta_infty</code></pre></div>
+<pre><code>[1] &quot;63.8%&quot;</code></pre>
+<p>There is now a 63.8% probability of an extreme effect under the unpooled model, which is a lot larger than 6.97% under the hierarchical model.</p>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/max_plot_infty-1..svg" />
+</figure>
+<p>For the pairwise differences, both the point estimates and the credible intervals are more extreme.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">comparisons_infty &lt;-<span class="st"> </span>draws_infty <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">group_by</span>(school) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">compare_levels</span>(theta, <span class="dt">by =</span> school, <span class="dt">draw_indices =</span> <span class="kw">c</span>(<span class="st">&#39;iteration&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">starts_with</span>(<span class="st">&#39;iter&#39;</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mean_qi</span>()</code></pre></div>
+<figure>
+<img src="chapter_05_exercise_03_files/figure-markdown/comparisons_infty_plot-1..svg" />
+</figure>
+<h2 id="zero-population-variance">Zero population variance</h2>
+<p>With <span class="math inline">\(\tau = 0\)</span>, we would expect the estimates of school effects to all be equal to the population effect. Letting <span class="math inline">\(\tau \to 0\)</span> in equation 5.17 (page 116), we see that <span class="math inline">\(\theta_j \mid \mu, \tau, y\)</span> gets a point mass at $. This follows from the fact that</p>
+<p class="mathjaxWide"><span class="math display">\[
+\frac{\frac{1}{\tau}}{c + \frac{1}{\tau}} \to 1 \to \infty
+\]</span></p>
+<p>for any fixed <span class="math inline">\(c\)</span> as <span class="math inline">\(\tau \to 0\)</span>. Thus,</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+  \hat \theta_j
+  &amp;=
+  \frac{\frac{\bar y_{\cdot j}}{\sigma_j}}{\frac{1}{\sigma_j} + \frac{1}{\tau^2}} + \frac{\frac{1}{\tau^2}}{\frac{1}{\sigma_j} + \frac{1}{\tau^2}}\mu
+  \to
+  0 + \mu
+  \\
+  V_j &amp;\to 0
+  .
+\end{align}
+\]</span></p>
+<p>It follows that <span class="math inline">\(p(\theta \mid \mu, \tau, y) \to p(\mu \mid \tau, y)\)</span> as <span class="math inline">\(\tau \to 0\)</span>. From equation 5.20 (page 117), the distribution of <span class="math inline">\(\mu \mid \tau, y\)</span> is <span class="math inline">\(\dnorm(\hat\mu, V_\mu)\)</span> with</p>
+<p class="mathjaxWide"><span class="math display">\[
+\begin{align}
+\hat \mu 
+&amp;= 
+\frac{\sum_1^J \frac{1}{\sigma_j^2} \bar y_{\cdot j}}{\sum_1^J \frac{1}{\sigma_j^2}}
+=
+\bar y_{\cdot \cdot}
+\\
+V_\mu^{-1}
+&amp;=
+\sum_1^J \frac{1}{\sigma_j^2}
+.
+\end{align}
+\]</span></p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 5 Exercise 2</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_05_exercise_02.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_05_exercise_02.html</id>
@@ -47,7 +679,7 @@
 <p class="mathjaxWide"><span class="math display">\[
   p(y_1, y_2)
   =
-  \sum_{B + W \ge 2 \\ B \ge 0, W \ge 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
+  \sum_{B + W \ge 2 \\ B \cdot W &gt; 0}^\infty p(y_1, y_2 \mid B, W) p(B, W)
   .
 \]</span></p>
 <p>Whether we can treat them as if they were independent depends on the prior <span class="math inline">\(p(B, W)\)</span>. If there is significant probability mass on low values, then we shouldn’t treat them as independent (see <a href="./chapter_05_exercise_01.html">the previous exercise</a>). If the only significant probability mass were on very large values of <span class="math inline">\(B\)</span> and <span class="math inline">\(W\)</span>, then we could treat them as if they were independent. This follows from the fact that</p>
@@ -1395,414 +2027,6 @@ joint_posterior &lt;-<span class="st"> </span><span class="cf">function</span>(N
 <span class="st">  </span><span class="kw">pull</span>() <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">percent</span>()</code></pre></div>
 <pre><code>[1] &quot;95.6%&quot;</code></pre>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 3 Exercise 5</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_05.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_05.html</id>
-    <published>2018-10-06T00:00:00Z</published>
-    <updated>2018-10-06T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 5</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on October  6, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/rounding%20error.html">rounding error</a>, <a href="/tags/marginal%20posterior.html">marginal posterior</a>, <a href="/tags/measurement%20error.html">measurement error</a>, <a href="/tags/noninformative%20prior.html">noninformative prior</a>, <a href="/tags/normal.html">normal</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 5, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial} \DeclareMathOperator{\dbern}{Bernoulli} \DeclareMathOperator{\dpois}{Poisson} \DeclareMathOperator{\dnorm}{Normal} \DeclareMathOperator{\dt}{t} \DeclareMathOperator{\dcauchy}{Cauchy} \DeclareMathOperator{\dexponential}{Exp} \DeclareMathOperator{\duniform}{Uniform} \DeclareMathOperator{\dgamma}{Gamma} \DeclareMathOperator{\dinvgamma}{InvGamma} \DeclareMathOperator{\invlogit}{InvLogit} \DeclareMathOperator{\logit}{Logit} \DeclareMathOperator{\ddirichlet}{Dirichlet} \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
-</div>
-<p>Suppose we weigh an object 5 times with measurements</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">measurements &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">11</span>, <span class="dv">9</span>)</code></pre></div>
-<p>all rounded to the nearest kilogram. Assuming the unrounded measurements are normally distributed, we wish to estimate the weight of the object. We will use the uniform non-informative prior <span class="math inline">\(p(\mu, \log \sigma) \propto 1\)</span>.</p>
-<p>First, let’s assume the measurments are not rounded. Then the marginal posterior mean is <span class="math inline">\(\mu \mid y \sim t_{n - 1}(\bar y, s / \sqrt{n}) = t_4(10.4, 0.51)\)</span>.</p>
-<figure>
-<img src="chapter_03_exercise_05_files/figure-markdown/mpm_plot-1..svg" />
-</figure>
-<p>Now, let’s find the posterior assuming rounded measurements. The probability of getting the rounded measurements <span class="math inline">\(y\)</span> is</p>
-<p class="mathjaxWide"><span class="math display">\[
-p(y \mid \mu, \sigma) = \prod_{i = 1}^n \Phi_{\mu, \sigma} (y_i + 0.5) - \Phi_{\mu, \sigma} (y_i - 0.5)
-\]</span></p>
-<p>where <span class="math inline">\(\Phi_{\mu, \sigma}\)</span> is the CDF of the <span class="math inline">\(\dnorm(\mu, \sigma)\)</span> distribution. This implies that the posterior is</p>
-<p class="mathjaxWide"><span class="math display">\[
-p(\mu, \sigma \mid y) \propto \frac{1}{\sigma^2} \prod_{i = 1}^n \Phi_{\mu, \sigma} (y_i + 0.5) - \Phi_{\mu, \sigma} (y_i - 0.5) .
-\]</span></p>
-<p>Calculating this marginal posterior mean is pretty difficult, so we’ll use <a href="http://mc-stan.org/">Stan</a> to draw samples. My <a href="src/ex_03_05.stan">first attempt</a> at writing the model was a direct translation of the maths above. However, it doesn’t allow us to infer the unrounded values, as required in part d. The model can be expressed differently by considering the unrounded values as uniformly distributed around the rounded values, i.e. <span class="math inline">\(z_i \sim \duniform (y_i - 0.5, y_i + 0.5)\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">&#39;src/ex_03_05_d.stan&#39;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model</code></pre></div>
-<pre><code>S4 class stanmodel &#39;ex_03_05_d&#39; coded as follows:
-data {
-  int&lt;lower = 1&gt; n;
-  vector[n] y; // rounded measurements
-}
-
-parameters {
-  real mu; // &#39;true&#39; weight of the object
-  real&lt;lower = 0&gt; sigma; // measurement error
-  vector&lt;lower = -0.5, upper = 0.5&gt;[n] err; // rounding error
-}
-
-transformed parameters {
-  // unrounded values are the rounded values plus some rounding error
-  vector[n] z = y + err; // unrounded measurements
-}
-
-model {
-  target += -2 * log(sigma); // prior
-  z ~ normal(mu, sigma);
-  // other parameters are uniform
-} </code></pre>
-<p>Note that Stan assumes parameters are uniform on their range unless specified otherwise.</p>
-<p>Let’s also load a model that assumes the measurements are unrounded.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_unrounded &lt;-<span class="st"> </span>rstan<span class="op">::</span><span class="kw">stan_model</span>(<span class="st">&#39;src/ex_03_05_unrounded.stan&#39;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_unrounded</code></pre></div>
-<pre><code>S4 class stanmodel &#39;ex_03_05_unrounded&#39; coded as follows:
-data {
-  int&lt;lower = 1&gt; n;
-  vector[n] y; 
-}
-
-parameters {
-  real mu; 
-  real&lt;lower = 0&gt; sigma; 
-}
-
-model {
-  target += -2 * log(sigma); 
-  y ~ normal(mu, sigma);
-} </code></pre>
-<p>Now we can fit the models to the data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data  =<span class="st"> </span><span class="kw">list</span>(
-  <span class="dt">n =</span> <span class="kw">length</span>(measurements),
-  <span class="dt">y =</span> measurements
-)
- 
-fit &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span>rstan<span class="op">::</span><span class="kw">sampling</span>(
-    <span class="dt">data =</span> data,
-    <span class="dt">warmup =</span> <span class="dv">1000</span>,
-    <span class="dt">iter =</span> <span class="dv">5000</span>
-  ) 
-
-fit_unrounded &lt;-<span class="st"> </span>model_unrounded <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span>rstan<span class="op">::</span><span class="kw">sampling</span>(
-    <span class="dt">data =</span> data,
-    <span class="dt">warmup =</span> <span class="dv">1000</span>,
-    <span class="dt">iter =</span> <span class="dv">5000</span>
-  ) </code></pre></div>
-<p>We’ll also need some draws from the posteriors to make our comparisons.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">draws &lt;-<span class="st"> </span>fit <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">spread_draws</span>(mu, sigma, z[index]) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="co"># spread out z&#39;s so that</span>
-<span class="st">  </span><span class="co"># there is one row per draw</span>
-<span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span><span class="st">  </span>
-<span class="st">  </span><span class="kw">mutate</span>(
-    <span class="dt">index =</span> <span class="kw">paste0</span>(<span class="st">&#39;z&#39;</span>, <span class="kw">as.character</span>(index)),
-    <span class="dt">model =</span> <span class="st">&#39;rounded&#39;</span>
-  ) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">spread</span>(index, z)
-
-draws_unrounded &lt;-<span class="st"> </span>fit_unrounded <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span>tidybayes<span class="op">::</span><span class="kw">spread_draws</span>(mu, sigma) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="st">&#39;unrounded&#39;</span>) 
-
-draws_all &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">bind_rows</span>(draws_unrounded)</code></pre></div>
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<caption>
-First few draws from each model
-</caption>
-<thead>
-<tr>
-<th style="text-align:right;">
-mu
-</th>
-<th style="text-align:right;">
-sigma
-</th>
-<th style="text-align:left;">
-model
-</th>
-<th style="text-align:right;">
-z1
-</th>
-<th style="text-align:right;">
-z2
-</th>
-<th style="text-align:right;">
-z3
-</th>
-<th style="text-align:right;">
-z4
-</th>
-<th style="text-align:right;">
-z5
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-9.687131
-</td>
-<td style="text-align:right;">
-1.4458022
-</td>
-<td style="text-align:left;">
-rounded
-</td>
-<td style="text-align:right;">
-9.72795
-</td>
-<td style="text-align:right;">
-10.265646
-</td>
-<td style="text-align:right;">
-11.94897
-</td>
-<td style="text-align:right;">
-11.06143
-</td>
-<td style="text-align:right;">
-9.116118
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-10.517837
-</td>
-<td style="text-align:right;">
-0.5648234
-</td>
-<td style="text-align:left;">
-rounded
-</td>
-<td style="text-align:right;">
-10.33178
-</td>
-<td style="text-align:right;">
-9.797315
-</td>
-<td style="text-align:right;">
-11.54332
-</td>
-<td style="text-align:right;">
-10.60547
-</td>
-<td style="text-align:right;">
-9.153462
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-11.381591
-</td>
-<td style="text-align:right;">
-2.1127547
-</td>
-<td style="text-align:left;">
-rounded
-</td>
-<td style="text-align:right;">
-10.09489
-</td>
-<td style="text-align:right;">
-10.176548
-</td>
-<td style="text-align:right;">
-12.44288
-</td>
-<td style="text-align:right;">
-10.92263
-</td>
-<td style="text-align:right;">
-8.700090
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-9.965578
-</td>
-<td style="text-align:right;">
-1.2079231
-</td>
-<td style="text-align:left;">
-unrounded
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-10.062636
-</td>
-<td style="text-align:right;">
-1.2355530
-</td>
-<td style="text-align:left;">
-unrounded
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-9.922399
-</td>
-<td style="text-align:right;">
-1.7637659
-</td>
-<td style="text-align:left;">
-unrounded
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-</tbody>
-</table>
-<p>The contour plots look very similar but with <span class="math inline">\(\sigma\)</span> shifted upward when we treat the observations as unrounded measurements. This is contrary to my intuition about what should happen: by introducing uncertainty into our measurments, I would have thought we’d see more uncertainty in our parameter estimates.</p>
-<figure>
-<img src="chapter_03_exercise_05_files/figure-markdown/contour_plot-1..svg" />
-</figure>
-<p>The density for <span class="math inline">\(\mu \mid y\)</span> look much the same in both models. This is expected because the rounded measurement is the mean of all possible unrounded measurements.</p>
-<figure>
-<img src="chapter_03_exercise_05_files/figure-markdown/mu_plot-1..svg" />
-</figure>
-<p>The marginal posterior for <span class="math inline">\(\sigma\)</span> again shows a decrease when taking rounding error into account. I’m not sure why that would happen.</p>
-<figure>
-<img src="chapter_03_exercise_05_files/figure-markdown/sigma_plot-1..svg" />
-</figure>
-<table class="table table-striped table-hover table-responsive" style="margin-left: auto; margin-right: auto;">
-<caption>
-Quantiles for σ | y
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;">
-model
-</th>
-<th style="text-align:right;">
-5%
-</th>
-<th style="text-align:right;">
-50%
-</th>
-<th style="text-align:right;">
-95%
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-rounded
-</td>
-<td style="text-align:right;">
-0.6044134
-</td>
-<td style="text-align:right;">
-1.025455
-</td>
-<td style="text-align:right;">
-2.073181
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-unrounded
-</td>
-<td style="text-align:right;">
-0.6804532
-</td>
-<td style="text-align:right;">
-1.095101
-</td>
-<td style="text-align:right;">
-2.133040
-</td>
-</tr>
-</tbody>
-</table>
-<p>Finally, let’s calculate the posterior for <span class="math inline">\(\theta := (z_1 - z_2)^2\)</span> (assuming we observe rounded measurements).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sims &lt;-<span class="st"> </span>draws <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">theta =</span> (z1 <span class="op">-</span><span class="st"> </span>z2)<span class="op">^</span><span class="dv">2</span>) </code></pre></div>
-<figure>
-<img src="chapter_03_exercise_05_files/figure-markdown/sims_plot-1..svg" />
-</figure>
-<p>There is a lot of mass near 0 because the observed rounded measurments are the same for <span class="math inline">\(z_1\)</span> and <span class="math inline">\(z_2\)</span>. The probability density is also entirely less than 1 because the rounding is off by at most 0.5 in any direction.</p>
 
 <div id="disqus_thread"></div>
 <script>

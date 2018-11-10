@@ -1,8 +1,8 @@
 ---
 title: "BDA3 Chapter 5 Exercise 3"
 author: "Brian Callander"
-date: "2018-11-06"
-tags: bda chapter 3, solutions, bayes
+date: "2018-11-10"
+tags: bda chapter 5, solutions, bayes, hierarchical model, eight schools, pooling
 always_allow_html: yes
 output: 
   md_document:
@@ -59,7 +59,7 @@ theme_set(theme_bw())
 ```
 
 
-```{r data_gen}
+```{r data_gen, include = FALSE}
 data <- list(
   list(school = 'A', y = 25, std = 15),
   list(school = 'B', y = 8,  std = 10),
@@ -80,6 +80,7 @@ df %>%
   write_csv('data/eight_schools.csv') 
 ```
 
+We'll reproduce some of the calculations with different priors for the eight schools example. Here is the [eight schools dataset](data/eight_schools.csv).
 
 ```{r data}
 df <- read_csv('data/eight_schools.csv') %>% 
@@ -92,6 +93,9 @@ df %>%
   kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
 ```
 
+## Uniform priors
+
+We'll use [Stan](http://mc-stan.org/) to calculate the correct posterior for us. Note that Stan will assume a uniform prior (on the domain of the parameter) unless otherwise specified.
 
 ```{r model, results='hide'}
 model <- rstan::stan_model('src/ex_05_03.stan')
@@ -101,9 +105,11 @@ model <- rstan::stan_model('src/ex_05_03.stan')
 model
 ```
 
+We fit the model with the [sampling](http://mc-stan.org/rstan/reference/stanmodel-method-sampling.html) function.
+
 ```{r}
 fit <- model %>% 
-  sampling(
+  rstan::sampling(
     data = list(
       J = nrow(df),
       y = df$y,
@@ -111,21 +117,33 @@ fit <- model %>%
     ),
     warmup = 1000,
     iter = 5000,
-    chains = 4,
-    refresh = -1
+    chains = 4
   )
 ```
 
-```{r}
+The [tidybayes package](https://mjskay.github.io/tidybayes/articles/tidybayes.html) is super useful for custom calculations from the posterior draws. We'll also add in the original school labels.
+
+```{r draws}
 draws <- fit %>% 
   tidybayes::spread_draws(mu, tau, eta[school_idx]) %>% 
   mutate(
-    theta = mu + eta * tau,
+    theta = mu + tau * eta,
     school = levels(df$school)[school_idx]
   ) 
 ```
 
-```{r}
+We have 4 chains, each with 4000 (post-warmup) iterations, with a draw for each school parameter. Each draw is one sample from the posterior.
+
+```{r draws_table, echo = FALSE}
+draws %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+```
+
+Tidybayes also gives us convenient ggplot geoms for plotting the posterior distributions.
+
+```{r effects_plot, echo = FALSE}
 draws %>% 
   ggplot() +
   aes(x = theta, y = school) +
@@ -135,12 +153,38 @@ draws %>%
   labs(
     x = 'Effect',
     y = 'School',
-    title = 'Posterior effect estimates for each school'
+    title = 'Posterior effect estimates for each school',
+    subtitle = 'with 95% and 50% credible intervals and median point estimates'
   ) +
   NULL
 ```
 
 ```{r}
+comparisons <- draws %>% 
+  group_by(school) %>% 
+  tidybayes::compare_levels(theta, by = school) %>% 
+  tidybayes::mean_qi()
+```
+
+```{r comparisons_plot, echo = FALSE}
+comparisons %>% 
+  ggplot() +
+  aes(y = fct_reorder(school, theta), x = theta) +
+  geom_vline(xintercept = 0, linetype = 'dashed', colour = 'chocolate') +
+  tidybayes::geom_pointintervalh() +
+  labs(
+    x = 'Effect',
+    y = 'Comparison',
+    title = 'Pairwise differences in treatment effects',
+    subtitle = 'with 95% credible intervals'
+  ) +
+  NULL
+```
+
+
+We can also see how the estimated treatment effect varies as a function of the population variation. The curves are noiser than in the book because we are using our posterior draws to approximate the shape and there are relatively fewer draws for larger values of $\tau$.
+
+```{r effect_vs_tau, echo = FALSE}
 draws %>% 
   group_by(school, tau = floor(tau)) %>% 
   summarise(theta = mean(theta)) %>% 
@@ -159,10 +203,9 @@ draws %>%
 
 ```
 
+Here's a simple histogram of the posterior draws for school A.
 
-
-
-```{r}
+```{r school_a_effect_plot, echo = FALSE}
 draws %>% 
   filter(school == 'A') %>% 
   ggplot() +
@@ -175,20 +218,25 @@ draws %>%
   )
 ```
 
+To estimate the posterior for the maximum effect, we can simply calculate the maximum effect across all schools for each posterior draw.
 
-```{r}
+```{r posterior_maximum}
 max_theta <- draws %>% 
   group_by(.chain, .iteration, .draw) %>% 
   slice(which.max(theta)) %>% 
   ungroup()
 ```
 
+The probability that the maximum effect is larger than 28.4 can then be approximated by the fraction of draws larger than 28.4.
+
 ```{r}
-max_theta %>% 
+p_max_theta <- max_theta %>% 
   mutate(larger = theta > 28.4) %>% 
   summarise(p_larger = sum(larger) / n()) %>% 
   pull() %>% 
   percent()
+
+p_max_theta
 ```
 
 
@@ -202,17 +250,23 @@ max_theta %>%
     x = 'Maximum effect',
     y = 'Count',
     title = 'Estimate of maximum effect',
-    subtitle = 'Draws larger than 28.4 are highlighted'
+    subtitle = str_glue('P(max θ > 28.4) = {p_max_theta}'),
+    fill = 'Smaller than 28.4?'
   )
 ```
+
+
+To estimate the probability than the effect in school A is larger than the effect in school C, we first have to spread the data so that there is one draw per row.
 
 ```{r}
 a_better_c <- draws %>% 
   ungroup()  %>% 
-  select(.chain, .iteration, .draw, school, theta) %>% 
+  select(.chain, .iteration, school, theta) %>% 
   spread(school, theta) %>% 
   mutate(a_minus_c = A - C) 
 ```
+
+The probability is then just the fraction of draws where A - C > 0.
 
 ```{r}
 prob_a_better_c <- a_better_c %>% 
@@ -223,12 +277,11 @@ prob_a_better_c <- a_better_c %>%
 prob_a_better_c
 ```
 
-```{r}
+```{r a_better_c_plot, echo = FALSE}
 a_better_c %>% 
   ggplot() +
   aes(a_minus_c) +
-  geom_histogram(fill = 'skyblue', bins = 50
-                 ) +
+  geom_histogram(fill = 'skyblue', bins = 50) +
   geom_vline(xintercept = 0, linetype = 'dashed', colour = 'chocolate') +
   labs(
     x = 'Effect of A minus effect of C',
@@ -239,7 +292,145 @@ a_better_c %>%
   NULL
 ```
 
-```{r}
+## Infinite population variance
 
+With $\tau = \infty$, we would expect there to be no shrinkage. From equation 5.17 (page 116), the posteriors of the school effects with $\tau \to \infty$ are 
+
+$$
+\begin{align}
+  \theta_j \mid \mu, \tau = \infty, y \sim \dnorm\left( \bar y_{\cdot j}, \sigma_j^2 \right)
+\end{align}
+$$
+
+since $\frac{1}{\tau} \to 0$ as $\tau \to \infty$. 
+
+
+```{r}
+iters <- 16000
+
+draws_infty <- df %>% 
+  transmute(
+    school,
+    draws = map2(
+      y, std, 
+      function(mu, sigma) {
+        tibble(
+          iteration = 1:iters,
+          theta = rnorm(iters, mu, sigma)
+        )
+      }
+    )
+  ) %>% 
+  unnest(draws) %>% 
+  arrange(iteration)
 ```
 
+```{r, echo = FALSE}
+draws_infty %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive"))
+```
+
+
+We calculate the maximum effect just as before. The histogram shows that there is a higher probability of higher treatment effects than under the hierarchical model. 
+
+```{r}
+max_theta_infty <- draws_infty %>% 
+  group_by(iteration) %>% 
+  slice(which.max(theta))
+```
+
+```{r}
+p_max_theta_infty <- max_theta_infty %>% 
+  ungroup() %>% 
+  mutate(larger = theta > 28.4) %>% 
+  summarise(p_larger = sum(larger) / n()) %>% 
+  pull() %>% 
+  percent()
+
+p_max_theta_infty
+```
+
+There is now a `r p_max_theta_infty` probability of an extreme effect under the unpooled model, which is a lot larger than `r p_max_theta` under the hierarchical model.
+
+
+```{r max_plot_infty, echo = FALSE}
+max_theta_infty %>% 
+  mutate(smaller = theta < 28.4) %>% 
+  ggplot() +
+  aes(theta, fill = smaller) +
+  geom_histogram(bins = 50) +
+  labs(
+    x = 'Maximum effect',
+    y = 'Count',
+    title = 'Estimate of maximum effect',
+    subtitle = str_glue('P(max θ > 28.4) = {p_max_theta_infty}'),
+    fill = 'Smaller than 28.4?'
+  )
+```
+
+For the pairwise differences, both the point estimates and the credible intervals are more extreme.
+
+```{r}
+comparisons_infty <- draws_infty %>% 
+  group_by(school) %>% 
+  compare_levels(theta, by = school, draw_indices = c('iteration')) %>% 
+  select(-starts_with('iter')) %>% 
+  mean_qi()
+```
+
+```{r comparisons_infty_plot, echo = FALSE}
+comparisons_infty %>% 
+  ggplot() +
+  aes(y = fct_reorder(school, theta), x = theta) +
+  geom_vline(xintercept = 0, linetype = 'dashed', colour = 'chocolate') +
+  tidybayes::geom_pointintervalh() +
+  labs(
+    x = 'Effect',
+    y = 'Comparison',
+    title = 'Pairwise differences in treatment effects',
+    subtitle = 'with 95% credible intervals'
+  ) +
+  NULL
+```
+
+## Zero population variance
+
+With $\tau = 0$, we would expect the estimates of school effects to all be equal to the population effect. Letting $\tau \to 0$ in equation 5.17 (page 116), we see that $\theta_j \mid \mu, \tau, y$ gets a point mass at $\mu. This follows from the fact that
+
+$$
+\frac{\frac{1}{\tau}}{c + \frac{1}{\tau}} \to 1 \to \infty
+$$
+
+for any fixed $c$ as $\tau \to 0$. Thus, 
+
+$$
+\begin{align}
+  \hat \theta_j
+  &=
+  \frac{\frac{\bar y_{\cdot j}}{\sigma_j}}{\frac{1}{\sigma_j} + \frac{1}{\tau^2}} + \frac{\frac{1}{\tau^2}}{\frac{1}{\sigma_j} + \frac{1}{\tau^2}}\mu
+  \to
+  0 + \mu
+  \\
+  V_j &\to 0
+  .
+\end{align}
+$$
+
+It follows that $p(\theta \mid \mu, \tau, y) \to p(\mu \mid \tau, y)$ as $\tau \to 0$. From equation 5.20 (page 117), the distribution of $\mu \mid \tau, y$ is $\dnorm(\hat\mu, V_\mu)$ with 
+
+$$
+\begin{align}
+\hat \mu 
+&= 
+\frac{\sum_1^J \frac{1}{\sigma_j^2} \bar y_{\cdot j}}{\sum_1^J \frac{1}{\sigma_j^2}}
+=
+\bar y_{\cdot \cdot}
+\\
+V_\mu^{-1}
+&=
+\sum_1^J \frac{1}{\sigma_j^2}
+.
+\end{align}
+$$

@@ -97,7 +97,7 @@ simulate <- function(J, iter = 10000) {
 }
 ```
 
-In our `simulate` function, the `flip` variable indicates whether $\theta_2$ has a mean that is the negative of the mean of $\theta_1$. Notice that the probability of a flip depends on $J$. In particular, when $J = 1$ this probability is 1. For larger values of $J$, the probability of a flip is strictly less than 0.5. As $J \to \infty$, this probability converges to 0.5, as if $\theta_1$ and $\theta_2$ were independent.
+In our `simulate` function, the `flip` variable indicates whether $\theta_2$ has a mean that is the negative of the mean of $\theta_1$. Notice that the probability of a flip depends on $J$. In particular, when $J = 1$ this probability is 1. For larger values of $J$, the probability of a flip is strictly greater than 0.5. As $J \to \infty$, this probability converges to 0.5, as if $\theta_1$ and $\theta_2$ were independent.
 
 ```{r, echo = FALSE}
 simulate(1) %>% 

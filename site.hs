@@ -202,9 +202,9 @@ noAtxLhs = replaceAll "^#" (" "++)
 ----------------------------------------------------------------------------------
 myFeedConfiguration :: FeedConfiguration
 myFeedConfiguration = FeedConfiguration
-    { feedTitle       = "Thoughts from the Café"
-    , feedDescription = "This feed summarises some of what I learn in the Café."
-    , feedAuthorName  = "Brian"
-    , feedAuthorEmail = "ha@hahaha.com"
-    , feedRoot        = "http://stappit.github.io"
+    { feedTitle       = "Brian Callander"
+    , feedDescription = "Lots of exercise solutions to statistics books, some data analyses, and a bit of running."
+    , feedAuthorName  = "Brian Callander"
+    , feedAuthorEmail = "briancallander+blog@gmail.com"
+    , feedRoot        = "http://www.briancallander.com"
     }

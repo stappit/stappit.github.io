@@ -8,8 +8,55 @@
         <name>Brian</name>
         <email>ha@hahaha.com</email>
     </author>
-    <updated>2018-11-11T00:00:00Z</updated>
+    <updated>2018-11-29T00:00:00Z</updated>
     <entry>
+    <title>This site has moved!</title>
+    <link href="http://stappit.github.io/posts/this_site_has_moved.html" />
+    <id>http://stappit.github.io/posts/this_site_has_moved.html</id>
+    <published>2018-11-29T00:00:00Z</published>
+    <updated>2018-11-29T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<h1 class="post-title">This site has moved!</h1>
+
+<div class="card post-meta border-0">
+  <div class="card-body post-meta">
+    <p class="card-text text-muted text-left">
+    Posted on November 29, 2018  by Brian </br>
+     Tags: <a href="/tags/domain%20change.html">domain change</a> </br>
+     Category: <a href="/categories/posts.html">posts</a> 
+    </p>
+  </div>
+</div>
+
+<p>I’ll be using <a href="https://www.briancallander.com">briancallander.com</a> from now on.</p>
+
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+ */
+/*
+   var disqus_config = function () {
+   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+   };
+ */
+(function() {  // DON'T EDIT BELOW THIS LINE
+ var d = document, s = d.createElement('script');
+
+ s.src = '//stappit-github-io.disqus.com/embed.js';
+
+ s.setAttribute('data-timestamp', +new Date());
+ (d.head || d.body).appendChild(s);
+ })();
+</script>
+
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
+]]></summary>
+</entry>
+<entry>
     <title>BDA3 Chapter 5 Exercise 6</title>
     <link href="http://stappit.github.io/posts/bda3/chapter_05_exercise_06.html" />
     <id>http://stappit.github.io/posts/bda3/chapter_05_exercise_06.html</id>
@@ -1580,197 +1627,6 @@ F(n_1 - 1, n_2 - 1)
 .
 \]</span></p>
 <p>Equation 3.5 in the book shows that <span class="math inline">\(\sigma_j^2 \mid y \sim \dinvchi(n_j - 1, s_j^2)\)</span>. It follows that <span class="math inline">\(\frac{\sigma_j^2}{(n_j - 1) s_j^2} \sim \dinvChi(n_j - 1)\)</span>. Thus, <span class="math inline">\(\frac{(n_j - 1) s_j^2}{\sigma_j^2} \sim \dchi(n_j - 1)\)</span>. The result follows from <a href="https://en.wikipedia.org/wiki/F-distribution#Characterization">the fact</a> that the ratio of two <span class="math inline">\(\chi^2\)</span> random variables (divided by the ratio of their degrees of freedom) has an <span class="math inline">\(F\)</span>-distribution.</p>
-
-<div id="disqus_thread"></div>
-<script>
-/**
- *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
- *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
- */
-/*
-   var disqus_config = function () {
-   this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-   this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-   };
- */
-(function() {  // DON'T EDIT BELOW THIS LINE
- var d = document, s = d.createElement('script');
-
- s.src = '//stappit-github-io.disqus.com/embed.js';
-
- s.setAttribute('data-timestamp', +new Date());
- (d.head || d.body).appendChild(s);
- })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
-
-<script id="dsq-count-scr" src="//stappit-github-io.disqus.com/count.js" async></script>
-]]></summary>
-</entry>
-<entry>
-    <title>BDA3 Chapter 3 Exercise 9</title>
-    <link href="http://stappit.github.io/posts/bda3/chapter_03_exercise_09.html" />
-    <id>http://stappit.github.io/posts/bda3/chapter_03_exercise_09.html</id>
-    <published>2018-10-21T00:00:00Z</published>
-    <updated>2018-10-21T00:00:00Z</updated>
-    <summary type="html"><![CDATA[<h1 class="post-title">BDA3 Chapter 3 Exercise 9</h1>
-
-<div class="card post-meta border-0">
-  <div class="card-body post-meta">
-    <p class="card-text text-muted text-left">
-    Posted on October 21, 2018  by Brian </br>
-     Tags: <a href="/tags/bda%20chapter%203.html">bda chapter 3</a>, <a href="/tags/solutions.html">solutions</a>, <a href="/tags/bayes.html">bayes</a>, <a href="/tags/conjugate%20prior.html">conjugate prior</a>, <a href="/tags/normal.html">normal</a>, <a href="/tags/inverse%20chi2.html">inverse chi2</a>, <a href="/tags/normal%20inverse%20chi2.html">normal inverse chi2</a> </br>
-     Category: <a href="/categories/bda3.html">bda3</a> 
-    </p>
-  </div>
-</div>
-
-<p>Here’s my solution to exercise 9, chapter 3, of <a href="https://andrewgelman.com/">Gelman’s</a> <em>Bayesian Data Analysis</em> (BDA), 3rd edition. There are <a href="http://www.stat.columbia.edu/~gelman/book/solutions.pdf">solutions</a> to some of the exercises on the <a href="http://www.stat.columbia.edu/~gelman/book/">book’s webpage</a>.</p>
-<!--more-->
-<div style="display:none">
-<p class="mathjaxWide"><span class="math inline">\(\DeclareMathOperator{\dbinomial}{Binomial}  \DeclareMathOperator{\dbern}{Bernoulli}  \DeclareMathOperator{\dpois}{Poisson}  \DeclareMathOperator{\dnorm}{Normal}  \DeclareMathOperator{\dt}{t}  \DeclareMathOperator{\dcauchy}{Cauchy}  \DeclareMathOperator{\dexponential}{Exp}  \DeclareMathOperator{\duniform}{Uniform}  \DeclareMathOperator{\dgamma}{Gamma}  \DeclareMathOperator{\dinvgamma}{InvGamma}  \DeclareMathOperator{\invlogit}{InvLogit}  \DeclareMathOperator{\dinvchi}{InvChi2}  \DeclareMathOperator{\dnorminvchi}{NormInvChi2}  \DeclareMathOperator{\logit}{Logit}  \DeclareMathOperator{\ddirichlet}{Dirichlet}  \DeclareMathOperator{\dbeta}{Beta}\)</span></p>
-</div>
-<p>Suppose we have a normal likelihood <span class="math inline">\(y \mid \mu, \sigma \sim \dnorm(\mu, \sigma)\)</span> with conjugate priors</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \sigma^2 &amp;\sim \dinvchi(\nu_0, \sigma_0^2)
-  \\
-  \mu \mid \sigma^2 &amp;\sim \dnorm\left(\mu_0, \frac{\sigma^2}{\kappa_0}\right)
-  .
-\end{align}
-\]</span></p>
-<p>We need to show that the posterior is</p>
-<p class="mathjaxWide"><span class="math display">\[
-\mu, \sigma^2 \mid y \sim \dnorminvchi\left(\mu_n, \frac{\sigma_n^2}{\kappa_n}, \nu_n, \sigma_n^2\right)
-\]</span></p>
-<p>where</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \mu_n &amp;= \frac{\kappa_0}{\kappa_0 + n}\mu_0 + \frac{n}{\kappa_0 + n} \bar y
-  \\
-  \kappa_n &amp;= \kappa_0 + n
-  \\
-  \nu_n &amp;= \nu_0 + n
-  \\
-  \nu_n \sigma_n^2 &amp;= \nu_0 \sigma_0^2 + (n - 1) s^2 + \frac{\kappa_0 n}{\kappa_0 + n}(\bar y - \mu_0)^2
-  .
-\end{align}
-\]</span></p>
-<p>Using the calculations on pages 67/68, we can compare the factors in front of the exponentials and the exponents of the exponentials, to see that it is sufficient to show that</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \frac{1}{\sigma(\sigma^2)^{-(\nu_n / 2 - 1)}}
-  &amp;=
-  \frac{1}{\sigma (\sigma^2)^{-(\nu_0 / 2 + 1)} (\sigma^2)^{-n / 2}}
-  \\
-  \nu_n \sigma_n^2 + \kappa_n (\mu_n - \mu)^2
-  &amp;=
-  \nu_0 \sigma_0^2 + \kappa_0 (\mu - \mu_0)^2 + (n - 1)s^2 + n(\bar y - \mu)^2
-.
-\end{align}
-\]</span></p>
-<p>The first identity is straight forward so we focus on the second. We will expand the left hand side and drop any terms we find that match those on the right. Expanding the LHS in terms on the hyperpriors, we get</p>
-<p class="mathjaxWide"><span class="math display">\[
-\nu_0 \sigma_0^2 + (n - 1) s^2 + \frac{\kappa_0 n}{\kappa_0 + n}(\bar y - \mu_0)^2
-+
-(\kappa_0 + n) \left(\frac{\kappa_0}{\kappa_0 + n}\mu_0 + \frac{n}{\kappa_0 + n} \bar y- \mu\right)^2
--
-\text{RHS}
-\\
-=
-\frac{\kappa_0 n}{\kappa_0 + n}(\bar y - \mu_0)^2
-+
-(\kappa_0 + n) \left(\frac{\kappa_0}{\kappa_0 + n}\mu_0 + \frac{n}{\kappa_0 + n} \bar y- \mu\right)^2
--
-\kappa_0 (\mu - \mu_0)^2 - n(\bar y - \mu)^2
-.
-\]</span></p>
-<p>Moving the <span class="math inline">\(\kappa_0 + n\)</span> denominator of the second term out of the brackets we obtain</p>
-<p class="mathjaxWide"><span class="math display">\[
-\frac{\kappa_0 n}{\kappa_0 + n}(\bar y - \mu_0)^2
-+
-\frac{1}{(\kappa_0 + n)} \left(\kappa_0\mu_0 + n \bar y- (\kappa_0 + n)\mu\right)^2
--
-\kappa_0 (\mu - \mu_0)^2 - n(\bar y - \mu)^2
-.
-\]</span></p>
-<p>Simplifying and multiplying out the brackets of the second term gives</p>
-<p class="mathjaxWide"><span class="math display">\[
-\begin{align}
-  \left(\kappa_0\mu_0 + n \bar y- (\kappa_0 + n)\mu\right)^2
-  &amp;=
-  \left( \kappa_0 (\mu_0 - \bar y) + (\kappa_0 + n)(\bar y - \mu) \right)^2
-  \\
-  &amp;=
-  \kappa_0^2 (\bar y - \mu_0)^2 + (\kappa_0 + n)^2 (\bar y - \mu)^2 + 2\kappa_0(\kappa_0 + n)(\bar y - \mu)(\mu_0 - \bar y)
-. 
-\end{align}
-\]</span></p>
-<p>Substituting this back in, we can combine the first terms of each and multiply out all the brackets to get</p>
-<span class="math display">\[\begin{align}
-  \frac{\kappa_0 n}{\kappa_0 + n}(\bar y - \mu_0)^2
-  +
-  \frac{1}{\kappa_0 + n} 
-  \left( 
-    \kappa_0^2 (\bar y - \mu_0)^2 
-    + 
-    (\kappa_0 + n)^2 (\bar y - \mu)^2 
-    + 
-    2\kappa_0 (\kappa_0 + n) (\bar y - \mu) (\mu_0 - \bar y) 
-  \right)
-  \\
-  -
-  \kappa_0 (\mu - \mu_0)^2 
-  - 
-  n(\bar y - \mu)^2
-  
-  \\
-  =
-  
-  \kappa_0 (\bar y - \mu_0)^2 
-  + 
-  (\kappa_0 + n) (\bar y - \mu)^2 
-  + 
-  2\kappa_0 (\bar y - \mu) (\mu_0 - \bar y) 
-  \\
-  -
-  \kappa_0 (\mu - \mu_0)^2 
-  - 
-  n(\bar y - \mu)^2
-  
-  \\
-  =
-  
-  \color{red}{ \kappa_0 \bar y^2  }
-  + 
-  \color{blue}{\kappa_0 \mu_0^2}
-  - 
-  \color{green}{2\kappa_0 \mu_0 \bar y}
-  +
-  \color{red}{\kappa_0 \bar y^2}
-  +
-  \color{orange}{\kappa_0 \mu^2}
-  -
-  \color{black}{2 \kappa_0 \mu \bar y}
-  +
-  \color{green}{2 \kappa_0 \mu_0 \bar y}
-  \\
-  +
-  \color{black}{2 \kappa_0 \mu \bar y}
-  -
-  \color{purple}{2 \kappa_0 \mu_0 \mu}
-  -
-  \color{red}{2 \kappa_0 \bar y^2}
-  -
-  \color{orange}{\kappa_0 \mu^2}
-  -
-  \color{blue}{\kappa_0 \mu_0^2}
-  +
-  \color{purple}{2 \kappa_0 \mu_0 \mu}
-  ,
-\end{align}\]</span>
-<p>which cancel to 0.</p>
 
 <div id="disqus_thread"></div>
 <script>
